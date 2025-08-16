@@ -2,10 +2,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/theme-context'
 import { CursorGlow } from './components/ui/cursor-glow'
 import { Header } from './components/landing/header'
-import { HeroSection } from './components/landing/hero-section'
-import { SyllabusSection } from './components/landing/syllabus-section'
-import { PricingSection } from './components/landing/pricing-section'
-import { Footer } from './components/landing/footer'
+import { HeroSectionAnime } from './components/landing/hero-section-anime'
+import { SyllabusSectionAnime } from './components/landing/syllabus-section-anime'
+import { PricingSectionAnime } from './components/landing/pricing-section-anime'
+import { FooterAnime } from './components/landing/footer-anime'
 import { LoginForm } from './components/auth/login-form'
 import { SignupForm } from './components/auth/signup-form'
 import { Dashboard } from './components/dashboard/dashboard'
@@ -26,13 +26,13 @@ function HomePage() {
         }}
       />
       
-      <Header />
-      <main className="relative z-10">
-        <HeroSection />
-        <SyllabusSection />
-        <PricingSection />
-      </main>
-      <Footer />
+              <Header />
+        <main className="relative z-10">
+          <HeroSectionAnime />
+          <SyllabusSectionAnime />
+          <PricingSectionAnime />
+        </main>
+        <FooterAnime />
     </div>
   )
 }

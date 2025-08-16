@@ -154,7 +154,7 @@ export function Dashboard() {
                             <Clock className="w-5 h-5 text-muted-foreground" />
                           )}
                           <div>
-                            <p className="font-medium text-foreground">{week}</p>
+                            <p className="font-medium text-foreground">{typeof week === 'string' ? week : week.title}</p>
                             <p className="text-sm text-muted-foreground">
                               {index === 0 ? "Completed" : index === 1 ? "Current" : "Coming soon"}
                             </p>

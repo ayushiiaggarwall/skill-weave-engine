@@ -48,7 +48,7 @@ export function SyllabusSection() {
                     </div>
                   </div>
                   <CardTitle className="text-xl text-gradient">
-                    {week}
+                    {typeof week === 'string' ? week : week.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">

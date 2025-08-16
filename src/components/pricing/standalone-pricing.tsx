@@ -179,11 +179,6 @@ export function StandalonePricing() {
                   <span className="text-2xl text-muted-foreground line-through">
                     {pricing.symbol}{pricing.mrp}
                   </span>
-                  {isEarlyBird && (
-                    <span className="text-2xl text-muted-foreground line-through">
-                      {pricing.symbol}{pricing.regular}
-                    </span>
-                  )}
                 </div>
                 <div className="text-6xl font-bold text-gradient">
                   {pricing.symbol}{currentPrice}

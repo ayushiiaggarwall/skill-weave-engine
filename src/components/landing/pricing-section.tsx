@@ -31,7 +31,7 @@ export function PricingSection() {
 
   const features = [
     "5 Weeks of Live Classes (Saturdays & Sundays, 7:30-10 PM IST)",
-    "Final Week Q&A + Project Demos",
+    "Final Week Q&A + Project Demos", 
     "Step-by-Step Curriculum — from basics to launch",
     "Hands-On Projects every week",
     "Personalized Feedback & Guidance",
@@ -180,9 +180,9 @@ export function PricingSection() {
                   <span className="text-2xl text-muted-foreground line-through">
                     {pricing.symbol}{pricing.mrp}
                   </span>
-                  {isEarlyBird && (
+                  {!isEarlyBird && (
                     <span className="text-2xl text-muted-foreground line-through">
-                      {pricing.symbol}{pricing.regular}
+                      {pricing.symbol}{pricing.earlyBird}
                     </span>
                   )}
                 </div>

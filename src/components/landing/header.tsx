@@ -9,7 +9,7 @@ import { useAdminRole } from "@/hooks/use-admin-role"
 export function Header() {
   const auth = useAuth()
   const { user, signOut, loading } = auth
-  const { isAdmin } = useAdminRole()
+  const { isAdmin, loading: adminLoading } = useAdminRole()
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
 
@@ -64,7 +64,7 @@ export function Header() {
             >
               Pricing
             </button>
-            {user && isAdmin && (
+            {user && !adminLoading && isAdmin && (
               <button 
                 onClick={() => navigate('/admin')}
                 className="text-foreground hover:text-primary transition-colors font-medium"

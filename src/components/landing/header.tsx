@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
@@ -62,6 +63,7 @@ export function Header() {
 
           {/* CTA Buttons */}
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
               Sign In
             </Button>

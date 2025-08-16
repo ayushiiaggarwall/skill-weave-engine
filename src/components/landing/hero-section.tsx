@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { ArrowRight, Play, Target, Zap, Trophy, Star, Sparkles } from "lucide-react"
+import { ArrowRight, Play, Trophy, Star, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { courseData } from "@/lib/course-data"
@@ -220,6 +220,9 @@ export function HeroSection() {
                   rotateX: 5,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                style={{
+                  transformStyle: "preserve-3d",
+                }}
               >
                 <div className="space-y-8">
                   <div className="text-center">
@@ -238,7 +241,7 @@ export function HeroSection() {
                   
                   <div className="grid grid-cols-2 gap-6">
                     <motion.div 
-                      className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center hover-glow shadow-sm"
+                      className="glass-card p-6 rounded-2xl text-center hover-glow"
                       whileHover={{ scale: 1.05 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >
@@ -249,7 +252,7 @@ export function HeroSection() {
                     </motion.div>
                     
                     <motion.div 
-                      className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center hover-glow shadow-sm"
+                      className="glass-card p-6 rounded-2xl text-center hover-glow"
                       whileHover={{ scale: 1.05 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >

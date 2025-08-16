@@ -29,7 +29,7 @@ interface User {
 export function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [progress, setProgress] = useState(25) // Mock progress
+  const [progress] = useState(25) // Mock progress
 
   useEffect(() => {
     const getUser = async () => {

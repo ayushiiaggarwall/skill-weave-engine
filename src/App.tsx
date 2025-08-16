@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './contexts/theme-context'
+import { CursorGlow } from './components/ui/cursor-glow'
 import { Header } from './components/landing/header'
 import { HeroSection } from './components/landing/hero-section'
 import { SyllabusSection } from './components/landing/syllabus-section'
@@ -37,15 +39,18 @@ function HomePage() {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/signup" element={<SignupForm />} />
-        <Route path="/payment" element={<PaymentPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <CursorGlow />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignupForm />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   )
 }
 

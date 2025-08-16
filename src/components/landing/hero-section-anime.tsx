@@ -250,9 +250,9 @@ export function HeroSectionAnime() {
                 From No-Code to Product
               </StaticText>
 
-              <StaticText className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed">
-                Master the art of building profitable products without writing code. Join 500+ successful entrepreneurs who launched their ideas in just 5 weeks.
-              </StaticText>
+               <StaticText className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed">
+                 {courseData.description}
+               </StaticText>
             </div>
 
             {/* Value Propositions with Icons */}
@@ -330,7 +330,7 @@ export function HeroSectionAnime() {
                     </StaticText>
                     
                     <StaticText className="text-muted-foreground text-lg">
-                      Join {courseData.stats.students}+ entrepreneurs who built profitable products
+                      Join {courseData.stats.students}+ learners already on the waitlist
                     </StaticText>
                   </div>
                   
@@ -339,14 +339,14 @@ export function HeroSectionAnime() {
                       <div className="text-3xl font-bold text-primary mb-2">
                         {courseData.stats.successRate}
                       </div>
-                      <div className="text-sm text-muted-foreground">% Success Rate</div>
+                      <div className="text-sm text-muted-foreground">projects built without coding</div>
                     </AnimatedCard>
                     
                     <AnimatedCard delay={5} className="glass-card p-6 rounded-2xl text-center hover-glow">
-                      <div className="text-3xl font-bold text-accent mb-2">
-                        {(courseData.stats.revenue / 1000000).toFixed(1)}
-                      </div>
-                      <div className="text-sm text-muted-foreground">M+ Revenue Generated</div>
+                       <div className="text-3xl font-bold text-accent mb-2">
+                         {courseData.stats.revenue}
+                       </div>
+                       <div className="text-sm text-muted-foreground">goal: helping you launch your idea live</div>
                     </AnimatedCard>
                   </div>
                 </div>

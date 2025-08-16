@@ -24,10 +24,10 @@ export const courseData = {
     {
       week: 1,
       title: 'Kickoff & Tools',
-      description: 'Set up your environment. Learn Lovable, Supabase, Apify, n8n, and AI APIs. Deploy your first site with login.',
+      description: 'Set up your environment. Learn Lovable/bolt, Supabase, Apify, n8n, and AI APIs. Deploy your first site with login.',
       topics: [
         'Environment setup',
-        'Lovable fundamentals',
+        'Lovable/bolt fundamentals',
         'Supabase configuration',
         'Apify & n8n basics',
         'AI API integration',
@@ -36,7 +36,7 @@ export const courseData = {
     },
     {
       week: 2,
-      title: 'Frontend with Lovable',
+      title: 'Frontend with Lovable/bolt',
       description: 'Design responsive pages, navigation, and forms. Build your homepage & search in hours, not weeks.',
       topics: [
         'Responsive design',
@@ -88,7 +88,7 @@ export const courseData = {
     }
   ],
   tools: [
-    'Lovable',
+    'Lovable/bolt',
     'Supabase',
     'Apify',
     'n8n',

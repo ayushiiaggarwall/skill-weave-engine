@@ -3,7 +3,7 @@ import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { SectionBadge } from "@/components/ui/section-badge"
-import { Check, Zap, Sparkles, Clock } from "lucide-react"
+import { Zap, Sparkles, Clock } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 interface LocationPricing {
@@ -204,7 +204,7 @@ export function PricingSection() {
                     key={index}
                     className="feature-item flex items-start opacity-0"
                   >
-                    <Check className="w-5 h-5 mr-3 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
                     <span className="text-foreground">{feature}</span>
                   </div>
                 ))}

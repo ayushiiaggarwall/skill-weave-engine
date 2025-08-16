@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/auth-context'
 import { ThemeProvider } from './contexts/theme-context'
 import { CursorGlow } from './components/ui/cursor-glow'
 import { Header } from './components/landing/header'
@@ -39,18 +40,20 @@ function HomePage() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <CursorGlow />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/signup" element={<SignupForm />} />
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <Router>
+          <CursorGlow />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginForm />} />
+            <Route path="/signup" element={<SignupForm />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }
 

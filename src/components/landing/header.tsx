@@ -3,8 +3,10 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/contexts/auth-context"
 
 export function Header() {
+  const { user, signOut } = useAuth()
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
 
@@ -64,12 +66,25 @@ export function Header() {
           {/* CTA Buttons */}
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
-              Sign In
-            </Button>
-            <Button size="sm" className="button-3d hover-glow" onClick={() => navigate("/signup")}>
-              Get Started
-            </Button>
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+                  Dashboard
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => signOut()}>
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
+                  Sign In
+                </Button>
+                <Button size="sm" className="button-3d hover-glow" onClick={() => navigate("/signup")}>
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

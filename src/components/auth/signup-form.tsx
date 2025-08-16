@@ -1,12 +1,15 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/contexts/auth-context"
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
 
 export function SignupForm() {
+  const navigate = useNavigate()
+  const { signUp, signInWithGoogle } = useAuth()
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -47,20 +50,20 @@ export function SignupForm() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          }
-        }
-      })
+      const { error } = await signUp(formData.email, formData.password, formData.fullName)
 
       if (error) {
-        setError(error.message)
+        if (error.message.includes('already registered')) {
+          setError("An account with this email already exists. Please sign in instead.")
+        } else {
+          setError(error.message)
+        }
       } else {
         setSuccess("Account created successfully! Please check your email for verification.")
+        // Optionally redirect after a delay
+        setTimeout(() => {
+          navigate('/login')
+        }, 3000)
       }
     } catch (err) {
       setError("An unexpected error occurred")
@@ -71,12 +74,7 @@ export function SignupForm() {
 
   const handleGoogleSignup = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`
-        }
-      })
+      const { error } = await signInWithGoogle()
       if (error) setError(error.message)
     } catch (err) {
       setError("Failed to sign up with Google")

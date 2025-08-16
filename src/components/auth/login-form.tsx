@@ -1,12 +1,15 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/contexts/auth-context"
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
 
 export function LoginForm() {
+  const navigate = useNavigate()
+  const { signIn, signInWithGoogle } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -19,16 +22,19 @@ export function LoginForm() {
     setError("")
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error } = await signIn(email, password)
 
       if (error) {
-        setError(error.message)
+        if (error.message.includes('Invalid login credentials')) {
+          setError("Invalid email or password. Please check your credentials and try again.")
+        } else if (error.message.includes('Email not confirmed')) {
+          setError("Please check your email and click the confirmation link before signing in.")
+        } else {
+          setError(error.message)
+        }
       } else {
         // Redirect to dashboard
-        window.location.href = "/dashboard"
+        navigate("/dashboard")
       }
     } catch (err) {
       setError("An unexpected error occurred")
@@ -39,12 +45,7 @@ export function LoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`
-        }
-      })
+      const { error } = await signInWithGoogle()
       if (error) setError(error.message)
     } catch (err) {
       setError("Failed to login with Google")

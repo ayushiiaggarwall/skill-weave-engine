@@ -1,24 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = 'https://xujaxssbncobmiwxbaxh.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1amF4c3NibmNvYm1pd3hiYXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyMzYxODcsImV4cCI6MjA3MDgxMjE4N30.OIGcn1R0Nb8noYAS1I9Mmo-8jUdEndOHY7xfkgk3WfY'
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('⚠️ Supabase environment variables not found. Using mock client.')
-}
-
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
-)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Types for our database
 export interface Profile {
   id: string
+  name: string
   email: string
-  full_name?: string
-  avatar_url?: string
+  role: 'admin' | 'student'
   created_at: string
+  updated_at: string
 }
 
 export interface Course {

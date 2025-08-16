@@ -8,11 +8,9 @@ import { courseData } from "@/lib/course-data"
 import { Check, Star, Zap, Sparkles } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
-import { useScaleOnScroll } from "@/hooks/useScrollAnimation"
 
 export function PricingSection() {
   const navigate = useNavigate()
-  const cardRef = useScaleOnScroll({ delay: 400 })
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
   
@@ -102,7 +100,6 @@ export function PricingSection() {
           </div>
 
           <AnimatedCard 
-            ref={cardRef}
             delay={400}
             hoverScale={1.01}
             animationType="scale"

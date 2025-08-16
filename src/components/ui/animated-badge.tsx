@@ -38,7 +38,7 @@ export interface AnimatedBadgeProps
 }
 
 const AnimatedBadge = forwardRef<HTMLDivElement, AnimatedBadgeProps>(
-  ({ className, variant, animation = "pulse", delay = 0, children, ...props }, ref) => {
+  ({ className, variant, animation = "pulse", delay = 0, children, ...props }, _ref) => {
     const badgeRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {

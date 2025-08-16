@@ -8,7 +8,7 @@ export interface AnimatedInputProps
 }
 
 const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
-  ({ className, type, animationType = 'glow', ...props }, ref) => {
+  ({ className, type, animationType = 'glow', ...props }, _ref) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const rippleRef = useRef<HTMLDivElement>(null)

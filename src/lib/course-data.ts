@@ -92,7 +92,8 @@ export const courseData = {
     'Bolt',
     'Supabase',
     'n8n',
-    'Stripe'
+    'Stripe',
+    'Resend'
   ],
   features: [
     {

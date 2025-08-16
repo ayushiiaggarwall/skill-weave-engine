@@ -9,7 +9,9 @@ export function useAdminRole() {
 
   useEffect(() => {
     const checkAdminRole = async () => {
+      console.log('Checking admin role for user:', user?.id)
       if (!user) {
+        console.log('No user, setting isAdmin to false')
         setIsAdmin(false)
         setLoading(false)
         return
@@ -22,8 +24,11 @@ export function useAdminRole() {
           .eq('id', user.id)
           .single()
 
+        console.log('Profile data:', data, 'Error:', error)
         if (error) throw error
-        setIsAdmin(data.role === 'admin')
+        const adminStatus = data.role === 'admin'
+        console.log('Setting isAdmin to:', adminStatus)
+        setIsAdmin(adminStatus)
       } catch (error) {
         console.error('Error checking admin role:', error)
         setIsAdmin(false)

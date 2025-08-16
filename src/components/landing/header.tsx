@@ -56,14 +56,12 @@ export function Header() {
             >
               Course
             </button>
-            <a 
-              href="https://pricing.learnlaunch.com" 
-              target="_blank"
-              rel="noopener noreferrer"
+            <button 
+              onClick={() => navigate('/pricing')}
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
               Pricing
-            </a>
+            </button>
           </nav>
 
           {/* CTA Buttons */}

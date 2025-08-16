@@ -45,19 +45,21 @@ export function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <button 
+              onClick={() => navigate('/')}
+              className="text-foreground hover:text-primary transition-colors font-medium"
+            >
+              Home
+            </button>
+            <button 
               onClick={() => navigate('/courses')}
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
               Course
             </button>
             <a 
-              href="#syllabus" 
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Syllabus
-            </a>
-            <a 
-              href="#pricing" 
+              href="https://pricing.learnlaunch.com" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
               Pricing

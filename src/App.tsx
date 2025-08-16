@@ -12,6 +12,7 @@ import { SignupForm } from './components/auth/signup-form'
 import { Dashboard } from './components/dashboard/dashboard'
 import { PaymentPage } from './components/payment/payment-page'
 import { CoursePage } from './components/courses/course-page'
+import { StandalonePricing } from './components/pricing/standalone-pricing'
 
 function HomePage() {
   return (
@@ -52,6 +53,7 @@ function App() {
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/courses" element={<CoursePage />} />
+            <Route path="/pricing" element={<StandalonePricing />} />
           </Routes>
         </Router>
       </ThemeProvider>

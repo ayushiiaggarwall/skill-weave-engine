@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
-import { SectionBadge } from "@/components/ui/section-badge"
 import { Check, Zap, Sparkles, Clock } from "lucide-react"
-import { useNavigate } from "react-router-dom"
 
 interface LocationPricing {
   currency: string
@@ -14,8 +12,7 @@ interface LocationPricing {
   symbol: string
 }
 
-export function PricingSection() {
-  const navigate = useNavigate()
+export function StandalonePricing() {
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
   
@@ -131,8 +128,13 @@ export function PricingSection() {
 
   const currentPrice = isEarlyBird ? pricing.earlyBird : pricing.regular
 
+  const handleEnrollNow = () => {
+    // Redirect to enrollment page or form
+    window.open('https://learnlaunch.com/signup', '_blank')
+  }
+
   return (
-    <section id="pricing" className="py-24 px-6 lg:px-8 bg-muted/30 relative overflow-hidden">
+    <div className="min-h-screen bg-background py-24 px-6 lg:px-8 relative overflow-hidden">
       {/* Floating background sparkles */}
       <div ref={sparklesRef} className="absolute inset-0 pointer-events-none">
         <Sparkles className="sparkle absolute top-20 left-20 w-6 h-6 text-primary/20" />
@@ -143,12 +145,9 @@ export function PricingSection() {
 
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-16">
-          <SectionBadge>
-            Pricing
-          </SectionBadge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
-            One Price, Everything Included
-          </h2>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
+            From No-Code to Product
+          </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             A hands-on course where you'll master modern tools like Lovable, Supabase, Apify, n8n, and APIs — and walk away with a live project you can showcase.
           </p>
@@ -196,7 +195,6 @@ export function PricingSection() {
             </AnimatedCardHeader>
             
             <AnimatedCardContent className="space-y-8">
-
               {/* Features */}
               <div ref={featuresRef} className="space-y-4">
                 {features.map((feature, index) => (
@@ -233,7 +231,7 @@ export function PricingSection() {
                   size="lg" 
                   animation="glow"
                   className="w-full py-6 text-lg font-semibold button-3d hover-glow"
-                  onClick={() => navigate("/signup")}
+                  onClick={handleEnrollNow}
                 >
                   Enroll Now
                 </AnimatedButton>
@@ -242,6 +240,6 @@ export function PricingSection() {
           </AnimatedCard>
         </div>
       </div>
-    </section>
+    </div>
   )
 }

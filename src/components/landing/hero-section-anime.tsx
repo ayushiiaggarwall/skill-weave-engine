@@ -3,7 +3,7 @@ import { ArrowRight, Play, Trophy, Star, Sparkles, Zap, Target, Rocket } from "l
 import { Button } from "@/components/ui/button"
 import { courseData } from "@/lib/course-data"
 import { useNavigate } from "react-router-dom"
-import { animate as anime } from 'animejs'
+import { animate, stagger } from 'animejs'
 
 interface FloatingElementProps {
   children: React.ReactNode
@@ -16,13 +16,12 @@ function FloatingElement({ children, delay = 0, className = "" }: FloatingElemen
 
   useEffect(() => {
     if (elementRef.current) {
-      anime({
-        targets: elementRef.current,
+      animate(elementRef.current, {
         translateY: [-10, 10, -10],
         rotate: [-2, 2, -2],
         duration: 6000,
         delay: delay * 1000,
-        easing: 'easeInOutSine',
+        ease: 'inOut(3)',
         loop: true,
       })
     }
@@ -49,12 +48,11 @@ function InteractiveOrb({ className = "", size = "w-32 h-32" }: { className?: st
 
   useEffect(() => {
     if (orbRef.current) {
-      anime({
-        targets: orbRef.current,
+      animate(orbRef.current, {
         translateX: mousePosition.x * 0.02,
         translateY: mousePosition.y * 0.02,
         duration: 1000,
-        easing: 'easeOutElastic(1, .8)',
+        ease: 'outElastic(1, .8)',
       })
     }
   }, [mousePosition])
@@ -73,49 +71,49 @@ function AnimatedCard({ children, delay = 0, className = "" }: { children: React
   useEffect(() => {
     if (cardRef.current) {
       // Initial entrance animation
-      anime({
-        targets: cardRef.current,
+      animate(cardRef.current, {
         opacity: [0, 1],
         scale: [0.8, 1],
         rotateY: [15, 0],
         translateY: [50, 0],
         duration: 1200,
         delay: delay * 200,
-        easing: 'easeOutElastic(1, .8)',
+        ease: 'outElastic(1, .8)',
       })
 
       // Continuous floating animation
-      anime({
-        targets: cardRef.current,
+      animate(cardRef.current, {
         translateY: [-5, 5],
         duration: 3000,
         delay: delay * 500,
-        easing: 'easeInOutSine',
+        ease: 'inOut(3)',
         loop: true,
-        direction: 'alternate',
+        alternate: true,
       })
 
       // Hover effect
       const handleMouseEnter = () => {
-        anime({
-          targets: cardRef.current,
-          scale: 1.05,
-          rotateY: 5,
-          rotateX: 5,
-          duration: 300,
-          easing: 'easeOutQuad',
-        })
+        if (cardRef.current) {
+          animate(cardRef.current, {
+            scale: 1.05,
+            rotateY: 5,
+            rotateX: 5,
+            duration: 300,
+            ease: 'out(2)',
+          })
+        }
       }
 
       const handleMouseLeave = () => {
-        anime({
-          targets: cardRef.current,
-          scale: 1,
-          rotateY: 0,
-          rotateX: 0,
-          duration: 300,
-          easing: 'easeOutQuad',
-        })
+        if (cardRef.current) {
+          animate(cardRef.current, {
+            scale: 1,
+            rotateY: 0,
+            rotateX: 0,
+            duration: 300,
+            ease: 'out(2)',
+          })
+        }
       }
 
       cardRef.current.addEventListener('mouseenter', handleMouseEnter)
@@ -149,14 +147,13 @@ function AnimatedText({ children, delay = 0, className = "" }: { children: React
         .map((char) => `<span style="display: inline-block; opacity: 0;">${char === ' ' ? '&nbsp;' : char}</span>`)
         .join('')
 
-      anime({
-        targets: textRef.current.querySelectorAll('span'),
+      animate(textRef.current.querySelectorAll('span'), {
         opacity: [0, 1],
         translateY: [30, 0],
         rotateX: [90, 0],
         duration: 800,
-        delay: (_el: any, i: number) => delay + i * 50,
-        easing: 'easeOutExpo',
+        delay: stagger(50, { start: delay }),
+        ease: 'out(4)',
       })
     }
   }, [delay])
@@ -197,25 +194,23 @@ export function HeroSectionAnime() {
   // Animate stats on mount
   useEffect(() => {
     if (statsRef.current) {
-      anime({
-        targets: statsRef.current.querySelectorAll('.stat-number'),
+      animate(statsRef.current.querySelectorAll('.stat-number'), {
         innerHTML: (el: any) => [0, el.getAttribute('data-value')],
         duration: 2000,
         delay: 1000,
-        easing: 'easeOutExpo',
+        ease: 'out(4)',
         round: 1,
       })
     }
 
     // Animate buttons with stagger
     if (buttonsRef.current) {
-      anime({
-        targets: buttonsRef.current.querySelectorAll('.animated-button'),
+      animate(buttonsRef.current.querySelectorAll('.animated-button'), {
         scale: [0, 1],
         opacity: [0, 1],
         duration: 600,
-        delay: anime.stagger(200, { start: 1500 }),
-        easing: 'easeOutElastic(1, .8)',
+        delay: stagger(200, { start: 1500 }),
+        ease: 'outElastic(1, .8)',
       })
     }
   }, [])
@@ -224,18 +219,16 @@ export function HeroSectionAnime() {
   const featureRefs = useRef<(HTMLDivElement | null)[]>([])
   
   useEffect(() => {
-    featureRefs.current.forEach((ref, index) => {
-      if (ref) {
-        anime({
-          targets: ref,
-          translateX: [-100, 0],
-          opacity: [0, 1],
-          duration: 800,
-          delay: 2000 + index * 200,
-          easing: 'easeOutExpo',
-        })
-      }
-    })
+    const validRefs = featureRefs.current.filter(ref => ref !== null)
+    if (validRefs.length > 0) {
+      animate(validRefs, {
+        translateX: [-100, 0],
+        opacity: [0, 1],
+        duration: 800,
+        delay: stagger(200, { start: 2000 }),
+        ease: 'out(4)',
+      })
+    }
   }, [])
 
   return (

@@ -88,14 +88,11 @@ export const courseData = {
     }
   ],
   tools: [
-    'Lovable/bolt',
+    'Lovable',
+    'Bolt',
     'Supabase',
-    'Apify',
     'n8n',
-    'AI APIs',
-    'Stripe',
-    'Mailchimp',
-    'Google Analytics'
+    'Stripe'
   ],
   features: [
     {

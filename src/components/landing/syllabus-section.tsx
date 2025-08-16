@@ -102,7 +102,7 @@ export function SyllabusSection() {
                     </Badge>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="w-4 h-4 mr-1" />
-                      5-7 hours
+                      6 hours
                     </div>
                   </div>
                   <AnimatedCardTitle className="text-xl text-gradient group-hover:text-primary transition-colors">

@@ -23,74 +23,79 @@ export const courseData = {
   syllabus: [
     {
       week: 1,
-      title: 'Product Ideas & Market Research',
-      description: 'Learn to identify profitable opportunities and validate your ideas before building.',
+      title: 'Kickoff & Tools',
+      description: 'Set up your environment. Learn Lovable, Supabase, Apify, n8n, and AI APIs. Deploy your first site with login.',
       topics: [
-        'Market research techniques',
-        'Competitor analysis',
-        'Problem identification',
-        'Customer personas',
-        'MVP planning'
+        'Environment setup',
+        'Lovable fundamentals',
+        'Supabase configuration',
+        'Apify & n8n basics',
+        'AI API integration',
+        'First deployment'
       ]
     },
     {
       week: 2,
-      title: 'No-Code Tools & Platform Selection',
-      description: 'Master the essential no-code tools and choose the right stack for your product.',
+      title: 'Frontend with Lovable',
+      description: 'Design responsive pages, navigation, and forms. Build your homepage & search in hours, not weeks.',
       topics: [
-        'No-code platform overview',
-        'Tool selection framework',
-        'Workflow automation',
-        'Database design',
-        'Integration strategies'
+        'Responsive design',
+        'Navigation systems',
+        'Form components',
+        'Homepage creation',
+        'Search functionality',
+        'UI/UX best practices'
       ]
     },
     {
       week: 3,
-      title: 'Building Your MVP',
-      description: 'Build your minimum viable product using proven no-code development practices.',
+      title: 'Live Data Integrations',
+      description: 'Fetch real flight & hotel data with Apify and Supabase Edge Functions. Show results dynamically.',
       topics: [
-        'MVP development process',
-        'User interface design',
-        'Backend setup',
-        'Feature prioritization',
-        'Testing strategies'
+        'Apify data scraping',
+        'Edge Functions setup',
+        'Real-time data fetching',
+        'Dynamic result display',
+        'Data transformation',
+        'API optimization'
       ]
     },
     {
       week: 4,
-      title: 'User Testing & Validation',
-      description: 'Test your product with real users and iterate based on feedback.',
+      title: 'AI & Automation',
+      description: 'Add AI trip planning via n8n workflows, custom emails, and fun features like "Parallel Universe" personas.',
       topics: [
-        'User testing methods',
-        'Feedback collection',
-        'Analytics setup',
-        'Product iteration',
-        'Performance optimization'
+        'n8n workflow automation',
+        'AI trip planning',
+        'Custom email systems',
+        'Parallel Universe features',
+        'AI persona creation',
+        'Advanced automation'
       ]
     },
     {
       week: 5,
-      title: 'Launch & Marketing Strategies',
-      description: 'Launch your product successfully and build sustainable growth systems.',
+      title: 'Launch & Scale',
+      description: 'Go live, connect your domain, optimize performance, and learn how to turn an MVP into a product.',
       topics: [
-        'Launch preparation',
-        'Marketing automation',
-        'Customer acquisition',
-        'Revenue optimization',
-        'Scaling strategies'
+        'Production deployment',
+        'Domain configuration',
+        'Performance optimization',
+        'MVP to product strategy',
+        'Scaling techniques',
+        'Launch checklist'
       ]
     }
   ],
   tools: [
-    'Bubble',
-    'Webflow',
-    'Airtable',
-    'Zapier',
+    'Lovable',
+    'Supabase',
+    'Apify',
+    'n8n',
+    'AI APIs',
     'Stripe',
     'Mailchimp',
-    'Google Analytics',
-    'Figma'
+    'Google Analytics'
   ],
   features: [
     {

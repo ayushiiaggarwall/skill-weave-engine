@@ -11,6 +11,7 @@ import { LoginForm } from './components/auth/login-form'
 import { SignupForm } from './components/auth/signup-form'
 import { Dashboard } from './components/dashboard/dashboard'
 import { PaymentPage } from './components/payment/payment-page'
+import { CoursePage } from './components/courses/course-page'
 
 function HomePage() {
   return (
@@ -50,6 +51,7 @@ function App() {
             <Route path="/signup" element={<SignupForm />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/courses" element={<CoursePage />} />
           </Routes>
         </Router>
       </ThemeProvider>

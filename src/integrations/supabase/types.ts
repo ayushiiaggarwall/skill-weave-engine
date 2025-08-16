@@ -108,6 +108,42 @@ export type Database = {
         }
         Relationships: []
       }
+      courses: {
+        Row: {
+          content: string
+          created_at: string
+          deliverables: string[] | null
+          id: string
+          mini_project: string | null
+          objective: string
+          title: string
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          deliverables?: string[] | null
+          id?: string
+          mini_project?: string | null
+          objective: string
+          title: string
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          deliverables?: string[] | null
+          id?: string
+          mini_project?: string | null
+          objective?: string
+          title?: string
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           cohort_id: string

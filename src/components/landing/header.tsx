@@ -44,12 +44,12 @@ export function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a 
-              href="#course" 
+            <button 
+              onClick={() => navigate('/courses')}
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
               Course
-            </a>
+            </button>
             <a 
               href="#syllabus" 
               className="text-foreground hover:text-primary transition-colors font-medium"

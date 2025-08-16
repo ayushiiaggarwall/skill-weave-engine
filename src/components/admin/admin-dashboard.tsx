@@ -1,0 +1,313 @@
+import { useState, useEffect } from "react"
+import { supabase } from "@/integrations/supabase/client"
+import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
+import { Users, DollarSign, Clock } from "lucide-react"
+
+interface PricingSettings {
+  id: string
+  usd_early_bird: number
+  usd_regular: number
+  usd_mrp: number
+  inr_early_bird: number
+  inr_regular: number
+  inr_mrp: number
+  early_bird_duration_hours: number
+  is_early_bird_active: boolean
+  early_bird_end_time: string | null
+}
+
+interface UserProfile {
+  id: string
+  name: string
+  email: string
+  role: string
+  created_at: string
+}
+
+export function AdminDashboard() {
+  const [pricingSettings, setPricingSettings] = useState<PricingSettings | null>(null)
+  const [users, setUsers] = useState<UserProfile[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchPricingSettings()
+    fetchUsers()
+  }, [])
+
+  const fetchPricingSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('pricing_settings')
+        .select('*')
+        .single()
+
+      if (error) throw error
+      setPricingSettings(data)
+    } catch (error) {
+      console.error('Error fetching pricing settings:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch pricing settings",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setUsers(data || [])
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch users",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updatePricingSettings = async (updates: Partial<PricingSettings>) => {
+    if (!pricingSettings) return
+
+    setSaving(true)
+    try {
+      const { error } = await supabase
+        .from('pricing_settings')
+        .update(updates)
+        .eq('id', pricingSettings.id)
+
+      if (error) throw error
+
+      setPricingSettings({ ...pricingSettings, ...updates })
+      toast({
+        title: "Success",
+        description: "Pricing settings updated successfully"
+      })
+    } catch (error) {
+      console.error('Error updating pricing settings:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update pricing settings",
+        variant: "destructive"
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const activateEarlyBird = async (durationHours: number) => {
+    const endTime = new Date()
+    endTime.setHours(endTime.getHours() + durationHours)
+
+    await updatePricingSettings({
+      is_early_bird_active: true,
+      early_bird_duration_hours: durationHours,
+      early_bird_end_time: endTime.toISOString()
+    })
+  }
+
+  const deactivateEarlyBird = async () => {
+    await updatePricingSettings({
+      is_early_bird_active: false,
+      early_bird_end_time: null
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background py-24 px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="animate-pulse">Loading admin dashboard...</div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background py-24 px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gradient mb-4">Admin Dashboard</h1>
+          <p className="text-muted-foreground">Manage course pricing and view users</p>
+        </div>
+
+        {/* Pricing Management */}
+        <AnimatedCard>
+          <AnimatedCardHeader>
+            <AnimatedCardTitle className="flex items-center space-x-2">
+              <DollarSign className="w-5 h-5" />
+              <span>Pricing Management</span>
+            </AnimatedCardTitle>
+          </AnimatedCardHeader>
+          <AnimatedCardContent className="space-y-6">
+            {pricingSettings && (
+              <>
+                {/* Early Bird Controls */}
+                <div className="p-4 border rounded-lg space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center space-x-2">
+                    <Clock className="w-4 h-4" />
+                    <span>Early Bird Offer</span>
+                  </h3>
+                  
+                  <div className="flex items-center space-x-4">
+                    <span className="text-sm">Status:</span>
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      pricingSettings.is_early_bird_active 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}>
+                      {pricingSettings.is_early_bird_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+
+                  <div className="flex space-x-2">
+                    <Button 
+                      onClick={() => activateEarlyBird(4)}
+                      disabled={saving}
+                      size="sm"
+                    >
+                      Activate 4 Hours
+                    </Button>
+                    <Button 
+                      onClick={() => activateEarlyBird(24)}
+                      disabled={saving}
+                      size="sm"
+                    >
+                      Activate 24 Hours
+                    </Button>
+                    <Button 
+                      onClick={deactivateEarlyBird}
+                      disabled={saving}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      Deactivate
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Price Settings */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* USD Pricing */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">USD Pricing</h3>
+                    <div className="space-y-2">
+                      <label className="text-sm">Early Bird Price ($)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.usd_early_bird}
+                        onChange={(e) => updatePricingSettings({ usd_early_bird: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">Regular Price ($)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.usd_regular}
+                        onChange={(e) => updatePricingSettings({ usd_regular: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">MRP ($)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.usd_mrp}
+                        onChange={(e) => updatePricingSettings({ usd_mrp: parseInt(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* INR Pricing */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">INR Pricing</h3>
+                    <div className="space-y-2">
+                      <label className="text-sm">Early Bird Price (₹)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.inr_early_bird}
+                        onChange={(e) => updatePricingSettings({ inr_early_bird: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">Regular Price (₹)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.inr_regular}
+                        onChange={(e) => updatePricingSettings({ inr_regular: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">MRP (₹)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.inr_mrp}
+                        onChange={(e) => updatePricingSettings({ inr_mrp: parseInt(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </AnimatedCardContent>
+        </AnimatedCard>
+
+        {/* Users Management */}
+        <AnimatedCard>
+          <AnimatedCardHeader>
+            <AnimatedCardTitle className="flex items-center space-x-2">
+              <Users className="w-5 h-5" />
+              <span>Registered Users ({users.length})</span>
+            </AnimatedCardTitle>
+          </AnimatedCardHeader>
+          <AnimatedCardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">Name</th>
+                    <th className="text-left p-2">Email</th>
+                    <th className="text-left p-2">Role</th>
+                    <th className="text-left p-2">Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id} className="border-b hover:bg-muted/50">
+                      <td className="p-2">{user.name}</td>
+                      <td className="p-2">{user.email}</td>
+                      <td className="p-2">
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          user.role === 'admin' 
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        }`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="p-2">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </AnimatedCardContent>
+        </AnimatedCard>
+      </div>
+    </div>
+  )
+}

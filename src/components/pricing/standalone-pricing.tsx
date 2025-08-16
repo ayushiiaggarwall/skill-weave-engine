@@ -1,87 +1,14 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { Check, Zap, Sparkles, Clock } from "lucide-react"
-
-interface LocationPricing {
-  currency: string
-  earlyBird: number
-  regular: number
-  mrp: number
-  symbol: string
-}
+import { usePricing } from "@/hooks/use-pricing"
 
 export function StandalonePricing() {
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
-  
-  const [timeLeft, setTimeLeft] = useState(4 * 60 * 60) // 4 hours in seconds
-  const [isEarlyBird, setIsEarlyBird] = useState(true)
-  const [pricing, setPricing] = useState<LocationPricing>({
-    currency: "USD",
-    earlyBird: 129,
-    regular: 149,
-    mrp: 199,
-    symbol: "$"
-  })
-
-  const features = [
-    "5 Weeks of Live Classes (Saturdays & Sundays, 7:30-10 PM IST)",
-    "Final Week Q&A + Project Demos",
-    "Step-by-Step Curriculum — from basics to launch",
-    "Hands-On Projects every week",
-    "Personalized Feedback & Guidance",
-    "Lifetime Access to Recordings & Materials",
-    "Community Support Group (peer discussions + resources)"
-  ]
-
-  // Detect user location and set pricing
-  useEffect(() => {
-    const detectLocation = async () => {
-      try {
-        const response = await fetch('https://ipapi.co/json/')
-        const data = await response.json()
-        
-        if (data.country_code === 'IN') {
-          setPricing({
-            currency: "INR",
-            earlyBird: 5499,
-            regular: 6499,
-            mrp: 9999,
-            symbol: "₹"
-          })
-        }
-      } catch (error) {
-        console.log('Could not detect location, using default USD pricing')
-      }
-    }
-
-    detectLocation()
-  }, [])
-
-  // Timer countdown
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setIsEarlyBird(false)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
-
-  // Format time
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
+  const { pricing, isEarlyBird, timeLeft, currentPrice, formatTime } = usePricing()
 
   // Animate features on scroll
   useEffect(() => {
@@ -126,7 +53,15 @@ export function StandalonePricing() {
     }
   }, [])
 
-  const currentPrice = isEarlyBird ? pricing.earlyBird : pricing.regular
+  const features = [
+    "5 Weeks of Live Classes (Saturdays & Sundays, 7:30-10 PM IST)",
+    "Final Week Q&A + Project Demos",
+    "Step-by-Step Curriculum — from basics to launch",
+    "Hands-On Projects every week",
+    "Personalized Feedback & Guidance",
+    "Lifetime Access to Recordings & Materials",
+    "Community Support Group (peer discussions + resources)"
+  ]
 
   const handleEnrollNow = () => {
     // Redirect to enrollment page or form

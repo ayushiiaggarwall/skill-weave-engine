@@ -12,6 +12,8 @@ import { SignupForm } from './components/auth/signup-form'
 import { Dashboard } from './components/dashboard/dashboard'
 import { PaymentPage } from './components/payment/payment-page'
 import { CoursePage } from './components/courses/course-page'
+import { AdminDashboard } from './components/admin/admin-dashboard'
+import { ProtectedAdminRoute } from './components/admin/protected-admin-route'
 import { PricingPage } from './components/pricing/pricing-page'
 
 function HomePage() {
@@ -54,6 +56,11 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/courses" element={<CoursePage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/admin" element={
+              <ProtectedAdminRoute>
+                <AdminDashboard />
+              </ProtectedAdminRoute>
+            } />
           </Routes>
         </Router>
       </ThemeProvider>

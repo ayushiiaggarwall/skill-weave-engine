@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
+import { useAdminRole } from "@/hooks/use-admin-role"
 
 export function Header() {
   const auth = useAuth()
   const { user, signOut, loading } = auth
+  const { isAdmin } = useAdminRole()
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
 
@@ -62,6 +64,14 @@ export function Header() {
             >
               Pricing
             </button>
+            {user && isAdmin && (
+              <button 
+                onClick={() => navigate('/admin')}
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Admin
+              </button>
+            )}
           </nav>
 
           {/* CTA Buttons */}

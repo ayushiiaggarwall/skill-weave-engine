@@ -246,6 +246,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_settings: {
+        Row: {
+          created_at: string
+          early_bird_duration_hours: number
+          early_bird_end_time: string | null
+          id: string
+          inr_early_bird: number
+          inr_mrp: number
+          inr_regular: number
+          is_early_bird_active: boolean
+          updated_at: string
+          usd_early_bird: number
+          usd_mrp: number
+          usd_regular: number
+        }
+        Insert: {
+          created_at?: string
+          early_bird_duration_hours?: number
+          early_bird_end_time?: string | null
+          id?: string
+          inr_early_bird?: number
+          inr_mrp?: number
+          inr_regular?: number
+          is_early_bird_active?: boolean
+          updated_at?: string
+          usd_early_bird?: number
+          usd_mrp?: number
+          usd_regular?: number
+        }
+        Update: {
+          created_at?: string
+          early_bird_duration_hours?: number
+          early_bird_end_time?: string | null
+          id?: string
+          inr_early_bird?: number
+          inr_mrp?: number
+          inr_regular?: number
+          is_early_bird_active?: boolean
+          updated_at?: string
+          usd_early_bird?: number
+          usd_mrp?: number
+          usd_regular?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

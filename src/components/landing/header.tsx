@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 
 export function Header() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, loading } = useAuth()
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
 
@@ -66,7 +66,9 @@ export function Header() {
           {/* CTA Buttons */}
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            {user ? (
+            {loading ? (
+              <div className="w-20 h-8 animate-pulse bg-muted/50 rounded"></div>
+            ) : user ? (
               <div className="flex items-center space-x-2">
                 <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
                   Dashboard

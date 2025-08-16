@@ -2,6 +2,7 @@ import { motion } from "framer-motion"
 import { ArrowRight, Play, Trophy, Star, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { AnimeDemo } from "@/components/ui/anime-demo"
 import { courseData } from "@/lib/course-data"
 import { useNavigate } from "react-router-dom"
 
@@ -195,7 +196,7 @@ export function HeroSection() {
             initial={{ opacity: 0, x: 50, rotateY: -15 }}
             animate={{ opacity: 1, x: 0, rotateY: 0 }}
             transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
+            className="relative space-y-8"
           >
             <div className="relative">
               {/* Floating decorative elements */}
@@ -264,6 +265,11 @@ export function HeroSection() {
                   </div>
                 </div>
               </motion.div>
+            </div>
+
+            {/* Anime.js Demo Section */}
+            <div className="glass-card p-6 rounded-2xl">
+              <AnimeDemo />
             </div>
           </motion.div>
         </div>

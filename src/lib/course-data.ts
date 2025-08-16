@@ -6,12 +6,81 @@ export const courseData = {
   price: 299,
   currency: 'USD',
   image_url: '/course-image.jpg',
+  duration: {
+    weeks: 5
+  },
+  pricing: {
+    price: 299,
+    features: [
+      '5 weeks of intensive training',
+      'Complete no-code toolkit access',
+      'Weekly live mentorship sessions',
+      'Private community access',
+      'Launch strategy templates',
+      '30-day money-back guarantee'
+    ]
+  },
   syllabus: [
-    'Week 1: Product Ideas & Market Research',
-    'Week 2: No-Code Tools & Platform Selection',
-    'Week 3: Building Your MVP',
-    'Week 4: User Testing & Validation',
-    'Week 5: Launch & Marketing Strategies'
+    {
+      week: 1,
+      title: 'Product Ideas & Market Research',
+      description: 'Learn to identify profitable opportunities and validate your ideas before building.',
+      topics: [
+        'Market research techniques',
+        'Competitor analysis',
+        'Problem identification',
+        'Customer personas',
+        'MVP planning'
+      ]
+    },
+    {
+      week: 2,
+      title: 'No-Code Tools & Platform Selection',
+      description: 'Master the essential no-code tools and choose the right stack for your product.',
+      topics: [
+        'No-code platform overview',
+        'Tool selection framework',
+        'Workflow automation',
+        'Database design',
+        'Integration strategies'
+      ]
+    },
+    {
+      week: 3,
+      title: 'Building Your MVP',
+      description: 'Build your minimum viable product using proven no-code development practices.',
+      topics: [
+        'MVP development process',
+        'User interface design',
+        'Backend setup',
+        'Feature prioritization',
+        'Testing strategies'
+      ]
+    },
+    {
+      week: 4,
+      title: 'User Testing & Validation',
+      description: 'Test your product with real users and iterate based on feedback.',
+      topics: [
+        'User testing methods',
+        'Feedback collection',
+        'Analytics setup',
+        'Product iteration',
+        'Performance optimization'
+      ]
+    },
+    {
+      week: 5,
+      title: 'Launch & Marketing Strategies',
+      description: 'Launch your product successfully and build sustainable growth systems.',
+      topics: [
+        'Launch preparation',
+        'Marketing automation',
+        'Customer acquisition',
+        'Revenue optimization',
+        'Scaling strategies'
+      ]
+    }
   ],
   tools: [
     'Bubble',

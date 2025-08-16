@@ -22,9 +22,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error: any }>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-// Create a default value to help prevent undefined context errors during initial render
+// Create a default value to prevent undefined context errors
 const defaultAuthValue: AuthContextType = {
   user: null,
   session: null,
@@ -35,6 +33,8 @@ const defaultAuthValue: AuthContextType = {
   signOut: async () => {},
   signInWithGoogle: async () => ({ error: new Error('Auth not initialized') })
 }
+
+const AuthContext = createContext<AuthContextType>(defaultAuthValue)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -163,10 +163,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
-    // During development, return default value instead of throwing immediately
-    console.warn('useAuth called outside of AuthProvider, returning default values')
-    return defaultAuthValue
-  }
+  // The context should always be defined now since we provided a default value
   return context
 }

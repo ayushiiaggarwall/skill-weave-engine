@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 
 export function Header() {
-  const { user, signOut, loading } = useAuth()
+  const auth = useAuth()
+  const { user, signOut, loading } = auth
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
 

@@ -1,17 +1,20 @@
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { UserProfileDropdown } from "@/components/ui/user-profile-dropdown"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { useAdminRole } from "@/hooks/use-admin-role"
 
 export function Header() {
   const auth = useAuth()
-  const { user, signOut, loading } = auth
+  const { user, loading } = auth
   const { isAdmin, loading: adminLoading } = useAdminRole()
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const isDashboard = location.pathname === '/dashboard'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,10 +50,10 @@ export function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <button 
-              onClick={() => navigate('/')}
+              onClick={() => navigate(isDashboard ? '/dashboard' : '/')}
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
-              Home
+              {isDashboard ? 'Dashboard' : 'Home'}
             </button>
             <button 
               onClick={() => navigate('/courses')}
@@ -80,14 +83,7 @@ export function Header() {
             {loading ? (
               <div className="w-20 h-8 animate-pulse bg-muted/50 rounded"></div>
             ) : user ? (
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
-                  Dashboard
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => signOut()}>
-                  Sign Out
-                </Button>
-              </div>
+              <UserProfileDropdown />
             ) : (
               <>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>

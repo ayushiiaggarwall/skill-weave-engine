@@ -339,7 +339,7 @@ export function HeroSectionAnime() {
                       <div className="text-3xl font-bold text-primary mb-2">
                         {courseData.stats.successRate}
                       </div>
-                      <div className="text-sm text-muted-foreground">projects built without coding</div>
+                      <div className="text-sm text-muted-foreground">% project built without coding</div>
                     </AnimatedCard>
                     
                     <AnimatedCard delay={5} className="glass-card p-6 rounded-2xl text-center hover-glow">

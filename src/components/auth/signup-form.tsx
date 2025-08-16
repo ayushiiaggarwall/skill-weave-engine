@@ -109,7 +109,7 @@ export function SignupForm() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-3xl font-bold text-gradient mb-2"
           >
-            Join LearnLaunch
+            Join the Course
           </motion.div>
           <p className="text-muted-foreground">
             Start your no-code journey today

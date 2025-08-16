@@ -77,7 +77,7 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <Badge className="mb-6 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
-                ✨ Join {courseData.stats.students}+ Successful Entrepreneurs
+                ✨ Join {courseData.stats.students}+ learners already on the waitlist
               </Badge>
             </motion.div>
 
@@ -236,7 +236,7 @@ export function HeroSection() {
                     </motion.div>
                     <h3 className="text-2xl font-bold mb-3 text-gradient">Success Guaranteed</h3>
                     <p className="text-muted-foreground text-lg">
-                      Join {courseData.stats.students}+ entrepreneurs who built profitable products
+                      Join {courseData.stats.students}+ learners already on the waitlist
                     </p>
                   </div>
                   
@@ -249,7 +249,7 @@ export function HeroSection() {
                       <div className="text-3xl font-bold text-primary mb-2">
                         {courseData.stats.successRate}%
                       </div>
-                      <div className="text-sm text-muted-foreground">Success Rate</div>
+                      <div className="text-sm text-muted-foreground">projects built without coding</div>
                     </motion.div>
                     
                     <motion.div 
@@ -258,9 +258,9 @@ export function HeroSection() {
                       transition={{ type: "spring", stiffness: 400 }}
                     >
                       <div className="text-3xl font-bold text-accent mb-2">
-                        ${(courseData.stats.revenue / 1000000).toFixed(1)}M+
+                        {courseData.stats.revenue}
                       </div>
-                      <div className="text-sm text-muted-foreground">Revenue Generated</div>
+                      <div className="text-sm text-muted-foreground">goal: helping you launch your idea live</div>
                     </motion.div>
                   </div>
                 </div>

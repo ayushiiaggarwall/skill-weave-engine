@@ -14,7 +14,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="text-2xl font-bold text-gradient">
-              LearnLaunch
+              No-Code Course
             </div>
             <p className="text-muted-foreground">
               Empowering entrepreneurs to build profitable products without code. 
@@ -40,10 +40,10 @@ export function Footer() {
 
           {/* Contact */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">Support</h4>
+            <h4 className="font-semibold text-foreground">Contact Us</h4>
             <div className="space-y-2">
-              <a href="mailto:support@learnlaunch.com" className="block text-muted-foreground hover:text-primary transition-colors">
-                support@learnlaunch.com
+              <a href="mailto:hello@ayushiaggarwal.tech" className="block text-muted-foreground hover:text-primary transition-colors">
+                hello@ayushiaggarwal.tech
               </a>
               <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">
                 Help Center
@@ -62,7 +62,7 @@ export function Footer() {
           viewport={{ once: true }}
           className="border-t border-border mt-8 pt-8 text-center text-muted-foreground"
         >
-          <p>&copy; 2024 LearnLaunch. All rights reserved. Built with ❤️ for entrepreneurs.</p>
+          <p>&copy; 2025 No-Code Course. All rights reserved. Built with ❤️ for entrepreneurs.</p>
         </motion.div>
       </div>
     </footer>

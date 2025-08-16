@@ -2,7 +2,7 @@
 export const courseData = {
   id: 'no-code-to-product',
   title: 'From No-Code to Product',
-  description: 'Master the art of building profitable products without writing code. Join 500+ successful entrepreneurs who launched their ideas in just 5 weeks.',
+  description: 'Master the art of building profitable products without writing code. Join 200+ learners already on the waitlist.',
   price: 299,
   currency: 'USD',
   image_url: '/course-image.jpg',
@@ -93,11 +93,12 @@ export const courseData = {
     'Supabase',
     'n8n',
     'Stripe',
-    'Resend'
+    'Resend',
+    'Vapi'
   ],
   features: [
     {
-      title: 'Build your MVP in 5 weeks',
+      title: 'Build your MVP in 5 hours',
       description: 'Follow our proven framework to launch your product quickly',
       icon: '🚀'
     },
@@ -113,9 +114,9 @@ export const courseData = {
     }
   ],
   stats: {
-    students: 500,
-    successRate: 95,
-    revenue: 2000000
+    students: 200,
+    successRate: 100,
+    revenue: 1
   },
   testimonials: [
     {

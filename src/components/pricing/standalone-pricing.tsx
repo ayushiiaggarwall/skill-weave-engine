@@ -65,7 +65,7 @@ export function StandalonePricing() {
 
   const handleEnrollNow = () => {
     // Redirect to enrollment page or form
-    window.open('https://learnlaunch.com/signup', '_blank')
+    window.open('/signup', '_blank')
   }
 
   return (

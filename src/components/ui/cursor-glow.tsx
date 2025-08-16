@@ -26,58 +26,72 @@ export function CursorGlow() {
 
   return (
     <motion.div
-      className="fixed pointer-events-none z-50 mix-blend-difference"
+      className="fixed pointer-events-none z-30"
       style={{
-        left: mousePosition.x - 200,
-        top: mousePosition.y - 200,
+        left: mousePosition.x - 300,
+        top: mousePosition.y - 300,
       }}
       animate={{
         opacity: isVisible ? 1 : 0,
-        scale: isVisible ? 1 : 0.8,
+        scale: isVisible ? 1 : 0.9,
       }}
       transition={{
         type: "spring",
-        stiffness: 100,
-        damping: 20,
+        stiffness: 60,
+        damping: 25,
       }}
     >
-      {/* Main glow */}
-      <div className="w-96 h-96 relative">
-        {/* Primary glow */}
+      {/* Outer spread glow - very subtle */}
+      <div className="w-[600px] h-[600px] relative">
+        {/* Large spread glow */}
         <div 
-          className="absolute inset-0 rounded-full opacity-30"
+          className="absolute inset-0 rounded-full opacity-[0.08]"
           style={{
             background: `radial-gradient(circle, 
-              hsl(var(--primary) / 0.15) 0%, 
-              hsl(var(--accent) / 0.1) 30%, 
+              hsl(var(--primary) / 0.06) 0%, 
+              hsl(var(--accent) / 0.04) 25%, 
+              hsl(var(--primary) / 0.02) 50%,
+              transparent 85%
+            )`,
+            filter: 'blur(80px)',
+          }}
+        />
+        
+        {/* Medium glow */}
+        <div 
+          className="absolute inset-20 rounded-full opacity-[0.12]"
+          style={{
+            background: `radial-gradient(circle, 
+              hsl(var(--primary) / 0.08) 0%, 
+              hsl(var(--accent) / 0.06) 35%, 
+              transparent 75%
+            )`,
+            filter: 'blur(60px)',
+          }}
+        />
+        
+        {/* Inner subtle glow */}
+        <div 
+          className="absolute inset-32 rounded-full opacity-[0.15]"
+          style={{
+            background: `radial-gradient(circle, 
+              hsl(var(--primary) / 0.1) 0%, 
+              hsl(var(--accent) / 0.08) 40%,
               transparent 70%
             )`,
             filter: 'blur(40px)',
           }}
         />
-        
-        {/* Secondary smaller glow */}
+
+        {/* Core very subtle glow */}
         <div 
-          className="absolute inset-20 rounded-full opacity-50"
+          className="absolute inset-48 rounded-full opacity-[0.2]"
           style={{
             background: `radial-gradient(circle, 
-              hsl(var(--primary) / 0.2) 0%, 
-              hsl(var(--accent) / 0.15) 40%, 
-              transparent 80%
-            )`,
-            filter: 'blur(20px)',
-          }}
-        />
-        
-        {/* Core glow */}
-        <div 
-          className="absolute inset-32 rounded-full opacity-60"
-          style={{
-            background: `radial-gradient(circle, 
-              hsl(var(--primary) / 0.3) 0%, 
+              hsl(var(--primary) / 0.12) 0%, 
               transparent 60%
             )`,
-            filter: 'blur(10px)',
+            filter: 'blur(20px)',
           }}
         />
       </div>

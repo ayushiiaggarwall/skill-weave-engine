@@ -135,31 +135,9 @@ function AnimatedCard({ children, delay = 0, className = "" }: { children: React
   )
 }
 
-function AnimatedText({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
-  const textRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (textRef.current) {
-      // Split text into spans for character animation
-      const text = textRef.current.textContent || ''
-      textRef.current.innerHTML = text
-        .split('')
-        .map((char) => `<span style="display: inline-block; opacity: 0;">${char === ' ' ? '&nbsp;' : char}</span>`)
-        .join('')
-
-      animate(textRef.current.querySelectorAll('span'), {
-        opacity: [0, 1],
-        translateY: [30, 0],
-        rotateX: [90, 0],
-        duration: 800,
-        delay: stagger(50, { start: delay }),
-        ease: 'out(4)',
-      })
-    }
-  }, [delay])
-
+function StaticText({ children, className = "" }: { children: React.ReactNode, className?: string }) {
   return (
-    <div ref={textRef} className={className}>
+    <div className={className}>
       {children}
     </div>
   )
@@ -167,7 +145,6 @@ function AnimatedText({ children, delay = 0, className = "" }: { children: React
 
 export function HeroSectionAnime() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const statsRef = useRef<HTMLDivElement>(null)
   const buttonsRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
@@ -191,19 +168,8 @@ export function HeroSectionAnime() {
     }
   }, [])
 
-  // Animate stats on mount
+  // Animate buttons with stagger
   useEffect(() => {
-    if (statsRef.current) {
-      animate(statsRef.current.querySelectorAll('.stat-number'), {
-        innerHTML: (el: any) => [0, el.getAttribute('data-value')],
-        duration: 2000,
-        delay: 1000,
-        ease: 'out(4)',
-        round: 1,
-      })
-    }
-
-    // Animate buttons with stagger
     if (buttonsRef.current) {
       animate(buttonsRef.current.querySelectorAll('.animated-button'), {
         scale: [0, 1],
@@ -278,21 +244,15 @@ export function HeroSectionAnime() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left: Content */}
           <div className="space-y-10">
-            {/* Main Heading with Character Animation */}
+            {/* Main Heading */}
             <div className="space-y-6">
-              <AnimatedText 
-                delay={500} 
-                className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
-              >
+              <StaticText className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
                 From No-Code to Product
-              </AnimatedText>
+              </StaticText>
 
-              <AnimatedText 
-                delay={1200} 
-                className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed"
-              >
+              <StaticText className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed">
                 Master the art of building profitable products without writing code. Join 500+ successful entrepreneurs who launched their ideas in just 5 weeks.
-              </AnimatedText>
+              </StaticText>
             </div>
 
             {/* Value Propositions with Icons */}
@@ -365,26 +325,26 @@ export function HeroSectionAnime() {
                       <Trophy className="w-10 h-10 text-white" />
                     </AnimatedCard>
                     
-                    <AnimatedText delay={3500} className="text-2xl font-bold mb-3 text-gradient">
+                    <StaticText className="text-2xl font-bold mb-3 text-gradient">
                       Success Guaranteed
-                    </AnimatedText>
+                    </StaticText>
                     
-                    <AnimatedText delay={4000} className="text-muted-foreground text-lg">
+                    <StaticText className="text-muted-foreground text-lg">
                       Join {courseData.stats.students}+ entrepreneurs who built profitable products
-                    </AnimatedText>
+                    </StaticText>
                   </div>
                   
-                  <div ref={statsRef} className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 gap-6">
                     <AnimatedCard delay={4} className="glass-card p-6 rounded-2xl text-center hover-glow">
-                      <div className="stat-number text-3xl font-bold text-primary mb-2" data-value={courseData.stats.successRate}>
-                        0
+                      <div className="text-3xl font-bold text-primary mb-2">
+                        {courseData.stats.successRate}
                       </div>
                       <div className="text-sm text-muted-foreground">% Success Rate</div>
                     </AnimatedCard>
                     
                     <AnimatedCard delay={5} className="glass-card p-6 rounded-2xl text-center hover-glow">
-                      <div className="stat-number text-3xl font-bold text-accent mb-2" data-value={(courseData.stats.revenue / 1000000).toFixed(1)}>
-                        0
+                      <div className="text-3xl font-bold text-accent mb-2">
+                        {(courseData.stats.revenue / 1000000).toFixed(1)}
                       </div>
                       <div className="text-sm text-muted-foreground">M+ Revenue Generated</div>
                     </AnimatedCard>

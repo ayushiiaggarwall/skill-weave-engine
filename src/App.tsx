@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/theme-context'
 import { CursorGlow } from './components/ui/cursor-glow'
 import { Header } from './components/landing/header'
-import { HeroSection } from './components/landing/hero-section'
+import { HeroSectionAnime } from './components/landing/hero-section-anime'
 import { SyllabusSection } from './components/landing/syllabus-section'
 import { PricingSection } from './components/landing/pricing-section'
 import { Footer } from './components/landing/footer'
@@ -26,13 +26,13 @@ function HomePage() {
         }}
       />
       
-              <Header />
-        <main className="relative z-10">
-          <HeroSection />
-          <SyllabusSection />
-          <PricingSection />
-        </main>
-        <Footer />
+      <Header />
+      <main className="relative z-10">
+        <HeroSectionAnime />
+        <SyllabusSection />
+        <PricingSection />
+      </main>
+      <Footer />
     </div>
   )
 }

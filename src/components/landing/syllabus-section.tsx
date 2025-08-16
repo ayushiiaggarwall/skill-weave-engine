@@ -4,7 +4,7 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Badge } from "@/components/ui/badge"
 import { SectionBadge } from "@/components/ui/section-badge"
 import { courseData } from "@/lib/course-data"
-import { Clock, BookOpen, Users, Award } from "lucide-react"
+import { Clock } from "lucide-react"
 
 
 export function SyllabusSection() {
@@ -110,18 +110,9 @@ export function SyllabusSection() {
                   </AnimatedCardTitle>
                 </AnimatedCardHeader>
                 <AnimatedCardContent className="space-y-4">
-                  <div className="flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                    <BookOpen className="w-4 h-4 mr-2 text-blue-500" />
-                    Interactive lessons
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                    <Award className="w-4 h-4 mr-2 text-green-500" />
-                    Hands-on projects
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                    <Users className="w-4 h-4 mr-2 text-purple-500" />
-                    Community support
-                  </div>
+                  <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
+                    {typeof week === 'string' ? week : week.description}
+                  </p>
                 </AnimatedCardContent>
               </AnimatedCard>
             </div>

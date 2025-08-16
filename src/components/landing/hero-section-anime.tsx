@@ -346,7 +346,7 @@ export function HeroSectionAnime() {
                        <div className="text-3xl font-bold text-accent mb-2">
                          {courseData.stats.revenue}
                        </div>
-                       <div className="text-sm text-muted-foreground">goal: helping you launch your idea live</div>
+                       <div className="text-sm text-muted-foreground">goal: helping you launch your idea</div>
                     </AnimatedCard>
                   </div>
                 </div>

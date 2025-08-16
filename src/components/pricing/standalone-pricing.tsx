@@ -109,19 +109,19 @@ export function StandalonePricing() {
               <AnimatedCardTitle className="text-3xl font-bold mb-4">
                 Complete Course Access
               </AnimatedCardTitle>
-              <div className="space-y-2">
-                <div className="flex items-center justify-center space-x-2 mb-2">
-                  <span className="text-2xl text-muted-foreground line-through">
-                    {pricing.symbol}{pricing.mrp}
-                  </span>
-                </div>
-                <div className="text-6xl font-bold text-gradient">
-                  {pricing.symbol}{currentPrice}
-                </div>
-                <p className="text-muted-foreground">
-                  {isEarlyBird ? "Early Bird Offer" : "Regular Price"} • One-time payment
-                </p>
-              </div>
+               <div className="space-y-2">
+                 <div className="flex items-center justify-center space-x-2 mb-2">
+                   <span className="text-2xl text-muted-foreground line-through">
+                     {pricing.symbol}{pricing.mrp}
+                   </span>
+                 </div>
+                 <div className="text-6xl font-bold text-gradient">
+                   {pricing.symbol}{currentPrice}
+                 </div>
+                 <p className="text-muted-foreground">
+                   {isEarlyBird ? "Early Bird Offer" : "Regular Price"} • One-time payment
+                 </p>
+               </div>
             </AnimatedCardHeader>
             
             <AnimatedCardContent className="space-y-8">

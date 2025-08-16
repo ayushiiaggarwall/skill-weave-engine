@@ -49,31 +49,51 @@ export function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <button 
-              onClick={() => navigate(isDashboard ? '/dashboard' : '/')}
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              {isDashboard ? 'Dashboard' : 'Home'}
-            </button>
-            <button 
-              onClick={() => navigate('/courses')}
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Course
-            </button>
-            <button 
-              onClick={() => navigate('/pricing')}
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Pricing
-            </button>
-            {user && !adminLoading && isAdmin && (
+            <div className="relative">
               <button 
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate(isDashboard ? '/dashboard' : '/')}
                 className="text-foreground hover:text-primary transition-colors font-medium"
               >
-                Admin
+                {isDashboard ? 'Dashboard' : 'Home'}
               </button>
+              {(location.pathname === '/' || location.pathname === '/dashboard') && (
+                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+              )}
+            </div>
+            <div className="relative">
+              <button 
+                onClick={() => navigate('/courses')}
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Course
+              </button>
+              {location.pathname === '/courses' && (
+                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+              )}
+            </div>
+            <div className="relative">
+              <button 
+                onClick={() => navigate('/pricing')}
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Pricing
+              </button>
+              {location.pathname === '/pricing' && (
+                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+              )}
+            </div>
+            {user && !adminLoading && isAdmin && (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/admin')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Admin
+                </button>
+                {location.pathname === '/admin' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
             )}
           </nav>
 

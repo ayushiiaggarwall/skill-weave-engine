@@ -281,7 +281,7 @@ export function HeroSectionAnime() {
             <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-6">
               <Button 
                 size="lg" 
-                className="px-10 py-4 text-lg button-3d hover-glow relative overflow-hidden group"
+                className="animated-button px-10 py-4 text-lg bg-yellow relative overflow-hidden group"
                 onClick={() => navigate("/signup")}
               >
                 <span className="relative z-10 flex items-center">

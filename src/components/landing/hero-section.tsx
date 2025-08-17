@@ -166,7 +166,7 @@ export function HeroSection() {
             >
               <Button 
                 size="lg" 
-                className="px-10 py-4 text-lg button-3d hover-glow relative overflow-hidden group"
+                className="px-10 py-4 text-lg button-3d hover-glow relative overflow-hidden group bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={() => navigate("/signup")}
               >
                 <span className="relative z-10 flex items-center">

@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react"
 import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { Badge } from "@/components/ui/badge"
-
 import { courseData } from "@/lib/course-data"
 import { Clock } from "lucide-react"
 
@@ -75,9 +74,9 @@ export function SyllabusSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 text-black">
+          <div className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
             Course Curriculum
-          </h2>
+          </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
             5-Week Journey to Success
           </h2>

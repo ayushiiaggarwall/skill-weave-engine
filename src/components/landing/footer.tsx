@@ -14,7 +14,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="text-2xl font-bold text-gradient">
-              No-Code Course
+              Ayushi Aggarwal
             </div>
             <p className="text-muted-foreground">
               Empowering entrepreneurs to build profitable products without code. 
@@ -62,7 +62,7 @@ export function Footer() {
           viewport={{ once: true }}
           className="border-t border-border mt-8 pt-8 text-center text-muted-foreground"
         >
-          <p>&copy; 2025 No-Code Course. All rights reserved. Built with ❤️ for entrepreneurs.</p>
+          <p>&copy; 2025 Ayushi Aggarwal. All rights reserved. Built with ❤️ for entrepreneurs.</p>
         </motion.div>
       </div>
     </footer>

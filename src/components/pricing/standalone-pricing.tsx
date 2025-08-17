@@ -160,7 +160,7 @@ export function StandalonePricing() {
                 <AnimatedButton 
                   size="lg" 
                   animation="glow"
-                  className="w-full py-6 text-lg font-semibold button-3d hover-glow"
+                  className="w-full py-6 text-lg font-semibold bg-yellow hover-glow"
                   onClick={handleEnrollNow}
                 >
                   Enroll Now

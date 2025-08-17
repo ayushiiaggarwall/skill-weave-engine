@@ -81,7 +81,7 @@ export function PricingSection() {
           <SectionBadge>
             Pricing
           </SectionBadge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-black">
             One Price, Everything Included
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

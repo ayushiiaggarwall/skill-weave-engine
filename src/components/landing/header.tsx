@@ -44,7 +44,7 @@ export function Header() {
             transition={{ type: "spring", stiffness: 400 }}
             onClick={() => navigate("/")}
           >
-            No-Code Course
+            Ayushi Aggarwal
           </motion.div>
 
           {/* Navigation */}

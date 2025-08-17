@@ -293,7 +293,7 @@ export function HeroSectionAnime() {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="animated-button px-10 py-4 text-lg glass-card border-primary/30 text-black hover:bg-primary/10 hover:border-primary/50 hover:text-black transition-all duration-300 opacity-0 dark:text-primary"
+                className="animated-button px-10 py-4 text-lg glass-card border-primary/30 text-black hover:bg-primary/10 hover:border-primary/50 hover:text-black transition-all duration-300 opacity-0 dark:bg-primary dark:text-primary-foreground dark:border-primary dark:hover:bg-primary/90"
                 onClick={() => navigate("/courses")}
               >
                 <Play className="mr-3 h-5 w-5" />

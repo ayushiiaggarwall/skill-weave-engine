@@ -76,7 +76,7 @@ export function SyllabusSection() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-16">
           <SectionBadge>
-            📚 Course Curriculum
+            Course Curriculum
           </SectionBadge>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
             5-Week Journey to Success
@@ -102,7 +102,7 @@ export function SyllabusSection() {
                     </Badge>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="w-4 h-4 mr-1" />
-                      6 hours
+                      5 hours
                     </div>
                   </div>
                   <AnimatedCardTitle className="text-xl text-gradient group-hover:text-primary transition-colors">
@@ -123,7 +123,7 @@ export function SyllabusSection() {
         <div className="mt-20 text-center">
           <div className="mb-8">
             <h3 className="text-3xl font-bold text-gradient">
-              Master These Tools
+              Master These No-Code Tools
             </h3>
           </div>
           
@@ -132,7 +132,7 @@ export function SyllabusSection() {
               <div key={index} className="tool-badge opacity-0">
                 <Badge 
                   variant="outline" 
-                  className="px-6 py-3 text-lg bg-white/5 dark:border-white/20 hover:bg-primary/10 hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer light:border-black"
+                  className="px-6 py-3 text-lg bg-white/5 border-white/20 hover:bg-primary/10 hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer"
                 >
                   {tool}
                 </Badge>

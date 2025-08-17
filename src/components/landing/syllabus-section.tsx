@@ -76,9 +76,9 @@ export function SyllabusSection() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-16">
           <SectionBadge>
-            Course Curriculum
+            📚 Course Curriculum
           </SectionBadge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-black">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
             5-Week Journey to Success
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">

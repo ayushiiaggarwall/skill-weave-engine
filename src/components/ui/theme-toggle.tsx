@@ -20,8 +20,6 @@ export function ThemeToggle() {
         return <Sun className="h-5 w-5" />
       case 'dark':
         return <Moon className="h-5 w-5" />
-      case 'system':
-        return <Monitor className="h-5 w-5" />
     }
   }
 
@@ -31,7 +29,7 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       className="relative hover-glow"
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} mode`}
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark'} mode`}
     >
       <AnimatePresence mode="wait">
         <motion.div

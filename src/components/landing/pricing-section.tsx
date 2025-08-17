@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react"
 import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
+import { SectionBadge } from "@/components/ui/section-badge"
 import { Zap, Sparkles, Clock } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { usePricing } from "@/hooks/use-pricing"
@@ -77,9 +78,9 @@ export function PricingSection() {
 
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-16">
-          <div className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
+          <SectionBadge>
             Pricing
-          </div>
+          </SectionBadge>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
             One Price, Everything Included
           </h2>

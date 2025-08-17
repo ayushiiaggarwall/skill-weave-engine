@@ -132,7 +132,7 @@ export function SyllabusSection() {
               <div key={index} className="tool-badge opacity-0">
                 <Badge 
                   variant="outline" 
-                  className="px-6 py-3 text-lg bg-white/5 border-white/20 hover:bg-primary/10 hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer light:bg-transparent light:border-black/20"
+                  className="px-6 py-3 text-lg bg-white/5 border-white/20 hover:bg-primary/10 hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer light:border-black/20"
                 >
                   {tool}
                 </Badge>

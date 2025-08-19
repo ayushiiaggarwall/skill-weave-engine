@@ -177,8 +177,10 @@ const button = {
   fontWeight: 'bold',
   textDecoration: 'none',
   textAlign: 'center' as const,
-  display: 'inline-block',
+  display: 'block',
+  margin: '0 auto',
   padding: '14px 32px',
+  maxWidth: '200px',
 }
 
 const codeSection = {

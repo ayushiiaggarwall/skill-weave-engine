@@ -45,9 +45,9 @@ export function Header() {
             onClick={() => navigate("/")}
           >
             <img 
-              src="/lovable-uploads/ce32c287-abb6-46ba-80d5-c80039175541.png" 
+              src="/lovable-uploads/cb7918b2-40c4-4236-8a78-c8d49e7e25fa.png" 
               alt="Tech With Ayushi Aggarwal"
-              className="h-8 md:h-10 w-auto"
+              className="h-10 md:h-12 w-auto object-contain"
             />
           </motion.div>
 

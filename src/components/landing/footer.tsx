@@ -14,9 +14,9 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <img 
-              src="/lovable-uploads/ce32c287-abb6-46ba-80d5-c80039175541.png" 
+              src="/lovable-uploads/cb7918b2-40c4-4236-8a78-c8d49e7e25fa.png" 
               alt="Tech With Ayushi Aggarwal"
-              className="h-8 w-auto"
+              className="h-10 w-auto object-contain"
             />
             <p className="text-muted-foreground">
               Empowering entrepreneurs to build profitable products without code. 

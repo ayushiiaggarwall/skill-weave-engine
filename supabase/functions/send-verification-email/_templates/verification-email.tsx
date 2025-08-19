@@ -170,7 +170,7 @@ const buttonSection = {
 }
 
 const button = {
-  backgroundColor: '#f97316',
+  backgroundColor: '#facc15',
   borderRadius: '8px',
   color: '#ffffff',
   fontSize: '16px',

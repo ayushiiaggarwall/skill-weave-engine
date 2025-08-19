@@ -90,7 +90,7 @@ export const VerificationEmail = ({
         <Section style={footer}>
           <Text style={footerText}>
             Best regards,<br />
-            The Tech With Ayushi Aggarwal Team
+            Ayushi Aggarwal and Team
           </Text>
         </Section>
       </Container>

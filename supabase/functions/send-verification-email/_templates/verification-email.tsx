@@ -61,11 +61,22 @@ export const VerificationEmail = ({
         </Section>
         
         <Text style={text}>
-          Or copy and paste this verification code if the button doesn't work:
+          If the button above doesn't work, copy and paste this link into your browser:
         </Text>
         
         <Section style={codeSection}>
-          <Text style={code}>{token}</Text>
+          <Link
+            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+            target="_blank"
+            style={{
+              color: '#1e293b',
+              wordBreak: 'break-all',
+              textDecoration: 'underline',
+              fontSize: '14px',
+            }}
+          >
+            {`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+          </Link>
         </Section>
         
         <Text style={smallText}>

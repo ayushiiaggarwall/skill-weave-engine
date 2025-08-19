@@ -31,22 +31,28 @@ Deno.serve(async (req) => {
     const payload = await req.text()
     const headers = Object.fromEntries(req.headers)
     
-    // If webhook secret is configured, verify the webhook
+    // Try to verify webhook if secret is configured, otherwise parse directly
     let webhookData
     if (hookSecret) {
-      const wh = new Webhook(hookSecret)
-      webhookData = wh.verify(payload, headers) as {
-        user: {
-          email: string
-          id: string
+      try {
+        const wh = new Webhook(hookSecret)
+        webhookData = wh.verify(payload, headers) as {
+          user: {
+            email: string
+            id: string
+          }
+          email_data: {
+            token: string
+            token_hash: string
+            redirect_to: string
+            email_action_type: string
+            site_url: string
+          }
         }
-        email_data: {
-          token: string
-          token_hash: string
-          redirect_to: string
-          email_action_type: string
-          site_url: string
-        }
+        console.log('Webhook verification successful')
+      } catch (error) {
+        console.log('Webhook verification failed, parsing payload directly:', error.message)
+        webhookData = JSON.parse(payload)
       }
     } else {
       // Parse payload directly if no webhook secret

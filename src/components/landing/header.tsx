@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { UserProfileDropdown } from "@/components/ui/user-profile-dropdown"
+import { TextLogo } from "@/components/ui/text-logo"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useNavigate, useLocation } from "react-router-dom"
@@ -44,11 +45,7 @@ export function Header() {
             transition={{ type: "spring", stiffness: 400 }}
             onClick={() => navigate("/")}
           >
-            <img 
-              src="/lovable-uploads/3adc5900-46cf-4e08-bc38-cee33b919768.png" 
-              alt="Tech With Ayushi Aggarwal"
-              className="h-16 md:h-18 w-auto object-contain"
-            />
+            <TextLogo />
           </motion.div>
 
           {/* Navigation */}

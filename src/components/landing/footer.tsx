@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { TextLogo } from "@/components/ui/text-logo"
 
 export function Footer() {
   return (
@@ -13,11 +14,7 @@ export function Footer() {
         >
           {/* Brand */}
           <div className="space-y-4">
-            <img 
-              src="/lovable-uploads/3adc5900-46cf-4e08-bc38-cee33b919768.png" 
-              alt="Tech With Ayushi Aggarwal"
-              className="h-24 w-auto object-contain"
-            />
+            <TextLogo />
             <p className="text-muted-foreground">
               Empowering entrepreneurs to build profitable products without code. 
               Join the no-code revolution today.

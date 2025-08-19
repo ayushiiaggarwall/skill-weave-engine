@@ -59,7 +59,7 @@ export function SignupForm() {
           setError(error.message)
         }
       } else {
-        setSuccess("Account created successfully! Please check your email for verification.")
+        setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for a beautiful verification message to activate your account.")
         // Optionally redirect after a delay
         setTimeout(() => {
           navigate('/login')

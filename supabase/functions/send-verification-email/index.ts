@@ -73,9 +73,16 @@ Deno.serve(async (req) => {
       })
     )
 
+    // Get sender information from secrets
+    const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'hello@ayushiaggarwal.tech'
+    const fromName = Deno.env.get('RESEND_FROM_NAME') || 'Tech With Ayushi Aggarwal'
+    const fromAddress = `${fromName} <${fromEmail}>`
+
+    console.log(`Sending email from: ${fromAddress}`)
+
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'Tech With Ayushi Aggarwal <onboarding@resend.dev>',
+      from: fromAddress,
       to: [user.email],
       subject: 'Welcome! Please verify your email address',
       html,

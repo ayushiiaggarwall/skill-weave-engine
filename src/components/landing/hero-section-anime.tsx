@@ -293,7 +293,7 @@ export function HeroSectionAnime() {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="animated-button px-10 py-4 text-lg bg-accent text-accent-foreground"
+                className="animated-button px-10 py-4 text-lg bg-accent text-white relative overflow-hidden group"
                 onClick={() => navigate("/courses")}
               >
                 <Play className="mr-3 h-5 w-5" />

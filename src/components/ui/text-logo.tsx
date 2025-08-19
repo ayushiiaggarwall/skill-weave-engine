@@ -10,7 +10,7 @@ export function TextLogo({ className = "" }: TextLogoProps) {
           Tech With
         </span>
       </div>
-      <div className="text-xs md:text-sm font-medium text-foreground/70 tracking-wider uppercase">
+      <div className="text-[10px] md:text-xs font-medium text-foreground/70 tracking-wider uppercase">
         AYUSHI AGGARWAL
       </div>
     </div>

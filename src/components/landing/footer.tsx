@@ -14,7 +14,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <img 
-              src="/lovable-uploads/cb7918b2-40c4-4236-8a78-c8d49e7e25fa.png" 
+              src="/lovable-uploads/3adc5900-46cf-4e08-bc38-cee33b919768.png" 
               alt="Tech With Ayushi Aggarwal"
               className="h-10 w-auto object-contain"
             />

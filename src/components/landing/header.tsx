@@ -47,7 +47,7 @@ export function Header() {
             <img 
               src="/lovable-uploads/3adc5900-46cf-4e08-bc38-cee33b919768.png" 
               alt="Tech With Ayushi Aggarwal"
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-14 md:h-16 w-auto object-contain"
             />
           </motion.div>
 

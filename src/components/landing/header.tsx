@@ -39,12 +39,16 @@ export function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <motion.div 
-            className="text-2xl font-bold text-gradient cursor-pointer"
+            className="cursor-pointer"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
             onClick={() => navigate("/")}
           >
-            No-Code Course
+            <img 
+              src="/lovable-uploads/ce32c287-abb6-46ba-80d5-c80039175541.png" 
+              alt="Tech With Ayushi Aggarwal"
+              className="h-8 md:h-10 w-auto"
+            />
           </motion.div>
 
           {/* Navigation */}

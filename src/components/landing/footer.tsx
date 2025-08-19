@@ -13,9 +13,11 @@ export function Footer() {
         >
           {/* Brand */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold text-gradient">
-              No-Code Course
-            </div>
+            <img 
+              src="/lovable-uploads/ce32c287-abb6-46ba-80d5-c80039175541.png" 
+              alt="Tech With Ayushi Aggarwal"
+              className="h-8 w-auto"
+            />
             <p className="text-muted-foreground">
               Empowering entrepreneurs to build profitable products without code. 
               Join the no-code revolution today.

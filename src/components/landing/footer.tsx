@@ -16,7 +16,7 @@ export function Footer() {
             <img 
               src="/lovable-uploads/3adc5900-46cf-4e08-bc38-cee33b919768.png" 
               alt="Tech With Ayushi Aggarwal"
-              className="h-25 w-auto object-contain"
+              className="h-24 w-auto object-contain"
             />
             <p className="text-muted-foreground">
               Empowering entrepreneurs to build profitable products without code. 

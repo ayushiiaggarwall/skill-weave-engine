@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Home } from "lucide-react"
 
 export function SignupForm() {
   const navigate = useNavigate()
@@ -277,6 +277,15 @@ export function SignupForm() {
                 />
               </svg>
               Continue with Google
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => navigate("/")}
+              className="w-full glass-card border-white/20 hover:bg-white/5"
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Back to Home
             </Button>
 
             <div className="text-center text-sm text-muted-foreground">

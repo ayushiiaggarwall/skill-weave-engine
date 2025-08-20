@@ -53,7 +53,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-background">
+    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-background pt-24">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div 

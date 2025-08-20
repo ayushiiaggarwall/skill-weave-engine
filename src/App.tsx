@@ -50,8 +50,18 @@ function App() {
           <CursorGlow />
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/signup" element={<SignupForm />} />
+            <Route path="/login" element={
+              <div className="min-h-screen bg-background">
+                <Header />
+                <LoginForm />
+              </div>
+            } />
+            <Route path="/signup" element={
+              <div className="min-h-screen bg-background">
+                <Header />
+                <SignupForm />
+              </div>
+            } />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/courses" element={<CoursePage />} />

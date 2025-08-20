@@ -15,7 +15,6 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const isDashboard = location.pathname === '/dashboard'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,10 +51,10 @@ export function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <div className="relative">
               <button 
-                onClick={() => navigate(isDashboard ? '/dashboard' : '/')}
+                onClick={() => navigate(user ? '/dashboard' : '/')}
                 className="text-foreground hover:text-primary transition-colors font-medium"
               >
-                {isDashboard ? 'Dashboard' : 'Home'}
+                {user ? 'Dashboard' : 'Home'}
               </button>
               {(location.pathname === '/' || location.pathname === '/dashboard') && (
                 <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>

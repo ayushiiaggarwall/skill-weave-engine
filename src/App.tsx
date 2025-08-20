@@ -15,6 +15,7 @@ import { CoursePage } from './components/courses/course-page'
 import { AdminDashboard } from './components/admin/admin-dashboard'
 import { ProtectedAdminRoute } from './components/admin/protected-admin-route'
 import { PricingPage } from './components/pricing/pricing-page'
+import { AuthRedirect } from './components/auth/auth-redirect'
 
 function HomePage() {
   return (
@@ -49,7 +50,11 @@ function App() {
         <Router>
           <CursorGlow />
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={
+              <AuthRedirect>
+                <HomePage />
+              </AuthRedirect>
+            } />
             <Route path="/login" element={
               <div className="min-h-screen bg-background">
                 <Header />

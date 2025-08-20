@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PaymentButton } from "./payment-button"
+import { RazorpayButton } from "./razorpay-button"
 import { supabase } from "@/lib/supabase"
 import { courseData } from "@/lib/course-data"
 import { formatCurrency } from "@/lib/utils"
@@ -146,7 +146,7 @@ export function PaymentPage() {
                 <CardTitle className="text-xl">Payment Details</CardTitle>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Shield className="w-4 h-4 mr-2" />
-                  Secure payment powered by Stripe
+                  Secure payment powered by Razorpay
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -169,7 +169,7 @@ export function PaymentPage() {
                       ✅ 30-Day Money-Back Guarantee
                     </Badge>
                     
-                    <PaymentButton 
+                    <RazorpayButton 
                       userId={user.id}
                       className="w-full py-6 text-lg font-semibold button-3d hover-glow"
                     />

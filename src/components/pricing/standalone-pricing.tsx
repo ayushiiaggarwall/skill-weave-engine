@@ -64,8 +64,8 @@ export function StandalonePricing() {
   ]
 
   const handleEnrollNow = () => {
-    // Redirect to enrollment page or form
-    window.open('/signup', '_blank')
+    // Redirect to signup with enrollment intent
+    window.location.href = '/signup?enroll=true'
   }
 
   return (

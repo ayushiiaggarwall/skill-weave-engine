@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,8 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
 
 export function LoginForm() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const isEnrollment = searchParams.get('enroll') === 'true'
   const { signIn, signInWithGoogle } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -33,8 +35,12 @@ export function LoginForm() {
           setError(error.message)
         }
       } else {
-        // Redirect to dashboard
-        navigate("/dashboard")
+        // Redirect based on enrollment intent
+        if (isEnrollment) {
+          navigate("/payment")
+        } else {
+          navigate("/dashboard")
+        }
       }
     } catch (err) {
       setError("An unexpected error occurred")
@@ -202,7 +208,7 @@ export function LoginForm() {
             <div className="text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <a
-                href="/signup"
+                href={`/signup${isEnrollment ? '?enroll=true' : ''}`}
                 className="text-primary hover:text-primary/80 font-medium"
               >
                 Sign up

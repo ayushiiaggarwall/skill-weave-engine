@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,8 @@ import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
 
 export function SignupForm() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const isEnrollment = searchParams.get('enroll') === 'true'
   const { signUp, signInWithGoogle } = useAuth()
   const [formData, setFormData] = useState({
     fullName: "",
@@ -62,7 +64,11 @@ export function SignupForm() {
         setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for a beautiful verification message to activate your account.")
         // Optionally redirect after a delay
         setTimeout(() => {
-          navigate('/login')
+          if (isEnrollment) {
+            navigate('/payment')
+          } else {
+            navigate('/login')
+          }
         }, 3000)
       }
     } catch (err) {
@@ -282,7 +288,7 @@ export function SignupForm() {
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <a
-                href="/login"
+                href={`/login${isEnrollment ? '?enroll=true' : ''}`}
                 className="text-primary hover:text-primary/80 font-medium"
               >
                 Sign in

@@ -4,11 +4,13 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { Check, Zap, Sparkles, Clock } from "lucide-react"
 import { usePricing } from "@/hooks/use-pricing"
+import { useAuth } from "@/contexts/auth-context"
 
 export function StandalonePricing() {
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
   const { pricing, isEarlyBird, timeLeft, currentPrice, formatTime } = usePricing()
+  const { user } = useAuth()
 
   // Animate features on scroll
   useEffect(() => {
@@ -64,8 +66,13 @@ export function StandalonePricing() {
   ]
 
   const handleEnrollNow = () => {
-    // Redirect to signup with enrollment intent
-    window.location.href = '/signup?enroll=true'
+    if (user) {
+      // User is signed in, redirect to payment page
+      window.location.href = '/payment'
+    } else {
+      // User not signed in, redirect to signup with enrollment intent
+      window.location.href = '/signup?enroll=true'
+    }
   }
 
   return (

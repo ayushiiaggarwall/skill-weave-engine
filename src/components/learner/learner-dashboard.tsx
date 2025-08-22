@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
+import { supabase } from "@/integrations/supabase/client"
 import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 import { 
   BookOpen, 
   Award, 
@@ -13,40 +15,43 @@ import {
   FileText,
   Video,
   Link as LinkIcon,
-  Github,
   Code,
   Users,
   MessageCircle,
   Calendar,
-  HelpCircle
+  HelpCircle,
+  Image,
+  File
 } from "lucide-react"
 
-const resources = [
-  {
-    category: "Study Materials",
-    items: [
-      { name: "Course Handbook", type: "PDF", icon: FileText, description: "Complete course guide and syllabus" },
-      { name: "Code Templates", type: "ZIP", icon: Code, description: "Starter templates for all projects" },
-      { name: "Cheat Sheets", type: "PDF", icon: FileText, description: "Quick reference guides" }
-    ]
-  },
-  {
-    category: "Video Resources",
-    items: [
-      { name: "Recorded Sessions", type: "Video", icon: Video, description: "All live session recordings" },
-      { name: "Bonus Tutorials", type: "Video", icon: Video, description: "Extra learning content" },
-      { name: "Expert Interviews", type: "Video", icon: Video, description: "Industry expert insights" }
-    ]
-  },
-  {
-    category: "Tools & Links",
-    items: [
-      { name: "GitHub Repository", type: "Link", icon: Github, description: "Course code repository" },
-      { name: "Online IDE", type: "Link", icon: Code, description: "Cloud development environment" },
-      { name: "Design Resources", type: "Link", icon: LinkIcon, description: "UI/UX design assets" }
-    ]
+interface CourseContent {
+  id: string
+  title: string
+  description: string | null
+  content_type: string
+  content_url: string | null
+  file_name: string | null
+  file_size: number | null
+  week_number: number
+  created_at: string
+}
+
+const getContentIcon = (contentType: string) => {
+  switch (contentType.toLowerCase()) {
+    case 'video':
+      return Video
+    case 'pdf':
+      return FileText
+    case 'link':
+      return LinkIcon
+    case 'image':
+      return Image
+    case 'code':
+      return Code
+    default:
+      return File
   }
-]
+}
 
 const certificates = [
   {
@@ -81,6 +86,82 @@ const communityFeatures = [
 
 export function LearnerDashboard() {
   const enrollmentStatus = useEnrollmentStatus()
+  const [courseContent, setCourseContent] = useState<CourseContent[]>([])
+  const [contentLoading, setContentLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchCourseContent = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('course_content')
+          .select('*')
+          .eq('is_visible', true)
+          .order('week_number', { ascending: true })
+          .order('created_at', { ascending: true })
+
+        if (error) {
+          console.error('Error fetching course content:', error)
+          return
+        }
+
+        setCourseContent(data || [])
+      } catch (error) {
+        console.error('Error fetching course content:', error)
+      } finally {
+        setContentLoading(false)
+      }
+    }
+
+    if (enrollmentStatus.isEnrolled) {
+      fetchCourseContent()
+    }
+  }, [enrollmentStatus.isEnrolled])
+
+  useEffect(() => {
+    if (!enrollmentStatus.isEnrolled) return
+
+    const channel = supabase
+      .channel('course-content-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'course_content'
+        },
+        () => {
+          // Refetch content when changes occur
+          const fetchCourseContent = async () => {
+            const { data, error } = await supabase
+              .from('course_content')
+              .select('*')
+              .eq('is_visible', true)
+              .order('week_number', { ascending: true })
+              .order('created_at', { ascending: true })
+
+            if (!error && data) {
+              setCourseContent(data)
+            }
+          }
+          fetchCourseContent()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [enrollmentStatus.isEnrolled])
+
+  // Group content by week
+  const contentByWeek = courseContent.reduce((acc, content) => {
+    const week = `Week ${content.week_number}`
+    if (!acc[week]) {
+      acc[week] = []
+    }
+    acc[week].push(content)
+    return acc
+  }, {} as Record<string, CourseContent[]>)
 
   if (enrollmentStatus.loading) {
     return (
@@ -145,48 +226,88 @@ export function LearnerDashboard() {
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Resources Section */}
+            {/* Course Content Section */}
             <div className="space-y-6">
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <BookOpen className="h-6 w-6" />
-                Resources
+                Course Content
               </h2>
               
-              {resources.map((category, categoryIndex) => (
-                <motion.div
-                  key={category.category}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
-                >
-                  <Card className="pt-4">
-                    <CardHeader>
-                      <CardTitle className="text-lg">{category.category}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {category.items.map((item, itemIndex) => (
-                          <div key={itemIndex} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                            <div className="flex items-center gap-3">
-                              <item.icon className="h-5 w-5 text-primary" />
-                              <div>
-                                <div className="font-medium">{item.name}</div>
-                                <div className="text-sm text-muted-foreground">{item.description}</div>
+              {contentLoading ? (
+                <Card className="pt-4">
+                  <CardContent className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </CardContent>
+                </Card>
+              ) : Object.keys(contentByWeek).length === 0 ? (
+                <Card className="pt-4">
+                  <CardContent className="text-center py-8">
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">No course content available yet.</p>
+                    <p className="text-sm text-muted-foreground mt-2">Content will appear here as your instructor adds it.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                Object.entries(contentByWeek).map(([week, contents], weekIndex) => (
+                  <motion.div
+                    key={week}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: weekIndex * 0.1 }}
+                  >
+                    <Card className="pt-4">
+                      <CardHeader>
+                        <CardTitle className="text-lg">{week}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {contents.map((content) => {
+                            const ContentIcon = getContentIcon(content.content_type)
+                            return (
+                              <div key={content.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+                                <div className="flex items-center gap-3">
+                                  <ContentIcon className="h-5 w-5 text-primary" />
+                                  <div>
+                                    <div className="font-medium">{content.title}</div>
+                                    {content.description && (
+                                      <div className="text-sm text-muted-foreground">{content.description}</div>
+                                    )}
+                                    {content.file_size && (
+                                      <div className="text-xs text-muted-foreground">
+                                        Size: {(content.file_size / 1024 / 1024).toFixed(2)} MB
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs">
+                                    {content.content_type.toUpperCase()}
+                                  </Badge>
+                                  {content.content_url && (
+                                    <Button size="sm" variant="ghost" asChild>
+                                      <a 
+                                        href={content.content_url} 
+                                        target={content.content_type === 'link' ? '_blank' : '_self'}
+                                        rel={content.content_type === 'link' ? 'noopener noreferrer' : undefined}
+                                      >
+                                        {content.content_type === 'link' ? (
+                                          <ExternalLink className="h-4 w-4" />
+                                        ) : (
+                                          <Download className="h-4 w-4" />
+                                        )}
+                                      </a>
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="text-xs">{item.type}</Badge>
-                              <Button size="sm" variant="ghost">
-                                <Download className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+                            )
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))
+              )}
             </div>
 
             {/* Certificates & Community */}

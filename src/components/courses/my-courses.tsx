@@ -8,7 +8,6 @@ import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
 import { motion } from "framer-motion"
 import { 
   BookOpen, 
-  Award, 
   Clock,
   Play,
   CheckCircle,
@@ -280,35 +279,6 @@ export function MyCourses() {
             ))}
           </div>
 
-          {/* Quick Stats */}
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <Card className="pt-4">
-              <CardContent className="text-center">
-                <Award className="h-8 w-8 mx-auto mb-2 text-primary" />
-                <div className="text-2xl font-bold">1</div>
-                <p className="text-sm text-muted-foreground">Certificates Earned</p>
-              </CardContent>
-            </Card>
-            <Card className="pt-4">
-              <CardContent className="text-center">
-                <Clock className="h-8 w-8 mx-auto mb-2 text-primary" />
-                <div className="text-2xl font-bold">23h</div>
-                <p className="text-sm text-muted-foreground">Time Studied</p>
-              </CardContent>
-            </Card>
-            <Card className="pt-4">
-              <CardContent className="text-center">
-                <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-                <div className="text-2xl font-bold">5</div>
-                <p className="text-sm text-muted-foreground">Projects Completed</p>
-              </CardContent>
-            </Card>
-          </motion.div>
         </div>
       </div>
     </ProtectedRoute>

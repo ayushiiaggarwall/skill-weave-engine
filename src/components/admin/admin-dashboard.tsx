@@ -4,7 +4,7 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, DollarSign, Clock } from "lucide-react"
+import { Users, DollarSign, Clock, Bell, Trash2 } from "lucide-react"
 
 interface PricingSettings {
   id: string
@@ -27,9 +27,19 @@ interface UserProfile {
   created_at: string
 }
 
+interface Announcement {
+  id: string
+  title: string
+  body: string
+  created_at: string
+  cohort_id?: string | null
+}
+
 export function AdminDashboard() {
   const [pricingSettings, setPricingSettings] = useState<PricingSettings | null>(null)
   const [users, setUsers] = useState<UserProfile[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [newAnnouncement, setNewAnnouncement] = useState({ title: '', body: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
@@ -37,6 +47,7 @@ export function AdminDashboard() {
   useEffect(() => {
     fetchPricingSettings()
     fetchUsers()
+    fetchAnnouncements()
   }, [])
 
   const fetchPricingSettings = async () => {
@@ -124,6 +135,85 @@ export function AdminDashboard() {
       is_early_bird_active: false,
       early_bird_end_time: null
     })
+  }
+
+  const fetchAnnouncements = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setAnnouncements(data || [])
+    } catch (error) {
+      console.error('Error fetching announcements:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch announcements",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const createAnnouncement = async () => {
+    if (!newAnnouncement.title.trim() || !newAnnouncement.body.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in both title and body",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('announcements')
+        .insert([{
+          title: newAnnouncement.title,
+          body: newAnnouncement.body
+        }])
+
+      if (error) throw error
+
+      setNewAnnouncement({ title: '', body: '' })
+      fetchAnnouncements()
+      toast({
+        title: "Success",
+        description: "Announcement created successfully"
+      })
+    } catch (error) {
+      console.error('Error creating announcement:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create announcement",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const deleteAnnouncement = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('announcements')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      fetchAnnouncements()
+      toast({
+        title: "Success",
+        description: "Announcement deleted successfully"
+      })
+    } catch (error) {
+      console.error('Error deleting announcement:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete announcement",
+        variant: "destructive"
+      })
+    }
   }
 
   if (loading) {
@@ -261,6 +351,70 @@ export function AdminDashboard() {
                 </div>
               </>
             )}
+          </AnimatedCardContent>
+        </AnimatedCard>
+
+        {/* Announcements Management */}
+        <AnimatedCard>
+          <AnimatedCardHeader>
+            <AnimatedCardTitle className="flex items-center space-x-2">
+              <Bell className="w-5 h-5" />
+              <span>Announcements Management</span>
+            </AnimatedCardTitle>
+          </AnimatedCardHeader>
+          <AnimatedCardContent className="space-y-6">
+            {/* Create New Announcement */}
+            <div className="p-4 border rounded-lg space-y-4">
+              <h3 className="text-lg font-semibold">Create New Announcement</h3>
+              <div className="space-y-3">
+                <Input
+                  placeholder="Announcement title"
+                  value={newAnnouncement.title}
+                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                />
+                <textarea
+                  placeholder="Announcement body"
+                  value={newAnnouncement.body}
+                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, body: e.target.value })}
+                  className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  rows={3}
+                />
+                <Button onClick={createAnnouncement} disabled={saving}>
+                  Create Announcement
+                </Button>
+              </div>
+            </div>
+
+            {/* Existing Announcements */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Existing Announcements ({announcements.length})</h3>
+              {announcements.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">No announcements yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {announcements.map((announcement) => (
+                    <div key={announcement.id} className="p-4 border rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium">{announcement.title}</h4>
+                          <p className="text-sm text-muted-foreground mt-1">{announcement.body}</p>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {new Date(announcement.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => deleteAnnouncement(announcement.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </AnimatedCardContent>
         </AnimatedCard>
 

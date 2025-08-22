@@ -21,6 +21,7 @@ import { MyCourses } from '@/components/courses/my-courses'
 import { LearnerDashboard } from '@/components/learner/learner-dashboard'
 import { PricingPage } from './components/pricing/pricing-page'
 import { AuthRedirect } from './components/auth/auth-redirect'
+import { ContactUs } from './components/support/contact-us'
 
 function HomePage() {
   return (
@@ -81,6 +82,7 @@ function App() {
           <Route path="/learner" element={<LearnerDashboard />} />
             <Route path="/courses" element={<CoursePage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/contact" element={<ContactUs />} />
             <Route path="/admin" element={
               <ProtectedAdminRoute>
                 <AdminDashboard />

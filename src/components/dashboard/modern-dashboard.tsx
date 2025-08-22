@@ -16,15 +16,38 @@ import {
   Bell, 
   ExternalLink,
   Play,
-  Clock,
   Users,
   Star,
   Bookmark
 } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { supabase } from "@/integrations/supabase/client"
 
 export function ModernDashboard() {
   const { user, profile } = useAuth()
   const enrollmentStatus = useEnrollmentStatus()
+  const navigate = useNavigate()
+  const [announcements, setAnnouncements] = useState<any[]>([])
+
+  useEffect(() => {
+    fetchAnnouncements()
+  }, [])
+
+  const fetchAnnouncements = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(3)
+
+      if (error) throw error
+      setAnnouncements(data || [])
+    } catch (error) {
+      console.error('Error fetching announcements:', error)
+    }
+  }
 
   if (enrollmentStatus.loading) {
     return (
@@ -62,7 +85,7 @@ export function ModernDashboard() {
               transition={{ duration: 0.6 }}
             >
               <h1 className="text-4xl font-bold text-gradient mb-2">
-                Hi {profile?.name || 'there'}, welcome! 👋
+                Hi {profile?.name?.split(' ')[0] || 'there'}!
               </h1>
               <p className="text-lg text-muted-foreground">
                 {enrollmentStatus.isEnrolled 
@@ -90,7 +113,7 @@ export function ModernDashboard() {
                         <div>
                           <h3 className="text-lg font-semibold">Profile Summary</h3>
                           <p className="text-sm text-muted-foreground">
-                            Learner ID: {user?.id?.slice(0, 8)}...
+                            Welcome to your learning journey
                           </p>
                         </div>
                       </CardTitle>
@@ -110,7 +133,7 @@ export function ModernDashboard() {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Badge variant={enrollmentStatus.isEnrolled ? "default" : "secondary"}>
-                              {enrollmentStatus.isEnrolled ? "Enrolled Learner" : "Visitor"}
+                              {enrollmentStatus.isEnrolled ? "Enrolled Learner" : "Learner"}
                             </Badge>
                           </div>
                           {profile?.created_at && (
@@ -210,19 +233,28 @@ export function ModernDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="grid md:grid-cols-2 gap-3">
-                        <Button variant="outline" className="justify-start h-12" disabled={!enrollmentStatus.isEnrolled}>
+                        <Button 
+                          variant="outline" 
+                          className="justify-start h-12" 
+                          disabled={!enrollmentStatus.isEnrolled}
+                          onClick={() => enrollmentStatus.isEnrolled && navigate('/my-courses')}
+                        >
                           <BookOpen className="w-4 h-4 mr-2" />
                           My Courses
                         </Button>
-                        <Button variant="outline" className="justify-start h-12" disabled={!enrollmentStatus.isEnrolled}>
+                        <Button variant="outline" className="justify-start h-12" disabled>
                           <Award className="w-4 h-4 mr-2" />
                           Certificates
                         </Button>
-                        <Button variant="outline" className="justify-start h-12">
+                        <Button 
+                          variant="outline" 
+                          className="justify-start h-12"
+                          onClick={() => navigate('/contact')}
+                        >
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Support
                         </Button>
-                        <Button variant="outline" className="justify-start h-12" disabled={!enrollmentStatus.isEnrolled}>
+                        <Button variant="outline" className="justify-start h-12" disabled>
                           <Users className="w-4 h-4 mr-2" />
                           Community
                         </Button>
@@ -248,22 +280,29 @@ export function ModernDashboard() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                        <h4 className="font-medium text-sm">Welcome to the Platform!</h4>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Explore your dashboard and get ready to start learning.
-                        </p>
-                        <span className="text-xs text-primary">Just now</span>
-                      </div>
-                      
-                      {enrollmentStatus.isEnrolled && (
-                        <div className="p-3 bg-accent/10 rounded-lg border border-accent/20">
-                          <h4 className="font-medium text-sm">Course Starting Soon!</h4>
+                      {announcements.length === 0 ? (
+                        <div className="p-3 bg-muted/10 rounded-lg border border-muted/20">
+                          <h4 className="font-medium text-sm">Welcome to the Platform!</h4>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Your cohort will begin shortly. Check your email for updates.
+                            No announcements yet. Check back later for updates!
                           </p>
-                          <span className="text-xs text-accent">2 hours ago</span>
                         </div>
+                      ) : (
+                        announcements.map((announcement, index) => (
+                          <div key={announcement.id} className={`p-3 rounded-lg border ${
+                            index === 0 
+                              ? 'bg-primary/10 border-primary/20' 
+                              : 'bg-accent/10 border-accent/20'
+                          }`}>
+                            <h4 className="font-medium text-sm">{announcement.title}</h4>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {announcement.body}
+                            </p>
+                            <span className={`text-xs ${index === 0 ? 'text-primary' : 'text-accent'}`}>
+                              {new Date(announcement.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        ))
                       )}
                     </CardContent>
                   </Card>
@@ -294,15 +333,6 @@ export function ModernDashboard() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-2 opacity-60">
-                          <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
-                            <Clock className="w-4 h-4" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium text-sm">Advanced Automation</h4>
-                            <p className="text-xs text-muted-foreground">Coming soon</p>
-                          </div>
-                        </div>
                       </div>
                     </CardContent>
                   </Card>

@@ -21,39 +21,48 @@ import {
 const courseModules = [
   {
     week: 1,
-    title: "Introduction to Web Development",
-    description: "Learn the fundamentals of HTML, CSS, and JavaScript",
-    duration: "4 hours",
-    status: "completed",
-    progress: 100,
-    topics: ["HTML Basics", "CSS Fundamentals", "JavaScript Introduction"]
-  },
-  {
-    week: 2,
-    title: "React Fundamentals",
-    description: "Master React components, props, and state management",
-    duration: "6 hours",
-    status: "current",
-    progress: 75,
-    topics: ["Components", "Props & State", "Event Handling", "Hooks"]
-  },
-  {
-    week: 3,
-    title: "Advanced React Patterns",
-    description: "Context API, custom hooks, and performance optimization",
-    duration: "5 hours",
-    status: "locked",
-    progress: 0,
-    topics: ["Context API", "Custom Hooks", "Performance", "Testing"]
-  },
-  {
-    week: 4,
-    title: "Backend Integration",
-    description: "APIs, databases, and full-stack development",
+    title: "No-Code Fundamentals",
+    description: "Introduction to no-code tools and platforms",
     duration: "8 hours",
     status: "locked",
     progress: 0,
-    topics: ["REST APIs", "Database Design", "Authentication", "Deployment"]
+    topics: ["What is No-Code?", "Popular Platforms", "Basic Concepts", "First Project"]
+  },
+  {
+    week: 2,
+    title: "Database Design & Management",
+    description: "Learn to design and manage databases without code",
+    duration: "10 hours",
+    status: "locked",
+    progress: 0,
+    topics: ["Database Basics", "Airtable", "Relations", "Data Validation"]
+  },
+  {
+    week: 3,
+    title: "Building Web Applications",
+    description: "Create responsive web apps using no-code platforms",
+    duration: "12 hours",
+    status: "locked",
+    progress: 0,
+    topics: ["Webflow Basics", "Components", "Responsive Design", "Interactions"]
+  },
+  {
+    week: 4,
+    title: "Automation & Workflows",
+    description: "Automate processes and create efficient workflows",
+    duration: "10 hours",
+    status: "locked",
+    progress: 0,
+    topics: ["Zapier", "Workflow Design", "API Integrations", "Testing"]
+  },
+  {
+    week: 5,
+    title: "Product Launch & Beyond",
+    description: "Launch your product and scale it effectively",
+    duration: "8 hours",
+    status: "locked",
+    progress: 0,
+    topics: ["Product Launch", "User Feedback", "Analytics", "Scaling"]
   }
 ]
 
@@ -98,6 +107,15 @@ export function MyCourses() {
   return (
     <ProtectedRoute>
       <Header />
+      {/* Top Progress Bar */}
+      <div className="fixed top-0 left-0 w-full z-50 bg-background/80 backdrop-blur-sm border-b">
+        <div className="h-1 bg-primary/20">
+          <div 
+            className="h-full bg-gradient-primary transition-all duration-300"
+            style={{ width: `${overallProgress}%` }}
+          />
+        </div>
+      </div>
       <div className="min-h-screen bg-background pt-20">
         {/* Background Effects */}
         <div 
@@ -137,7 +155,7 @@ export function MyCourses() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold">Overall Progress</h3>
-                    <p className="text-muted-foreground">Complete Web Development Course</p>
+                    <p className="text-muted-foreground">5-Week No-Code to Product Course</p>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold gradient-text">{overallProgress}%</div>

@@ -58,7 +58,7 @@ export function UserProfileDropdown() {
               <p className="text-sm font-medium">{profile?.name || 'User'}</p>
               <p className="text-xs text-muted-foreground">{user?.email}</p>
               <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                {profile?.role || 'student'}
+                {profile?.role === 'student' ? 'learner' : (profile?.role || 'learner')}
               </span>
             </div>
             

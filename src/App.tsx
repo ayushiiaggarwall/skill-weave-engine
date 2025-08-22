@@ -9,7 +9,7 @@ import { PricingSection } from './components/landing/pricing-section'
 import { Footer } from './components/landing/footer'
 import { LoginForm } from './components/auth/login-form'
 import { SignupForm } from './components/auth/signup-form'
-import { Dashboard } from './components/dashboard/dashboard'
+import { ModernDashboard } from './components/dashboard/modern-dashboard'
 import { PaymentPage } from './components/payment/payment-page'
 import { EnhancedPaymentPage } from './components/payment/enhanced-payment-page'
 import { PaymentSuccess } from './components/payment/payment-success'
@@ -74,7 +74,7 @@ function App() {
             <Route path="/pay" element={<EnhancedPaymentPage />} />
             <Route path="/pay/success" element={<PaymentSuccess />} />
             <Route path="/pay/cancel" element={<PaymentCancel />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<ModernDashboard />} />
             <Route path="/courses" element={<CoursePage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/admin" element={

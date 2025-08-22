@@ -7,11 +7,13 @@ import { motion } from "framer-motion"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { useAdminRole } from "@/hooks/use-admin-role"
+import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
 
 export function Header() {
   const auth = useAuth()
   const { user, loading } = auth
   const { isAdmin, loading: adminLoading } = useAdminRole()
+  const enrollmentStatus = useEnrollmentStatus()
   const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
@@ -71,17 +73,33 @@ export function Header() {
                 <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
               )}
             </div>
-            <div className="relative">
-              <button 
-                onClick={() => navigate('/pricing')}
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Pricing
-              </button>
-              {location.pathname === '/pricing' && (
-                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
-              )}
-            </div>
+            
+            {/* Conditional Navigation: Pricing vs Learner */}
+            {user && enrollmentStatus.isEnrolled ? (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/dashboard')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Learner
+                </button>
+                {location.pathname === '/dashboard' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            ) : (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/pricing')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Pricing
+                </button>
+                {location.pathname === '/pricing' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            )}
             {user && !adminLoading && isAdmin && (
               <div className="relative">
                 <button 

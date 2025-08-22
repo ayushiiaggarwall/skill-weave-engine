@@ -35,13 +35,11 @@ export function EnhancedPaymentPage() {
   const [priceData, setPriceData] = useState<PriceData | null>(null)
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
-  const [regionOverride, setRegionOverride] = useState<'in' | 'intl' | null>(null)
-
   useEffect(() => {
     if (user?.email) {
       fetchPricing()
     }
-  }, [user, regionOverride])
+  }, [user])
 
   const fetchPricing = async () => {
     if (!user?.email) return
@@ -50,7 +48,6 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
-          regionOverride,
           coupon: couponCode || undefined
         }
       })
@@ -75,7 +72,6 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
-          regionOverride: priceData?.region,
           coupon: couponCode.trim()
         }
       })
@@ -106,11 +102,6 @@ export function EnhancedPaymentPage() {
     setIsApplyingCoupon(false)
   }
 
-  const switchRegion = () => {
-    const newRegion = priceData?.region === 'in' ? 'intl' : 'in'
-    setRegionOverride(newRegion)
-    setCouponCode("") // Clear coupon when switching regions
-  }
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -300,22 +291,13 @@ export function EnhancedPaymentPage() {
               <CardTitle>Payment Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Region Selection */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <Badge variant={priceData.region === 'in' ? 'default' : 'secondary'}>
-                    {priceData.region === 'in' ? 'India (INR)' : 'International (USD)'}
-                  </Badge>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={switchRegion}
-                  className="text-xs"
-                >
-                  Switch Region
-                </Button>
+              {/* Region Detection */}
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                <Badge variant={priceData.region === 'in' ? 'default' : 'secondary'}>
+                  {priceData.region === 'in' ? 'India (INR)' : 'International (USD)'}
+                </Badge>
+                <span className="text-xs text-muted-foreground">Auto-detected</span>
               </div>
 
               {/* Early Bird Badge */}

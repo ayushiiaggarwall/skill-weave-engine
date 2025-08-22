@@ -2,3 +2,18 @@ project_id = "xujaxssbncobmiwxbaxh"
 
 [functions.send-verification-email]
 verify_jwt = false
+
+[functions.pay-price]
+verify_jwt = false
+
+[functions.pay-create-order]
+verify_jwt = true
+
+[functions.pay-create-session]
+verify_jwt = true
+
+[functions.webhooks-razorpay]
+verify_jwt = false
+
+[functions.webhooks-stripe]
+verify_jwt = false

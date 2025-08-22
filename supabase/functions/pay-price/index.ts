@@ -1,0 +1,169 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface PriceRequest {
+  email: string;
+  regionOverride?: 'in' | 'intl';
+  earlyOverride?: boolean;
+  coupon?: string;
+}
+
+interface PriceResponse {
+  region: 'in' | 'intl';
+  currency: 'INR' | 'USD';
+  amount: number;
+  display: string;
+  earlyBird: boolean;
+  couponApplied?: {
+    code: string;
+    type: string;
+    value: number;
+  };
+}
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[PAY-PRICE] ${step}${detailsStr}`);
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    logStep("Function started");
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const body: PriceRequest = await req.json();
+    const { email, regionOverride, earlyOverride, coupon } = body;
+
+    logStep("Request received", { email, regionOverride, earlyOverride, coupon });
+
+    // Determine region
+    let region: 'in' | 'intl' = 'intl';
+    if (regionOverride) {
+      region = regionOverride;
+    } else {
+      // Detect from headers (Cloudflare, Vercel, etc.)
+      const cfCountry = req.headers.get('cf-ipcountry');
+      const vercelCountry = req.headers.get('x-vercel-ip-country');
+      const country = cfCountry || vercelCountry;
+      
+      if (country === 'IN') {
+        region = 'in';
+      }
+    }
+
+    logStep("Region determined", { region });
+
+    // Get pricing settings from database
+    const { data: pricingSettings, error: pricingError } = await supabaseClient
+      .from('pricing_settings')
+      .select('*')
+      .single();
+
+    if (pricingError) {
+      throw new Error(`Failed to fetch pricing settings: ${pricingError.message}`);
+    }
+
+    logStep("Pricing settings fetched", pricingSettings);
+
+    // Determine if early bird is active
+    let isEarlyBird = false;
+    if (earlyOverride !== undefined) {
+      isEarlyBird = earlyOverride;
+    } else if (pricingSettings.is_early_bird_active && pricingSettings.early_bird_end_time) {
+      const endTime = new Date(pricingSettings.early_bird_end_time).getTime();
+      const now = new Date().getTime();
+      isEarlyBird = now < endTime;
+    }
+
+    logStep("Early bird status determined", { isEarlyBird });
+
+    // Get base price
+    let amount: number;
+    let currency: 'INR' | 'USD';
+    let symbol: string;
+
+    if (region === 'in') {
+      currency = 'INR';
+      symbol = '₹';
+      amount = isEarlyBird ? pricingSettings.inr_early_bird * 100 : pricingSettings.inr_regular * 100; // Convert to paise
+    } else {
+      currency = 'USD';
+      symbol = '$';
+      amount = isEarlyBird ? pricingSettings.usd_early_bird * 100 : pricingSettings.usd_regular * 100; // Convert to cents
+    }
+
+    logStep("Base price calculated", { amount, currency, isEarlyBird });
+
+    // Apply coupon if provided
+    let couponApplied;
+    if (coupon) {
+      const { data: couponData, error: couponError } = await supabaseClient
+        .from('coupons')
+        .select('*')
+        .eq('code', coupon.toUpperCase())
+        .eq('active', true)
+        .single();
+
+      if (!couponError && couponData) {
+        logStep("Coupon found", couponData);
+
+        if (couponData.type === 'percent') {
+          amount = Math.floor(amount * (100 - couponData.value) / 100);
+        } else if (couponData.type === 'flat') {
+          amount = Math.max(amount - couponData.value, 0);
+        }
+
+        couponApplied = {
+          code: couponData.code,
+          type: couponData.type,
+          value: couponData.value
+        };
+
+        logStep("Coupon applied", { couponApplied, newAmount: amount });
+      } else {
+        logStep("Coupon not found or inactive", { coupon });
+      }
+    }
+
+    // Format display amount
+    const displayAmount = currency === 'INR' ? amount / 100 : amount / 100;
+    const display = `${symbol}${displayAmount.toLocaleString()}`;
+
+    const response: PriceResponse = {
+      region,
+      currency,
+      amount,
+      display,
+      earlyBird: isEarlyBird,
+      couponApplied
+    };
+
+    logStep("Response prepared", response);
+
+    return new Response(JSON.stringify(response), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
+  }
+});

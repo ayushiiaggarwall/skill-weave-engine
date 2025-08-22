@@ -67,8 +67,8 @@ export function StandalonePricing() {
 
   const handleEnrollNow = () => {
     if (user) {
-      // User is signed in, redirect to payment page
-      window.location.href = '/payment'
+      // User is signed in, redirect to enhanced payment page
+      window.location.href = '/pay'
     } else {
       // User not signed in, redirect to signup with enrollment intent
       window.location.href = '/signup?enroll=true'

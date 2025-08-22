@@ -11,6 +11,9 @@ import { LoginForm } from './components/auth/login-form'
 import { SignupForm } from './components/auth/signup-form'
 import { Dashboard } from './components/dashboard/dashboard'
 import { PaymentPage } from './components/payment/payment-page'
+import { EnhancedPaymentPage } from './components/payment/enhanced-payment-page'
+import { PaymentSuccess } from './components/payment/payment-success'
+import { PaymentCancel } from './components/payment/payment-cancel'
 import { CoursePage } from './components/courses/course-page'
 import { AdminDashboard } from './components/admin/admin-dashboard'
 import { ProtectedAdminRoute } from './components/admin/protected-admin-route'
@@ -68,6 +71,9 @@ function App() {
               </div>
             } />
             <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/pay" element={<EnhancedPaymentPage />} />
+            <Route path="/pay/success" element={<PaymentSuccess />} />
+            <Route path="/pay/cancel" element={<PaymentCancel />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/courses" element={<CoursePage />} />
             <Route path="/pricing" element={<PricingPage />} />

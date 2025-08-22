@@ -108,6 +108,30 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          active: boolean | null
+          code: string
+          created_at: string
+          type: Database["public"]["Enums"]["coupon_type"]
+          value: number
+        }
+        Insert: {
+          active?: boolean | null
+          code: string
+          created_at?: string
+          type: Database["public"]["Enums"]["coupon_type"]
+          value: number
+        }
+        Update: {
+          active?: boolean | null
+          code?: string
+          created_at?: string
+          type?: Database["public"]["Enums"]["coupon_type"]
+          value?: number
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           content: string
@@ -246,6 +270,48 @@ export type Database = {
         }
         Relationships: []
       }
+      order_enrollments: {
+        Row: {
+          amount: number
+          coupon_code: string | null
+          created_at: string
+          currency: string
+          gateway: string
+          id: string
+          order_id: string
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+          user_email: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          coupon_code?: string | null
+          created_at?: string
+          currency: string
+          gateway: string
+          id?: string
+          order_id: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_email: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          coupon_code?: string | null
+          created_at?: string
+          currency?: string
+          gateway?: string
+          id?: string
+          order_id?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_email?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       pricing_settings: {
         Row: {
           created_at: string
@@ -381,6 +447,7 @@ export type Database = {
     }
     Enums: {
       app_role: "student" | "admin"
+      coupon_type: "percent" | "flat"
       payment_status: "pending" | "paid" | "failed"
       submission_status: "submitted" | "reviewed" | "needs_changes"
     }
@@ -511,6 +578,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["student", "admin"],
+      coupon_type: ["percent", "flat"],
       payment_status: ["pending", "paid", "failed"],
       submission_status: ["submitted", "reviewed", "needs_changes"],
     },

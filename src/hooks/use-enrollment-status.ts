@@ -61,13 +61,15 @@ export function useEnrollmentStatus(): EnrollmentStatus {
           return
         }
 
-        const hasCompletedPayment = orderEnrollments?.some(order => order.status === 'paid') || false
+        const hasCompletedPayment = orderEnrollments?.some(order => 
+          order.status === 'paid'
+        ) || false
         const hasActiveCohortEnrollment = enrollments?.some(
-          enrollment => enrollment.payment_status === 'paid' && enrollment.cohorts?.is_active
+          enrollment => (['paid','completed'].includes((enrollment.payment_status as unknown as string))) && enrollment.cohorts?.is_active
         ) || false
 
         const activeCohort = enrollments?.find(
-          enrollment => enrollment.payment_status === 'paid' && enrollment.cohorts?.is_active
+          enrollment => (['paid','completed'].includes((enrollment.payment_status as unknown as string))) && enrollment.cohorts?.is_active
         )?.cohorts
 
         setStatus({

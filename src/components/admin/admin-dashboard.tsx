@@ -4,7 +4,8 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, DollarSign, Clock, Bell, Trash2 } from "lucide-react"
+import { Users, DollarSign, Clock, Bell, Trash2, Upload } from "lucide-react"
+import ContentManagement from './content-management'
 
 interface PricingSettings {
   id: string
@@ -36,6 +37,7 @@ interface Announcement {
 }
 
 export function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState('pricing')
   const [pricingSettings, setPricingSettings] = useState<PricingSettings | null>(null)
   const [users, setUsers] = useState<UserProfile[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
@@ -231,10 +233,50 @@ export function AdminDashboard() {
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gradient mb-4">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage course pricing and view users</p>
+          <p className="text-muted-foreground">Manage course pricing, content, and view users</p>
         </div>
 
-        {/* Pricing Management */}
+        {/* Tab Navigation */}
+        <div className="flex justify-center space-x-4 mb-8">
+          <Button
+            variant={activeTab === 'pricing' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('pricing')}
+            className="flex items-center gap-2"
+          >
+            <DollarSign className="h-4 w-4" />
+            Pricing
+          </Button>
+          <Button
+            variant={activeTab === 'content' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('content')}
+            className="flex items-center gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Course Content
+          </Button>
+          <Button
+            variant={activeTab === 'announcements' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('announcements')}
+            className="flex items-center gap-2"
+          >
+            <Bell className="h-4 w-4" />
+            Announcements
+          </Button>
+          <Button
+            variant={activeTab === 'users' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('users')}
+            className="flex items-center gap-2"
+          >
+            <Users className="h-4 w-4" />
+            Users
+          </Button>
+        </div>
+
+        {activeTab === 'content' && (
+          <ContentManagement />
+        )}
+
+        {activeTab === 'pricing' && (
         <AnimatedCard>
           <AnimatedCardHeader>
             <AnimatedCardTitle className="flex items-center space-x-2">
@@ -353,8 +395,9 @@ export function AdminDashboard() {
             )}
           </AnimatedCardContent>
         </AnimatedCard>
+        )}
 
-        {/* Announcements Management */}
+        {activeTab === 'announcements' && (
         <AnimatedCard>
           <AnimatedCardHeader>
             <AnimatedCardTitle className="flex items-center space-x-2">
@@ -417,8 +460,9 @@ export function AdminDashboard() {
             </div>
           </AnimatedCardContent>
         </AnimatedCard>
+        )}
 
-        {/* Users Management */}
+        {activeTab === 'users' && (
         <AnimatedCard>
           <AnimatedCardHeader>
             <AnimatedCardTitle className="flex items-center space-x-2">
@@ -461,6 +505,7 @@ export function AdminDashboard() {
             </div>
           </AnimatedCardContent>
         </AnimatedCard>
+        )}
       </div>
     </div>
   )

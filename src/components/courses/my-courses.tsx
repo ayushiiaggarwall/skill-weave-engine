@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react"
+import { supabase } from "@/integrations/supabase/client"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { Header } from "@/components/landing/header"
 import { Button } from "@/components/ui/button"
@@ -5,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
+import { useToast } from "@/hooks/use-toast"
 import { motion } from "framer-motion"
 import { 
   BookOpen, 
@@ -14,8 +17,24 @@ import {
   Star,
   Calendar,
   Users,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  Video,
+  Link,
+  Clipboard
 } from "lucide-react"
+
+interface CourseContent {
+  id: string
+  title: string
+  description: string | null
+  content_type: 'video' | 'document' | 'link' | 'assignment'
+  content_url: string | null
+  file_name?: string | null
+  week_number: number
+  is_visible: boolean
+  created_at: string
+}
 
 const courseModules = [
   {
@@ -66,7 +85,82 @@ const courseModules = [
 ]
 
 export function MyCourses() {
+  const { toast } = useToast()
   const enrollmentStatus = useEnrollmentStatus()
+  const [courseContent, setCourseContent] = useState<CourseContent[]>([])
+  const [contentLoading, setContentLoading] = useState(true)
+
+  useEffect(() => {
+    if (enrollmentStatus.isEnrolled) {
+      fetchCourseContent()
+      setupRealtimeSubscription()
+    }
+  }, [enrollmentStatus.isEnrolled])
+
+  const fetchCourseContent = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('course_content')
+        .select('*')
+        .eq('is_visible', true)
+        .order('week_number', { ascending: true })
+        .order('created_at', { ascending: true })
+
+      if (error) throw error
+      setCourseContent((data || []) as CourseContent[])
+    } catch (error) {
+      console.error('Error fetching course content:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch course content",
+        variant: "destructive",
+      })
+    } finally {
+      setContentLoading(false)
+    }
+  }
+
+  const setupRealtimeSubscription = () => {
+    const channel = supabase
+      .channel('course-content-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'course_content'
+        },
+        () => {
+          fetchCourseContent()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }
+
+  const getContentIcon = (contentType: string) => {
+    switch (contentType) {
+      case 'video':
+        return <Video className="h-4 w-4" />
+      case 'document':
+        return <FileText className="h-4 w-4" />
+      case 'link':
+        return <Link className="h-4 w-4" />
+      case 'assignment':
+        return <Clipboard className="h-4 w-4" />
+      default:
+        return <FileText className="h-4 w-4" />
+    }
+  }
+
+  const handleContentClick = (url: string | null) => {
+    if (url) {
+      window.open(url, '_blank')
+    }
+  }
 
   const overallProgress = Math.round(courseModules.reduce((acc, module) => acc + module.progress, 0) / courseModules.length)
 
@@ -278,6 +372,90 @@ export function MyCourses() {
               </motion.div>
             ))}
           </div>
+
+          {/* Dynamic Course Content */}
+          {enrollmentStatus.isEnrolled && (
+            <motion.div 
+              className="mt-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Course Materials
+                  </CardTitle>
+                  <p className="text-muted-foreground">
+                    Access your course materials and assignments - updated in real-time
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {contentLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-pulse">Loading course materials...</div>
+                    </div>
+                  ) : courseContent.length === 0 ? (
+                    <div className="text-center py-8">
+                      <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground">No course materials available yet.</p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Your instructor will upload materials here as the course progresses.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {[1, 2, 3, 4, 5].map(week => {
+                        const weekContent = courseContent.filter(item => item.week_number === week)
+                        return (
+                          <div key={week} className="border rounded-lg p-4">
+                            <h4 className="font-semibold mb-3 text-lg">Week {week}</h4>
+                            {weekContent.length === 0 ? (
+                              <p className="text-muted-foreground text-sm">No materials available for this week yet.</p>
+                            ) : (
+                              <div className="grid gap-3">
+                                {weekContent.map(item => (
+                                  <div 
+                                    key={item.id} 
+                                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer"
+                                    onClick={() => handleContentClick(item.content_url)}
+                                  >
+                                    <div className="flex items-center gap-3 flex-1">
+                                      <div className="text-primary">
+                                        {getContentIcon(item.content_type)}
+                                      </div>
+                                      <div>
+                                        <h5 className="font-medium">{item.title}</h5>
+                                        {item.description && (
+                                          <p className="text-sm text-muted-foreground">{item.description}</p>
+                                        )}
+                                        <div className="flex items-center gap-2 mt-1">
+                                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                                            {item.content_type}
+                                          </span>
+                                          <span className="text-xs text-muted-foreground">
+                                            {new Date(item.created_at).toLocaleDateString()}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Button variant="ghost" size="sm">
+                                      <ExternalLink className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
         </div>
       </div>

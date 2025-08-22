@@ -132,6 +132,54 @@ export type Database = {
         }
         Relationships: []
       }
+      course_content: {
+        Row: {
+          content_type: string
+          content_url: string | null
+          course_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          file_name: string | null
+          file_size: number | null
+          id: string
+          is_visible: boolean
+          title: string
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          content_type: string
+          content_url?: string | null
+          course_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          is_visible?: boolean
+          title: string
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          content_type?: string
+          content_url?: string | null
+          course_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          is_visible?: boolean
+          title?: string
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           content: string

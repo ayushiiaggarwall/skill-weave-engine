@@ -34,39 +34,43 @@ export default function CertificatesManagement() {
     is_locked: true,
   })
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [{ data: coursesData }, { data: certsData }] = await Promise.all([
-          supabase.from('courses').select('id, title').order('created_at', { ascending: true }),
-          supabase.from('certificates').select(`
-            id, title, description, certificate_url, course_id, is_locked,
-            courses ( title )
-          `).order('created_at', { ascending: false })
-        ])
-        setCourses((coursesData as Course[]) || [])
-        setCertificates((certsData as CertificateRow[]) || [])
-      } catch (e) {
-        console.error('Error loading certificates admin:', e)
-        toast({ title: 'Error', description: 'Failed to load data', variant: 'destructive' })
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchAll()
-
-    const channel = supabase
-      .channel('admin-certificates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'certificates' }, async () => {
-        const { data } = await supabase.from('certificates').select(`
+useEffect(() => {
+  const fetchAll = async () => {
+    try {
+      const [{ data: coursesData }, { data: certsData }] = await Promise.all([
+        supabase.from('courses').select('id, title').order('created_at', { ascending: true }),
+        supabase.from('certificates').select(`
           id, title, description, certificate_url, course_id, is_locked,
           courses ( title )
         `).order('created_at', { ascending: false })
-        setCertificates((data as CertificateRow[]) || [])
-      })
-      .subscribe()
-    return () => { supabase.removeChannel(channel) }
-  }, [])
+      ])
+      setCourses((coursesData as Course[]) || [])
+      setCertificates((certsData as CertificateRow[]) || [])
+    } catch (e) {
+      console.error('Error loading certificates admin:', e)
+      toast({ title: 'Error', description: 'Failed to load data', variant: 'destructive' })
+    } finally {
+      setLoading(false)
+    }
+  }
+  fetchAll()
+
+  const channel = supabase
+    .channel('admin-certificates')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'certificates' }, async () => {
+      const { data } = await supabase.from('certificates').select(`
+        id, title, description, certificate_url, course_id, is_locked,
+        courses ( title )
+      `).order('created_at', { ascending: false })
+      setCertificates((data as CertificateRow[]) || [])
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, async () => {
+      const { data } = await supabase.from('courses').select('id, title').order('created_at', { ascending: true })
+      setCourses((data as Course[]) || [])
+    })
+    .subscribe()
+  return () => { supabase.removeChannel(channel) }
+}, [])
 
   const createCertificate = async () => {
     if (!form.title.trim() || !form.course_id) {

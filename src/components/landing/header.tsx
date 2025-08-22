@@ -62,28 +62,43 @@ export function Header() {
                 <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
               )}
             </div>
-            <div className="relative">
-              <button 
-                onClick={() => navigate('/courses')}
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Course
-              </button>
-              {location.pathname === '/courses' && (
-                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
-              )}
-            </div>
-            
-            {/* Conditional Navigation: Pricing vs Learner */}
+            {/* Conditional Navigation: Course vs My Courses */}
             {user && enrollmentStatus.isEnrolled ? (
               <div className="relative">
                 <button 
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/my-courses')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  My Courses
+                </button>
+                {location.pathname === '/my-courses' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            ) : (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/courses')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Course
+                </button>
+                {location.pathname === '/courses' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            )}
+            
+            {/* Conditional Navigation: Pricing vs Learner */}
+            {user && enrollmentStatus.isEnrolled ? (
+              <div className="relative group">
+                <button 
+                  onClick={() => navigate('/learner')}
                   className="text-foreground hover:text-primary transition-colors font-medium"
                 >
                   Learner
                 </button>
-                {location.pathname === '/dashboard' && (
+                {location.pathname === '/learner' && (
                   <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
                 )}
               </div>

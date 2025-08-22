@@ -17,6 +17,8 @@ import { PaymentCancel } from './components/payment/payment-cancel'
 import { CoursePage } from './components/courses/course-page'
 import { AdminDashboard } from './components/admin/admin-dashboard'
 import { ProtectedAdminRoute } from './components/admin/protected-admin-route'
+import { MyCourses } from './components/courses/my-courses'
+import { LearnerDashboard } from './components/learner/learner-dashboard'
 import { PricingPage } from './components/pricing/pricing-page'
 import { AuthRedirect } from './components/auth/auth-redirect'
 
@@ -74,7 +76,9 @@ function App() {
             <Route path="/pay" element={<EnhancedPaymentPage />} />
             <Route path="/pay/success" element={<PaymentSuccess />} />
             <Route path="/pay/cancel" element={<PaymentCancel />} />
-            <Route path="/dashboard" element={<ModernDashboard />} />
+          <Route path="/dashboard" element={<ModernDashboard />} />
+          <Route path="/my-courses" element={<MyCourses />} />
+          <Route path="/learner" element={<LearnerDashboard />} />
             <Route path="/courses" element={<CoursePage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/admin" element={

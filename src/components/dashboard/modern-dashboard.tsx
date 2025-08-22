@@ -81,7 +81,7 @@ export function ModernDashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 }}
                 >
-                  <Card className="glass-card-strong hover-lift">
+                  <Card className="glass-card-strong hover-lift pt-4">
                     <CardHeader className="pb-4">
                       <CardTitle className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center">
@@ -132,7 +132,7 @@ export function ModernDashboard() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
                   {enrollmentStatus.isEnrolled ? (
-                    <Card className="glass-card-strong hover-lift">
+                    <Card className="glass-card-strong hover-lift pt-4">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           <BookOpen className="w-5 h-5" />
@@ -175,7 +175,7 @@ export function ModernDashboard() {
                       </CardContent>
                     </Card>
                   ) : (
-                    <Card className="glass-card-strong hover-lift">
+                    <Card className="glass-card-strong hover-lift pt-4">
                       <CardContent className="p-6">
                         <div className="text-center space-y-4">
                           <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto">
@@ -204,7 +204,7 @@ export function ModernDashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
                 >
-                  <Card className="glass-card-strong">
+                  <Card className="glass-card-strong pt-4">
                     <CardHeader>
                       <CardTitle>Quick Links</CardTitle>
                     </CardHeader>
@@ -240,7 +240,7 @@ export function ModernDashboard() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                  <Card className="glass-card">
+                  <Card className="glass-card pt-4">
                     <CardHeader className="pb-4">
                       <CardTitle className="flex items-center gap-2 text-lg">
                         <Bell className="w-5 h-5" />
@@ -275,7 +275,7 @@ export function ModernDashboard() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
                 >
-                  <Card className="glass-card">
+                  <Card className="glass-card pt-4">
                     <CardHeader className="pb-4">
                       <CardTitle className="flex items-center gap-2 text-lg">
                         <Star className="w-5 h-5" />
@@ -314,7 +314,7 @@ export function ModernDashboard() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
                 >
-                  <Card className="glass-card">
+                  <Card className="glass-card pt-4">
                     <CardContent className="p-4 text-center">
                       <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-2">
                         <Bookmark className="w-6 h-6 text-white" />

@@ -81,6 +81,50 @@ export type Database = {
           },
         ]
       }
+      certificates: {
+        Row: {
+          certificate_url: string | null
+          course_id: string
+          created_at: string
+          credential_id_prefix: string
+          description: string | null
+          id: string
+          is_locked: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_url?: string | null
+          course_id: string
+          created_at?: string
+          credential_id_prefix?: string
+          description?: string | null
+          id?: string
+          is_locked?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_url?: string | null
+          course_id?: string
+          created_at?: string
+          credential_id_prefix?: string
+          description?: string | null
+          id?: string
+          is_locked?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cohorts: {
         Row: {
           created_at: string
@@ -476,6 +520,41 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_certificates: {
+        Row: {
+          certificate_id: string
+          created_at: string
+          credential_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          certificate_id: string
+          created_at?: string
+          credential_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          certificate_id?: string
+          created_at?: string
+          credential_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_certificates_certificate_id_fkey"
+            columns: ["certificate_id"]
+            isOneToOne: false
+            referencedRelation: "certificates"
             referencedColumns: ["id"]
           },
         ]

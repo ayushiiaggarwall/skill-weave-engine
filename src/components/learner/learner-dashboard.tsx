@@ -53,29 +53,31 @@ const getContentIcon = (contentType: string) => {
   }
 }
 
-const certificates = [
-  {
-    name: "Web Development Fundamentals",
-    issueDate: "2024-01-15",
-    status: "earned",
-    credentialId: "WDF-2024-001",
-    description: "Certificate for completing HTML, CSS, and JavaScript fundamentals"
-  },
-  {
-    name: "React Development",
-    issueDate: null,
-    status: "in_progress",
-    credentialId: null,
-    description: "Certificate for mastering React development (75% complete)"
-  },
-  {
-    name: "Full-Stack Developer",
-    issueDate: null,
-    status: "locked",
-    credentialId: null,
-    description: "Certificate for completing the entire course"
-  }
-]
+// Real-time certificates state
+interface EarnedCertRow {
+  id: string
+  credential_id: string
+  earned_at: string
+  certificate_id: string
+  certificates?: {
+    id: string
+    title: string
+    description: string | null
+    certificate_url: string | null
+    courses?: { title?: string | null } | null
+  } | null
+}
+
+interface AvailableCertRow {
+  id: string
+  title: string
+  description: string | null
+  certificate_url: string | null
+  course_id: string
+  is_locked: boolean
+  courses?: { title?: string | null } | null
+}
+
 
 const communityFeatures = [
   { name: "Study Groups", icon: Users, description: "Join cohort study sessions" },
@@ -85,83 +87,198 @@ const communityFeatures = [
 ]
 
 export function LearnerDashboard() {
-  const enrollmentStatus = useEnrollmentStatus()
-  const [courseContent, setCourseContent] = useState<CourseContent[]>([])
-  const [contentLoading, setContentLoading] = useState(true)
+const enrollmentStatus = useEnrollmentStatus()
+const { user } = useAuth()
+const [courseContent, setCourseContent] = useState<CourseContent[]>([])
+const [contentLoading, setContentLoading] = useState(true)
+const [earnedCertificates, setEarnedCertificates] = useState<EarnedCertRow[]>([])
+const [availableCertificates, setAvailableCertificates] = useState<AvailableCertRow[]>([])
+const [certLoading, setCertLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchCourseContent = async () => {
-      try {
+useEffect(() => {
+  const fetchCourseContent = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('course_content')
+        .select('*')
+        .eq('is_visible', true)
+        .order('week_number', { ascending: true })
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching course content:', error)
+      } else {
+        setCourseContent(data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching course content:', error)
+    } finally {
+      setContentLoading(false)
+    }
+  }
+
+  const fetchCertificates = async () => {
+    if (!enrollmentStatus.isEnrolled) {
+      setCertLoading(false)
+      setEarnedCertificates([])
+      setAvailableCertificates([])
+      return
+    }
+    try {
+      const { data: earned, error: earnedErr } = await supabase
+        .from('user_certificates')
+        .select(`
+          id, credential_id, earned_at, certificate_id,
+          certificates (
+            id, title, description, certificate_url, course_id,
+            courses ( title )
+          )
+        `)
+        .order('earned_at', { ascending: false })
+
+      if (!earnedErr) setEarnedCertificates((earned as EarnedCertRow[]) || [])
+
+      const { data: available, error: availErr } = await supabase
+        .from('certificates')
+        .select(`
+          id, title, description, certificate_url, course_id, is_locked,
+          courses ( title )
+        `)
+        .eq('is_locked', false)
+        .order('created_at', { ascending: false })
+
+      if (!availErr) {
+        const earnedIds = new Set(((earned as EarnedCertRow[]) || []).map((uc) => uc.certificate_id))
+        const filtered = ((available as AvailableCertRow[]) || []).filter((c) => !earnedIds.has(c.id))
+        setAvailableCertificates(filtered)
+      }
+    } catch (err) {
+      console.error('Error fetching certificates:', err)
+    } finally {
+      setCertLoading(false)
+    }
+  }
+
+  if (enrollmentStatus.isEnrolled) {
+    fetchCourseContent()
+    fetchCertificates()
+  } else {
+    setContentLoading(false)
+    setCertLoading(false)
+  }
+}, [enrollmentStatus.isEnrolled])
+
+useEffect(() => {
+  if (!enrollmentStatus.isEnrolled) return
+
+  const channel = supabase
+    .channel('learner-realtime')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'course_content' },
+      async () => {
         const { data, error } = await supabase
           .from('course_content')
           .select('*')
           .eq('is_visible', true)
           .order('week_number', { ascending: true })
           .order('created_at', { ascending: true })
-
-        if (error) {
-          console.error('Error fetching course content:', error)
-          return
-        }
-
-        setCourseContent(data || [])
-      } catch (error) {
-        console.error('Error fetching course content:', error)
-      } finally {
-        setContentLoading(false)
+        if (!error && data) setCourseContent(data)
       }
-    }
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'certificates' },
+      async () => {
+        // Refetch certificates
+        try {
+          const { data: earned } = await supabase
+            .from('user_certificates')
+            .select(`
+              id, credential_id, earned_at, certificate_id,
+              certificates (
+                id, title, description, certificate_url, course_id,
+                courses ( title )
+              )
+            `)
+            .order('earned_at', { ascending: false })
+          setEarnedCertificates((earned as EarnedCertRow[]) || [])
 
-    if (enrollmentStatus.isEnrolled) {
-      fetchCourseContent()
-    }
-  }, [enrollmentStatus.isEnrolled])
+          const { data: available } = await supabase
+            .from('certificates')
+            .select(`
+              id, title, description, certificate_url, course_id, is_locked,
+              courses ( title )
+            `)
+            .eq('is_locked', false)
+            .order('created_at', { ascending: false })
 
-  useEffect(() => {
-    if (!enrollmentStatus.isEnrolled) return
-
-    const channel = supabase
-      .channel('course-content-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'course_content'
-        },
-        () => {
-          // Refetch content when changes occur
-          const fetchCourseContent = async () => {
-            const { data, error } = await supabase
-              .from('course_content')
-              .select('*')
-              .eq('is_visible', true)
-              .order('week_number', { ascending: true })
-              .order('created_at', { ascending: true })
-
-            if (!error && data) {
-              setCourseContent(data)
-            }
-          }
-          fetchCourseContent()
+          const earnedIds = new Set(((earned as EarnedCertRow[]) || []).map((uc) => uc.certificate_id))
+          const filtered = ((available as AvailableCertRow[]) || []).filter((c) => !earnedIds.has(c.id))
+          setAvailableCertificates(filtered)
+        } catch (e) {
+          console.error('Realtime certificates refresh error:', e)
         }
-      )
-      .subscribe()
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'user_certificates' },
+      async () => {
+        try {
+          const { data: earned } = await supabase
+            .from('user_certificates')
+            .select(`
+              id, credential_id, earned_at, certificate_id,
+              certificates (
+                id, title, description, certificate_url, course_id,
+                courses ( title )
+              )
+            `)
+            .order('earned_at', { ascending: false })
+          setEarnedCertificates((earned as EarnedCertRow[]) || [])
+        } catch (e) {
+          console.error('Realtime earned certificates refresh error:', e)
+        }
+      }
+    )
+    .subscribe()
 
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [enrollmentStatus.isEnrolled])
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}, [enrollmentStatus.isEnrolled])
 
-  // Group content by week
-  const contentByWeek = courseContent.reduce((acc, content) => {
-    const week = `Week ${content.week_number}`
-    if (!acc[week]) {
-      acc[week] = []
-    }
-    acc[week].push(content)
-    return acc
-  }, {} as Record<string, CourseContent[]>)
+// Group content by week
+const contentByWeek = courseContent.reduce((acc, content) => {
+  const week = `Week ${content.week_number}`
+  if (!acc[week]) {
+    acc[week] = []
+  }
+  acc[week].push(content)
+  return acc
+}, {} as Record<string, CourseContent[]>)
+
+const displayCertificates = [
+  ...earnedCertificates.map((ec) => ({
+    id: ec.certificates?.id || ec.certificate_id,
+    title: ec.certificates?.title || 'Certificate',
+    description: ec.certificates?.description || null,
+    status: 'earned' as const,
+    credentialId: ec.credential_id,
+    certificateUrl: ec.certificates?.certificate_url || null,
+    courseTitle: ec.certificates?.courses?.title || undefined,
+  })),
+  ...availableCertificates.map((ac) => ({
+    id: ac.id,
+    title: ac.title,
+    description: ac.description,
+    status: 'available' as const,
+    credentialId: null as string | null,
+    certificateUrl: ac.certificate_url,
+    courseTitle: ac.courses?.title || undefined,
+  })),
+]
 
   if (enrollmentStatus.loading) {
     return (
@@ -326,47 +443,52 @@ export function LearnerDashboard() {
                 <Card className="pt-4">
                   <CardContent>
                     <div className="space-y-4">
-                      {certificates.map((cert, index) => (
-                        <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${
-                              cert.status === 'earned' ? 'bg-green-100 dark:bg-green-900' :
-                              cert.status === 'in_progress' ? 'bg-yellow-100 dark:bg-yellow-900' :
-                              'bg-muted'
-                            }`}>
-                              <Award className={`h-5 w-5 ${
-                                cert.status === 'earned' ? 'text-green-600' :
-                                cert.status === 'in_progress' ? 'text-yellow-600' :
-                                'text-muted-foreground'
-                              }`} />
-                            </div>
-                            <div>
-                              <div className="font-medium">{cert.name}</div>
-                              <div className="text-sm text-muted-foreground">{cert.description}</div>
-                              {cert.credentialId && (
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  ID: {cert.credentialId}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end gap-2">
-                            <Badge variant={
-                              cert.status === 'earned' ? 'default' :
-                              cert.status === 'in_progress' ? 'secondary' : 'outline'
-                            }>
-                              {cert.status === 'earned' ? 'Earned' :
-                               cert.status === 'in_progress' ? 'In Progress' : 'Locked'}
-                            </Badge>
-                            {cert.status === 'earned' && (
-                              <Button size="sm" variant="outline">
-                                <Download className="h-4 w-4 mr-1" />
-                                Download
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+{certLoading ? (
+  <div className="flex items-center justify-center py-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+) : displayCertificates.length === 0 ? (
+  <p className="text-muted-foreground text-center py-8">No certificates yet.</p>
+) : (
+  displayCertificates.map((cert) => (
+    <div key={cert.id} className="flex items-center justify-between p-4 border rounded-lg">
+      <div className="flex items-center gap-3">
+        <div className={`p-2 rounded-lg ${
+          cert.status === 'earned' ? 'bg-green-100 dark:bg-green-900' : 'bg-muted'
+        }`}>
+          <Award className={`h-5 w-5 ${
+            cert.status === 'earned' ? 'text-green-600' : 'text-muted-foreground'
+          }`} />
+        </div>
+        <div>
+          <div className="font-medium">{cert.title}</div>
+          {cert.courseTitle && (
+            <div className="text-xs text-muted-foreground">Course: {cert.courseTitle}</div>
+          )}
+          {cert.description && (
+            <div className="text-sm text-muted-foreground">{cert.description}</div>
+          )}
+          {cert.credentialId && (
+            <div className="text-xs text-muted-foreground mt-1">ID: {cert.credentialId}</div>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <Badge variant={cert.status === 'earned' ? 'default' : 'secondary'}>
+          {cert.status === 'earned' ? 'Earned' : 'Available'}
+        </Badge>
+        {cert.status === 'earned' && cert.certificateUrl && (
+          <Button size="sm" variant="outline" asChild>
+            <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer">
+              <Download className="h-4 w-4 mr-1" />
+              Download
+            </a>
+          </Button>
+        )}
+      </div>
+    </div>
+  ))
+)}
                     </div>
                   </CardContent>
                 </Card>

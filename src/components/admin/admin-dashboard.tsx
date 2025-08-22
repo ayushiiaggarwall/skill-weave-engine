@@ -4,9 +4,9 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, DollarSign, Clock, Bell, Trash2, Upload } from "lucide-react"
+import { Users, DollarSign, Clock, Bell, Trash2, Upload, Award } from "lucide-react"
 import ContentManagement from './content-management'
-
+import CertificatesManagement from './certificates-management'
 interface PricingSettings {
   id: string
   usd_early_bird: number
@@ -236,41 +236,49 @@ export function AdminDashboard() {
           <p className="text-muted-foreground">Manage course pricing, content, and view users</p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center space-x-4 mb-8">
-          <Button
-            variant={activeTab === 'pricing' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('pricing')}
-            className="flex items-center gap-2"
-          >
-            <DollarSign className="h-4 w-4" />
-            Pricing
-          </Button>
-          <Button
-            variant={activeTab === 'content' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('content')}
-            className="flex items-center gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            Course Content
-          </Button>
-          <Button
-            variant={activeTab === 'announcements' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('announcements')}
-            className="flex items-center gap-2"
-          >
-            <Bell className="h-4 w-4" />
-            Announcements
-          </Button>
-          <Button
-            variant={activeTab === 'users' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('users')}
-            className="flex items-center gap-2"
-          >
-            <Users className="h-4 w-4" />
-            Users
-          </Button>
-        </div>
+{/* Tab Navigation */}
+<div className="flex justify-center space-x-4 mb-8">
+  <Button
+    variant={activeTab === 'pricing' ? 'default' : 'outline'}
+    onClick={() => setActiveTab('pricing')}
+    className="flex items-center gap-2"
+  >
+    <DollarSign className="h-4 w-4" />
+    Pricing
+  </Button>
+  <Button
+    variant={activeTab === 'content' ? 'default' : 'outline'}
+    onClick={() => setActiveTab('content')}
+    className="flex items-center gap-2"
+  >
+    <Upload className="h-4 w-4" />
+    Course Content
+  </Button>
+  <Button
+    variant={activeTab === 'certificates' ? 'default' : 'outline'}
+    onClick={() => setActiveTab('certificates')}
+    className="flex items-center gap-2"
+  >
+    <Award className="h-4 w-4" />
+    Certificates
+  </Button>
+  <Button
+    variant={activeTab === 'announcements' ? 'default' : 'outline'}
+    onClick={() => setActiveTab('announcements')}
+    className="flex items-center gap-2"
+  >
+    <Bell className="h-4 w-4" />
+    Announcements
+  </Button>
+  <Button
+    variant={activeTab === 'users' ? 'default' : 'outline'}
+    onClick={() => setActiveTab('users')}
+    className="flex items-center gap-2"
+  >
+    <Users className="h-4 w-4" />
+    Users
+  </Button>
+</div>
 
         {activeTab === 'content' && (
           <ContentManagement />

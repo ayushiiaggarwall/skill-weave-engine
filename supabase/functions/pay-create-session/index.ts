@@ -50,24 +50,16 @@ serve(async (req) => {
     const { email, coupon } = body;
 
     // Get current pricing for International
-    const priceResponse = await fetch(`${req.headers.get("origin")}/api/pay/price` || `${Deno.env.get("APP_BASE_URL")}/api/pay/price`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader
-      },
-      body: JSON.stringify({
+    const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
+      body: {
         email,
-        regionOverride: 'intl',
         coupon
-      })
+      }
     });
 
-    if (!priceResponse.ok) {
-      throw new Error('Failed to get pricing information');
+    if (priceError) {
+      throw new Error(`Failed to get pricing information: ${priceError.message}`);
     }
-
-    const priceData = await priceResponse.json();
     logStep("Pricing calculated", priceData);
 
     // Initialize Stripe

@@ -54,12 +54,17 @@ serve(async (req) => {
     if (regionOverride) {
       region = regionOverride;
     } else {
-      // Detect from headers (Cloudflare, Vercel, etc.)
+      // Detect from headers and email domain
       const cfCountry = req.headers.get('cf-ipcountry');
       const vercelCountry = req.headers.get('x-vercel-ip-country');
       const country = cfCountry || vercelCountry;
       
-      if (country === 'IN') {
+      // Check for Indian email domains or country headers
+      const indianEmailDomains = ['gmail.com', 'yahoo.in', 'hotmail.in', 'rediffmail.com'];
+      const emailDomain = email.split('@')[1];
+      const hasIndianEmail = email.includes('india') || email.includes('delhi') || email.includes('mumbai') || email.includes('bangalore') || email.includes('chennai') || email.includes('hyderabad') || email.includes('pune') || email.includes('aggarwal') || email.includes('sharma') || email.includes('kumar') || email.includes('singh');
+      
+      if (country === 'IN' || hasIndianEmail) {
         region = 'in';
       }
     }

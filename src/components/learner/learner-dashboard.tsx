@@ -87,13 +87,12 @@ const communityFeatures = [
 ]
 
 export function LearnerDashboard() {
-const enrollmentStatus = useEnrollmentStatus()
-const { user } = useAuth()
-const [courseContent, setCourseContent] = useState<CourseContent[]>([])
-const [contentLoading, setContentLoading] = useState(true)
-const [earnedCertificates, setEarnedCertificates] = useState<EarnedCertRow[]>([])
-const [availableCertificates, setAvailableCertificates] = useState<AvailableCertRow[]>([])
-const [certLoading, setCertLoading] = useState(true)
+  const enrollmentStatus = useEnrollmentStatus()
+  const [courseContent, setCourseContent] = useState<CourseContent[]>([])
+  const [contentLoading, setContentLoading] = useState(true)
+  const [earnedCertificates, setEarnedCertificates] = useState<EarnedCertRow[]>([])
+  const [availableCertificates, setAvailableCertificates] = useState<AvailableCertRow[]>([])
+  const [certLoading, setCertLoading] = useState(true)
 
 useEffect(() => {
   const fetchCourseContent = async () => {

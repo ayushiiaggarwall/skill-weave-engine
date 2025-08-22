@@ -280,9 +280,12 @@ export function AdminDashboard() {
   </Button>
 </div>
 
-        {activeTab === 'content' && (
-          <ContentManagement />
-        )}
+{activeTab === 'content' && (
+  <ContentManagement />
+)}
+{activeTab === 'certificates' && (
+  <CertificatesManagement />
+)}
 
         {activeTab === 'pricing' && (
         <AnimatedCard>

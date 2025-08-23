@@ -1,7 +1,6 @@
 import { useState, useRef } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
-import { useTheme } from "@/contexts/theme-context"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { Header } from "@/components/landing/header"
 import { Button } from "@/components/ui/button"
@@ -16,7 +15,6 @@ import {
   Key, 
   Eye, 
   EyeOff, 
-  Palette, 
   Smartphone,
   Check,
   X
@@ -24,12 +22,11 @@ import {
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
-type SettingsTab = 'profile' | 'security' | 'preferences'
+type SettingsTab = 'profile' | 'security'
 
 export function ProfilePage() {
   const { user, profile } = useAuth()
   const { isEnrolled } = useEnrollmentStatus()
-  const { theme, setTheme } = useTheme()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -176,7 +173,6 @@ export function ProfilePage() {
   const sidebarItems = [
     { id: 'profile' as SettingsTab, label: 'Profile', icon: User },
     { id: 'security' as SettingsTab, label: 'Security', icon: Shield },
-    { id: 'preferences' as SettingsTab, label: 'Preferences', icon: Palette },
   ]
 
   return (
@@ -494,43 +490,6 @@ export function ProfilePage() {
                 </div>
               )}
 
-              {activeTab === 'preferences' && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Palette className="w-5 h-5" />
-                      Preferences
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-3">
-                      <label className="text-sm font-medium">Theme</label>
-                      <div className="space-y-2">
-                        {[
-                          { value: 'light', label: 'Light' },
-                          { value: 'dark', label: 'Dark' },
-                          { value: 'system', label: 'System' }
-                        ].map((option) => (
-                          <div key={option.value} className="flex items-center space-x-2">
-                            <input
-                              type="radio"
-                              id={option.value}
-                              name="theme"
-                              value={option.value}
-                              checked={theme === option.value}
-                              onChange={() => setTheme(option.value as any)}
-                              className="w-4 h-4 text-primary"
-                            />
-                            <label htmlFor={option.value} className="text-sm">
-                              {option.label}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </div>
         </div>

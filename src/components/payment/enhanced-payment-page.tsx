@@ -191,7 +191,8 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('paypal-create-order', {
         body: { 
           email: user.email,
-          coupon: priceData.couponApplied?.code 
+          coupon: priceData.couponApplied?.code,
+          regionOverride: forcePaypal ? 'intl' : undefined
         }
       });
 

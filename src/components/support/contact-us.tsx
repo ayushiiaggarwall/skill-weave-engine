@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
+import { supabase } from "@/integrations/supabase/client"
 import { Mail, Phone, Send } from "lucide-react"
 
 export function ContactUs() {
@@ -29,15 +30,37 @@ export function ContactUs() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    setTimeout(() => {
-      toast({
-        title: "Message Sent!",
-        description: "We'll get back to you within 24 hours."
+    try {
+      const { data, error } = await supabase.functions.invoke('contact-form', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        }
       })
-      setFormData({ name: '', email: '', subject: '', message: '' })
+
+      if (error) throw error
+
+      if (data?.success) {
+        toast({
+          title: "Message Sent!",
+          description: data.message || "We'll get back to you soon."
+        })
+        setFormData({ name: '', email: '', subject: '', message: '' })
+      } else {
+        throw new Error(data?.error || "Failed to send message")
+      }
+    } catch (error: any) {
+      console.error('Contact form error:', error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send message. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
       setIsSubmitting(false)
-    }, 1000)
+    }
   }
 
   return (

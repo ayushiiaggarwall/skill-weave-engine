@@ -100,8 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // If name is empty or just whitespace, try to get it from user metadata
       if (!data.name || data.name.trim() === '') {
         const { data: { user } } = await supabase.auth.getUser()
-        if (user?.user_metadata?.name || user?.user_metadata?.full_name) {
-          const nameFromMetadata = user.user_metadata.name || user.user_metadata.full_name
+        if (user?.user_metadata?.name || user?.user_metadata?.full_name || user?.user_metadata?.display_name) {
+          const nameFromMetadata = user.user_metadata.name || user.user_metadata.full_name || user.user_metadata.display_name
           
           // Update the profile with the name from metadata
           const { error: updateError } = await supabase

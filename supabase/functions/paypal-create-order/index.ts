@@ -20,8 +20,12 @@ const getPayPalAccessToken = async () => {
   }
 
   const auth = btoa(`${clientId}:${clientSecret}`);
+  const paypalEnv = Deno.env.get("PAYPAL_ENV") || "sandbox"; // 'live' or 'sandbox'
+  const baseUrl = paypalEnv === "live" 
+    ? "https://api-m.paypal.com" 
+    : "https://api-m.sandbox.paypal.com";
   
-  const response = await fetch("https://api.paypal.com/v1/oauth2/token", {
+  const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
     method: "POST",
     headers: {
       "Authorization": `Basic ${auth}`,
@@ -31,7 +35,8 @@ const getPayPalAccessToken = async () => {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to get PayPal access token");
+    const errorText = await response.text();
+    throw new Error(`Failed to get PayPal access token: ${response.status} ${errorText}`);
   }
 
   const data = await response.json();
@@ -84,8 +89,11 @@ serve(async (req) => {
     
     // Get PayPal access token
     const accessToken = await getPayPalAccessToken();
-    logStep("PayPal access token obtained");
-
+    const paypalEnv = Deno.env.get("PAYPAL_ENV") || "sandbox"; // 'live' or 'sandbox'
+    const baseUrl = paypalEnv === "live" 
+      ? "https://api-m.paypal.com" 
+      : "https://api-m.sandbox.paypal.com";
+    logStep("PayPal access token obtained", { paypalEnv });
     // Create PayPal order
     const orderData = {
       intent: "CAPTURE",
@@ -102,7 +110,7 @@ serve(async (req) => {
       }
     };
 
-    const orderResponse = await fetch("https://api.paypal.com/v2/checkout/orders", {
+    const orderResponse = await fetch(`${baseUrl}/v2/checkout/orders`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${accessToken}`,

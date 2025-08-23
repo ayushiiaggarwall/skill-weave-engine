@@ -69,9 +69,9 @@ serve(async (req) => {
     const { email, coupon } = await req.json();
     logStep("Request received", { email, coupon });
 
-    // Get pricing from pay-price function
+    // Get pricing from pay-price function with international region override for PayPal
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
-      body: { email: user.email, coupon }
+      body: { email: user.email, coupon, regionOverride: 'intl' }
     });
 
     if (priceError) {

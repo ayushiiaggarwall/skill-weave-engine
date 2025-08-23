@@ -43,7 +43,7 @@ export function ContactUs() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="pt-20 pb-16 px-6">
+      <div className="pt-32 pb-16 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
           <motion.div

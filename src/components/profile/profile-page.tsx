@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
+import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { Header } from "@/components/landing/header"
 import { Button } from "@/components/ui/button"
@@ -11,10 +12,16 @@ import { useToast } from "@/hooks/use-toast"
 
 export function ProfilePage() {
   const { user, profile } = useAuth()
+  const { isEnrolled } = useEnrollmentStatus()
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(profile?.name || "")
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
+
+  const getRoleDisplay = () => {
+    if (profile?.role === 'admin') return 'admin'
+    return isEnrolled ? 'Enrolled Learner' : 'learner'
+  }
 
   const handleSave = async () => {
     if (!user?.id) return
@@ -138,7 +145,7 @@ export function ProfilePage() {
                 <label className="text-sm font-medium text-muted-foreground">Role</label>
                 <div className="flex items-center gap-2">
                   <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                    {profile?.role || 'student'}
+                    {getRoleDisplay()}
                   </span>
                 </div>
               </div>

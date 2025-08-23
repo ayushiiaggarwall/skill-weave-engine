@@ -22,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 export function ProfilePage() {
-  const { user, profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const { isEnrolled } = useEnrollmentStatus()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -62,9 +62,9 @@ export function ProfilePage() {
       setProfileData({
         name: profile.name || "",
         email: user?.email || "",
-        dateOfBirth: (profile as any).date_of_birth || "",
-        about: (profile as any).about || "",
-        profilePictureUrl: (profile as any).profile_picture_url || ""
+        dateOfBirth: profile.date_of_birth || "",
+        about: profile.about || "",
+        profilePictureUrl: profile.profile_picture_url || ""
       })
     }
   }, [profile, user?.email])
@@ -106,6 +106,8 @@ export function ProfilePage() {
         description: "Your profile has been updated successfully.",
       })
       setProfileDirty(false)
+      // Refresh the profile data in the context
+      await refreshProfile()
     } catch (error) {
       console.error('Error updating profile:', error)
       toast({

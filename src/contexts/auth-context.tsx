@@ -9,6 +9,9 @@ interface Profile {
   role: 'admin' | 'student'
   created_at: string
   updated_at: string
+  date_of_birth?: string | null
+  about?: string | null
+  profile_picture_url?: string | null
 }
 
 interface AuthContextType {
@@ -20,6 +23,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
   signInWithGoogle: () => Promise<{ error: any }>
+  refreshProfile: () => Promise<void>
 }
 
 // Create a default value to prevent undefined context errors
@@ -31,7 +35,8 @@ const defaultAuthValue: AuthContextType = {
   signUp: async () => ({ error: new Error('Auth not initialized') }),
   signIn: async () => ({ error: new Error('Auth not initialized') }),
   signOut: async () => {},
-  signInWithGoogle: async () => ({ error: new Error('Auth not initialized') })
+  signInWithGoogle: async () => ({ error: new Error('Auth not initialized') }),
+  refreshProfile: async () => {}
 }
 
 const AuthContext = createContext<AuthContextType>(defaultAuthValue)
@@ -143,6 +148,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error }
   }
 
+  const refreshProfile = async () => {
+    if (user?.id) {
+      await fetchUserProfile(user.id)
+    }
+  }
+
   const value = {
     user,
     session,
@@ -151,7 +162,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signIn,
     signOut,
-    signInWithGoogle
+    signInWithGoogle,
+    refreshProfile
   }
 
   return (

@@ -39,10 +39,18 @@ export function UserProfileDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-primary text-primary-foreground font-medium flex items-center justify-center hover:bg-primary/90 transition-colors"
+        className="w-10 h-10 rounded-full bg-primary text-primary-foreground font-medium flex items-center justify-center hover:bg-primary/90 transition-colors overflow-hidden"
         aria-label="User profile menu"
       >
-        {getInitials()}
+        {profile?.profile_picture_url ? (
+          <img
+            src={profile.profile_picture_url}
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          getInitials()
+        )}
       </button>
 
       <AnimatePresence>

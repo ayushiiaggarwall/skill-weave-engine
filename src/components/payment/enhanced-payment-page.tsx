@@ -34,8 +34,6 @@ export function EnhancedPaymentPage() {
   const [priceData, setPriceData] = useState<PriceData | null>(null)
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
-  const params = new URLSearchParams(window.location.search)
-  const forcePaypal = params.get('testPaypal') === '1' || params.get('forcePaypal') === '1'
   useEffect(() => {
     if (user?.email) {
       fetchPricing()
@@ -49,8 +47,7 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
-          coupon: couponCode || undefined,
-          regionOverride: forcePaypal ? 'intl' : undefined,
+          coupon: couponCode || undefined
         }
       })
 
@@ -74,8 +71,7 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
-          coupon: couponCode.trim(),
-          regionOverride: forcePaypal ? 'intl' : undefined,
+          coupon: couponCode.trim()
         }
       })
 
@@ -191,8 +187,7 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('paypal-create-order', {
         body: { 
           email: user.email,
-          coupon: priceData.couponApplied?.code,
-          regionOverride: forcePaypal ? 'intl' : undefined
+          coupon: priceData.couponApplied?.code 
         }
       });
 
@@ -294,7 +289,7 @@ export function EnhancedPaymentPage() {
                 <Badge variant={priceData.region === 'in' ? 'default' : 'secondary'}>
                   {priceData.region === 'in' ? 'India (INR)' : 'International (USD)'}
                 </Badge>
-                <span className="text-xs text-muted-foreground">{forcePaypal ? 'Test override (USD via PayPal)' : 'Auto-detected'}</span>
+                <span className="text-xs text-muted-foreground">Auto-detected</span>
               </div>
 
               {/* Early Bird Badge */}

@@ -332,6 +332,13 @@ export function AdminDashboard() {
                       Activate 24 Hours
                     </Button>
                     <Button 
+                      onClick={() => activateEarlyBird(168)}
+                      disabled={saving}
+                      size="sm"
+                    >
+                      Activate 7 Days
+                    </Button>
+                    <Button 
                       onClick={deactivateEarlyBird}
                       disabled={saving}
                       variant="destructive"

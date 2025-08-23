@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
 import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { loadStripe } from '@stripe/stripe-js'
 
 interface PriceData {
   region: 'in' | 'intl'
@@ -178,42 +177,35 @@ export function EnhancedPaymentPage() {
     }
   }
 
-  const handleStripePayment = async () => {
-    if (!user?.email || !priceData) return
-
-    setIsLoading(true)
+  // PayPal payment handler
+  const handlePayPalPayment = async () => {
+    if (!user || !priceData) return;
+    
     try {
-      // Create checkout session
-      const { data: sessionData, error } = await supabase.functions.invoke('pay-create-session', {
-        body: {
+      setIsLoading(true);
+      
+      const { data, error } = await supabase.functions.invoke('paypal-create-order', {
+        body: { 
           email: user.email,
-          coupon: priceData.couponApplied?.code
+          coupon: priceData.couponApplied?.code 
         }
-      })
+      });
 
-      if (error) throw error
-
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder')
-      if (!stripe) {
-        throw new Error("Stripe failed to load")
-      }
-
-      const { error: redirectError } = await stripe.redirectToCheckout({
-        sessionId: sessionData.sessionId
-      })
-
-      if (redirectError) throw redirectError
-
+      if (error) throw error;
+      
+      // Open PayPal checkout in a new tab
+      window.open(data.approvalUrl, '_blank');
     } catch (error) {
-      console.error('Stripe payment error:', error)
+      console.error('PayPal payment error:', error);
       toast({
         title: "Payment Error",
-        description: "Failed to initiate payment. Please try again.",
+        description: "Failed to initialize payment. Please try again.",
         variant: "destructive"
-      })
-      setIsLoading(false)
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!user) {
     return (
@@ -351,7 +343,7 @@ export function EnhancedPaymentPage() {
 
               {/* Payment Button */}
               <Button
-                onClick={priceData.region === 'in' ? handleRazorpayPayment : handleStripePayment}
+                onClick={priceData.region === 'in' ? handleRazorpayPayment : handlePayPalPayment}
                 disabled={isLoading}
                 className="w-full"
                 size="lg"
@@ -364,7 +356,7 @@ export function EnhancedPaymentPage() {
                 ) : (
                   <>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay {priceData.display} - Enroll Now
+                    Pay {priceData.display} - Enroll Now {priceData.region === 'in' ? 'via Razorpay' : 'via PayPal'}
                   </>
                 )}
               </Button>
@@ -373,7 +365,7 @@ export function EnhancedPaymentPage() {
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                   <Shield className="w-3 h-3" />
                   <span>
-                    Secured by {priceData.region === 'in' ? 'Razorpay' : 'Stripe'}
+                    Secured by {priceData.region === 'in' ? 'Razorpay' : 'PayPal'}
                   </span>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { Users, DollarSign, Clock, Bell, Trash2, Upload, Award } from "lucide-react"
+import { Header } from "@/components/landing/header"
 import ContentManagement from './content-management'
 import CertificatesManagement from './certificates-management'
 interface PricingSettings {
@@ -220,21 +221,26 @@ export function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background py-24 px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="animate-pulse">Loading admin dashboard...</div>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="py-24 px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="animate-pulse">Loading admin dashboard...</div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background py-24 px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gradient mb-4">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage course pricing, content, and view users</p>
-        </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="py-24 px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gradient mb-4">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage course pricing, content, and view users</p>
+          </div>
 
 {/* Tab Navigation */}
 <div className="flex justify-center space-x-4 mb-8">
@@ -524,6 +530,7 @@ export function AdminDashboard() {
           </AnimatedCardContent>
         </AnimatedCard>
         )}
+        </div>
       </div>
     </div>
   )

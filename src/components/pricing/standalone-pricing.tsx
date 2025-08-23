@@ -98,8 +98,8 @@ export function StandalonePricing() {
         <div className="relative">
           {/* Early Bird Timer */}
           {isEarlyBird && (
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10 px-4">
-              <div className="bg-red-500 text-white px-3 sm:px-6 py-2 rounded-full shadow-lg animate-pulse flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
+            <div className="absolute -top-8 sm:-top-4 left-1/2 transform -translate-x-1/2 z-10 px-4">
+              <div className="bg-red-500 text-white px-3 sm:px-6 py-2 rounded-full shadow-lg animate-pulse flex items-center space-x-1 sm:space-x-2 text-xs sm:text-base">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                 <span className="font-semibold whitespace-nowrap">Early Bird Ends: {formatTime(timeLeft)}</span>
               </div>

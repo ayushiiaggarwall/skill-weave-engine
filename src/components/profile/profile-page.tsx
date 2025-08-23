@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
 import { ProtectedRoute } from "@/components/auth/protected-route"
@@ -32,10 +32,12 @@ export function ProfilePage() {
     name: profile?.name || "",
     email: user?.email || "",
     dateOfBirth: "",
-    about: ""
+    about: "",
+    profilePictureUrl: ""
   })
   const [profileDirty, setProfileDirty] = useState(false)
   const [profileSaving, setProfileSaving] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   // Password state
   const [passwords, setPasswords] = useState({
@@ -53,6 +55,19 @@ export function ProfilePage() {
 
   // 2FA state
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+
+  // Load existing profile data
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        name: profile.name || "",
+        email: user?.email || "",
+        dateOfBirth: (profile as any).date_of_birth || "",
+        about: (profile as any).about || "",
+        profilePictureUrl: (profile as any).profile_picture_url || ""
+      })
+    }
+  }, [profile, user?.email])
 
   const getRoleDisplay = () => {
     if (profile?.role === 'admin') return 'admin'
@@ -79,7 +94,8 @@ export function ProfilePage() {
         .update({ 
           name: profileData.name,
           date_of_birth: profileData.dateOfBirth || null,
-          about: profileData.about || null
+          about: profileData.about || null,
+          profile_picture_url: profileData.profilePictureUrl || null
         })
         .eq('id', user.id)
 
@@ -143,7 +159,8 @@ export function ProfilePage() {
       name: profile?.name || "",
       email: user?.email || "",
       dateOfBirth: "",
-      about: ""
+      about: "",
+      profilePictureUrl: ""
     })
     setProfileDirty(false)
   }
@@ -161,14 +178,76 @@ export function ProfilePage() {
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      // Handle file upload here
+    if (!file || !user?.id) return
+
+    // Validate file type and size
+    if (!file.type.startsWith('image/')) {
       toast({
-        title: "Upload feature",
-        description: "Profile picture upload will be implemented soon.",
+        title: "Invalid file type",
+        description: "Please select an image file (JPG, PNG, etc.)",
+        variant: "destructive",
       })
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 2MB",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setUploadingImage(true)
+    try {
+      // Create file path: userId/profile-picture.extension
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}/profile-picture.${fileExt}`
+
+      // Delete existing profile picture if any
+      await supabase.storage
+        .from('profile-pictures')
+        .remove([`${user.id}/profile-picture.jpg`, `${user.id}/profile-picture.png`, `${user.id}/profile-picture.jpeg`])
+
+      // Upload new file
+      const { error: uploadError } = await supabase.storage
+        .from('profile-pictures')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-pictures')
+        .getPublicUrl(fileName)
+
+      // Update profile data
+      setProfileData(prev => ({ ...prev, profilePictureUrl: publicUrl }))
+      setProfileDirty(true)
+
+      toast({
+        title: "Picture uploaded",
+        description: "Your profile picture has been uploaded successfully. Don't forget to save your changes.",
+      })
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload profile picture. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setUploadingImage(false)
+      // Reset input
+      if (event.target) {
+        event.target.value = ''
+      }
     }
   }
 
@@ -198,18 +277,27 @@ export function ProfilePage() {
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Profile Picture</label>
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-8 h-8 text-primary" />
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                      {profileData.profilePictureUrl ? (
+                        <img
+                          src={profileData.profilePictureUrl}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-8 h-8 text-primary" />
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={handleFileUpload}
+                        disabled={uploadingImage}
                         className="flex items-center gap-2"
                       >
                         <Camera className="w-4 h-4" />
-                        Upload Picture
+                        {uploadingImage ? "Uploading..." : "Upload Picture"}
                       </Button>
                       <p className="text-xs text-muted-foreground">
                         JPG, PNG up to 2MB

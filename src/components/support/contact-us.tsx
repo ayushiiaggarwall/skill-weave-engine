@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Mail, Phone, MapPin, Send } from "lucide-react"
+import { Mail, Phone, Send } from "lucide-react"
 
 export function ContactUs() {
   const [formData, setFormData] = useState({
@@ -163,7 +163,7 @@ export function ContactUs() {
                       </div>
                       <div>
                         <p className="font-medium">Email</p>
-                        <p className="text-sm text-muted-foreground">support@nocodeacademy.com</p>
+                        <p className="text-sm text-muted-foreground">hello@ayushiaggarwal.tech</p>
                       </div>
                     </div>
                     
@@ -173,71 +173,9 @@ export function ContactUs() {
                       </div>
                       <div>
                         <p className="font-medium">Phone</p>
-                        <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
+                        <p className="text-sm text-muted-foreground">+91-7973195812</p>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <MapPin className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Office</p>
-                        <p className="text-sm text-muted-foreground">San Francisco, CA</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-4">Response Time</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-sm">General Inquiries</span>
-                      <span className="text-sm font-medium">Within 24 hours</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Technical Support</span>
-                      <span className="text-sm font-medium">Within 12 hours</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Billing Questions</span>
-                      <span className="text-sm font-medium">Within 6 hours</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-4">FAQ</h3>
-                  <div className="space-y-3">
-                    <details className="group">
-                      <summary className="text-sm font-medium cursor-pointer hover:text-primary">
-                        How do I access my course materials?
-                      </summary>
-                      <p className="text-sm text-muted-foreground mt-2 pl-4">
-                        Once enrolled, you'll find all course materials in your dashboard under "My Courses".
-                      </p>
-                    </details>
-                    <details className="group">
-                      <summary className="text-sm font-medium cursor-pointer hover:text-primary">
-                        Can I get a refund?
-                      </summary>
-                      <p className="text-sm text-muted-foreground mt-2 pl-4">
-                        We offer a 30-day money-back guarantee if you're not satisfied with the course.
-                      </p>
-                    </details>
-                    <details className="group">
-                      <summary className="text-sm font-medium cursor-pointer hover:text-primary">
-                        Do you provide certificates?
-                      </summary>
-                      <p className="text-sm text-muted-foreground mt-2 pl-4">
-                        Yes, you'll receive a certificate of completion after finishing all course modules.
-                      </p>
-                    </details>
                   </div>
                 </CardContent>
               </Card>

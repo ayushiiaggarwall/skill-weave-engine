@@ -121,10 +121,16 @@ export function usePricing() {
   }, [timeLeft])
 
   const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
+    const days = Math.floor(seconds / 86400)
+    const hours = Math.floor((seconds % 86400) / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = seconds % 60
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m ${secs}s`
+    } else {
+      return `${hours}h ${minutes}m ${secs}s`
+    }
   }
 
   const currentPrice = isEarlyBird ? pricing.earlyBird : pricing.regular

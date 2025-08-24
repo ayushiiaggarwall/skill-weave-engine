@@ -83,13 +83,15 @@ export function PayPalTestPage() {
 
       if (error) throw error;
       
-      if (data.approvalUrl) {
-        // Open PayPal in new tab for testing
-        window.open(data.approvalUrl, '_blank');
+      if (data?.approvalUrl) {
+        // Redirect in same tab for reliability
+        window.location.href = data.approvalUrl;
         toast({
           title: "PayPal order created",
-          description: "Opening PayPal in new tab",
+          description: "Redirecting to PayPal",
         });
+      } else {
+        throw new Error('No approval URL returned from PayPal');
       }
     } catch (error) {
       console.error('PayPal order creation error:', error);

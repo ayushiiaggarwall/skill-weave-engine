@@ -95,6 +95,10 @@ serve(async (req) => {
       : "https://api-m.sandbox.paypal.com";
     logStep("PayPal access token obtained", { paypalEnv });
     // Create PayPal order
+    const appBaseUrl = Deno.env.get("APP_BASE_URL") || req.headers.get("origin") || "";
+    if (!appBaseUrl) {
+      throw new Error("APP_BASE_URL not configured and Origin header missing");
+    }
     const orderData = {
       intent: "CAPTURE",
       purchase_units: [{
@@ -105,8 +109,10 @@ serve(async (req) => {
         description: "Course Enrollment"
       }],
       application_context: {
-        return_url: `${req.headers.get("origin")}/payment-success`,
-        cancel_url: `${req.headers.get("origin")}/payment-cancel`
+        return_url: `${appBaseUrl}/pay/success`,
+        cancel_url: `${appBaseUrl}/pay/cancel`,
+        user_action: "PAY_NOW",
+        brand_name: "Tech With Ayushi"
       }
     };
 

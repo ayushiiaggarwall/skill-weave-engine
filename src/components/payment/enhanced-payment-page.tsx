@@ -193,8 +193,11 @@ export function EnhancedPaymentPage() {
 
       if (error) throw error;
       
-      // Open PayPal checkout in a new tab
-      window.open(data.approvalUrl, '_blank');
+      // Redirect to PayPal approval URL (avoid popup blockers)
+      if (!data?.approvalUrl) {
+        throw new Error('No approval URL returned from PayPal');
+      }
+      window.location.href = data.approvalUrl;
     } catch (error) {
       console.error('PayPal payment error:', error);
       toast({

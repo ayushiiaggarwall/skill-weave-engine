@@ -61,7 +61,7 @@ export function Footer() {
           viewport={{ once: true }}
           className="border-t border-border mt-8 pt-8 text-center text-muted-foreground"
         >
-          <p>&copy; 2025 No-Code Course. All rights reserved. Built with ❤️ for entrepreneurs.</p>
+          <p>&copy; 2025 Tech With Ayushi Aggarwal. All rights reserved. Built with ❤️ for everyone.</p>
         </motion.div>
       </div>
     </footer>

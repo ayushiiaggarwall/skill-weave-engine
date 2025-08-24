@@ -84,8 +84,24 @@ serve(async (req) => {
     }
     logStep("Pricing retrieved", priceData);
 
+    // Determine PayPal-compatible pricing (fallback to international/USD if needed)
+    let effectivePrice = priceData as any;
+    if (priceData.currency !== "USD") {
+      logStep("Currency not supported by PayPal gateway, refetching as USD", { originalCurrency: priceData.currency });
+      const { data: intlPrice, error: intlErr } = await supabaseClient.functions.invoke('pay-price', {
+        body: { email: user.email, coupon, regionOverride: 'intl' }
+      });
+      if (!intlErr && intlPrice?.currency === 'USD') {
+        effectivePrice = intlPrice;
+        logStep("Using international pricing for PayPal", { currency: effectivePrice.currency, amount: effectivePrice.amount });
+      } else {
+        logStep("Failed to get international pricing, proceeding with original", { error: intlErr?.message });
+      }
+    }
+
     // Convert amount from cents to dollars for PayPal
-    const amount = (priceData.amount / 100).toFixed(2);
+    const amount = (effectivePrice.amount / 100).toFixed(2);
+    const currency = (effectivePrice.currency || 'USD').toUpperCase();
     
     // Get PayPal access token
     const accessToken = await getPayPalAccessToken();
@@ -114,7 +130,7 @@ serve(async (req) => {
       intent: "CAPTURE",
       purchase_units: [{
         amount: {
-          currency_code: priceData.currency,
+          currency_code: currency,
           value: amount
         },
         description: "Course Enrollment"

@@ -95,10 +95,21 @@ serve(async (req) => {
       : "https://api-m.sandbox.paypal.com";
     logStep("PayPal access token obtained", { paypalEnv });
     // Create PayPal order
-    const appBaseUrl = Deno.env.get("APP_BASE_URL") || req.headers.get("origin") || "";
-    if (!appBaseUrl) {
+    const normalizeBaseUrl = (url: string) => {
+      let u = url.trim();
+      if (!/^https?:\/\//i.test(u)) {
+        u = `https://${u}`;
+      }
+      return u.replace(/\/+$/, '');
+    };
+
+    const rawBaseUrl = Deno.env.get("APP_BASE_URL") || req.headers.get("origin") || "";
+    if (!rawBaseUrl) {
       throw new Error("APP_BASE_URL not configured and Origin header missing");
     }
+    const appBaseUrl = normalizeBaseUrl(rawBaseUrl);
+    logStep("Using app base URL", { appBaseUrl });
+
     const orderData = {
       intent: "CAPTURE",
       purchase_units: [{

@@ -347,11 +347,16 @@ export function EnhancedPaymentPage() {
               {/* Payment Button */}
               <Button
                 onClick={priceData.region === 'in' ? handleRazorpayPayment : handlePayPalPayment}
-                disabled={isLoading}
+                disabled={isLoading || priceData.region === 'intl'}
                 className="w-full"
                 size="lg"
               >
-                {isLoading ? (
+                {priceData.region === 'intl' ? (
+                  <>
+                    <Clock className="mr-2 h-4 w-4" />
+                    International Payments - Coming Soon
+                  </>
+                ) : isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
@@ -359,7 +364,7 @@ export function EnhancedPaymentPage() {
                 ) : (
                   <>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay {priceData.display} - Enroll Now {priceData.region === 'in' ? 'via Razorpay' : 'via PayPal'}
+                    Pay {priceData.display} - Enroll Now via Razorpay
                   </>
                 )}
               </Button>

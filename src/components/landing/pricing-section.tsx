@@ -274,7 +274,7 @@ export function PricingSection() {
           <div className="inline-block bg-card/80 backdrop-blur-sm rounded-full px-8 py-4 border shadow-lg">
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">Next cohort starts:</span>
-              <span className="font-semibold text-accent">Sep 21, 2025 - with induction</span>
+              <span className="font-semibold text-accent">Sep 21, 2025 - Induction</span>
               <AnimatedButton 
                 size="sm"
                 onClick={() => navigate("/signup")}

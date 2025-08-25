@@ -213,7 +213,7 @@ export function PricingSection() {
               <AnimatedButton 
                 size="lg" 
                 animation="glow"
-                className="w-full py-4 text-lg font-semibold bg-accent hover:bg-accent/90"
+                className="w-full py-4 text-lg font-semibold hover-glow"
                 onClick={() => navigate("/signup")}
               >
                 Enroll with 1:1 Mentorship — ₹9,999

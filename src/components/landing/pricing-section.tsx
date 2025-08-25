@@ -185,25 +185,15 @@ export function PricingSection() {
                 Course + 1:1 Mentorship Combo
               </AnimatedCardTitle>
               
-              {/* Price Breakdown */}
-              <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
-                <div className="flex justify-center items-center text-lg font-semibold">
-                  <span>₹9,999 + ₹14,999 = ₹24,998</span>
+              <div className="space-y-2">
+                <div className="text-lg font-medium text-muted-foreground text-center">
+                  ₹9,999 + ₹14,999 = ₹24,998
                 </div>
-                <div className="text-center text-red-500 font-medium">
-                  Cut and say ₹9,999
-                </div>
-              </div>
-
-              <div className="space-y-2 mt-4">
                 <div className="text-4xl font-bold text-gradient">
                   You Pay Only: ₹9,999
                 </div>
                 <p className="text-accent font-semibold">
-                  Save ₹15,000+ on the bundle
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  For limited time period
+                  Save ₹15,000+ on the bundle • For limited time period
                 </p>
               </div>
             </AnimatedCardHeader>
@@ -223,7 +213,7 @@ export function PricingSection() {
               <AnimatedButton 
                 size="lg" 
                 animation="glow"
-                className="w-full py-4 text-lg font-semibold bg-accent hover:bg-accent/90"
+                className="w-full py-4 text-lg font-semibold hover-glow"
                 onClick={() => navigate("/signup")}
               >
                 Enroll with 1:1 Mentorship — ₹9,999
@@ -284,7 +274,7 @@ export function PricingSection() {
           <div className="inline-block bg-card/80 backdrop-blur-sm rounded-full px-8 py-4 border shadow-lg">
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">Next cohort starts:</span>
-              <span className="font-semibold text-accent">Sep 21, 2025 - Induction</span>
+              <span className="font-semibold text-accent">Sep 21, 2025 - with induction</span>
               <AnimatedButton 
                 size="sm"
                 onClick={() => navigate("/signup")}

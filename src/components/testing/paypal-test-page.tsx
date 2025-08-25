@@ -216,8 +216,8 @@ export function PayPalTestPage() {
               </Button>
 
               <div className="text-xs text-muted-foreground">
-                <p><strong>Note:</strong> This will create a real PayPal order in sandbox mode.</p>
-                <p>Use PayPal sandbox test accounts for payment testing.</p>
+                <p><strong>⚠️ WARNING:</strong> This will create a REAL PayPal order in LIVE mode.</p>
+                <p>Real money will be charged. Use this for actual payment testing only.</p>
               </div>
             </div>
           ) : (

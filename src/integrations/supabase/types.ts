@@ -410,11 +410,17 @@ export type Database = {
           early_bird_duration_hours: number
           early_bird_end_time: string | null
           id: string
+          inr_combo_early_bird: number | null
+          inr_combo_mrp: number | null
+          inr_combo_regular: number | null
           inr_early_bird: number
           inr_mrp: number
           inr_regular: number
           is_early_bird_active: boolean
           updated_at: string
+          usd_combo_early_bird: number | null
+          usd_combo_mrp: number | null
+          usd_combo_regular: number | null
           usd_early_bird: number
           usd_mrp: number
           usd_regular: number
@@ -424,11 +430,17 @@ export type Database = {
           early_bird_duration_hours?: number
           early_bird_end_time?: string | null
           id?: string
+          inr_combo_early_bird?: number | null
+          inr_combo_mrp?: number | null
+          inr_combo_regular?: number | null
           inr_early_bird?: number
           inr_mrp?: number
           inr_regular?: number
           is_early_bird_active?: boolean
           updated_at?: string
+          usd_combo_early_bird?: number | null
+          usd_combo_mrp?: number | null
+          usd_combo_regular?: number | null
           usd_early_bird?: number
           usd_mrp?: number
           usd_regular?: number
@@ -438,11 +450,17 @@ export type Database = {
           early_bird_duration_hours?: number
           early_bird_end_time?: string | null
           id?: string
+          inr_combo_early_bird?: number | null
+          inr_combo_mrp?: number | null
+          inr_combo_regular?: number | null
           inr_early_bird?: number
           inr_mrp?: number
           inr_regular?: number
           is_early_bird_active?: boolean
           updated_at?: string
+          usd_combo_early_bird?: number | null
+          usd_combo_mrp?: number | null
+          usd_combo_regular?: number | null
           usd_early_bird?: number
           usd_mrp?: number
           usd_regular?: number

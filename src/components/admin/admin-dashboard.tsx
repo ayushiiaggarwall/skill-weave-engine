@@ -16,6 +16,12 @@ interface PricingSettings {
   inr_early_bird: number
   inr_regular: number
   inr_mrp: number
+  usd_combo_early_bird: number
+  usd_combo_regular: number
+  usd_combo_mrp: number
+  inr_combo_early_bird: number
+  inr_combo_regular: number
+  inr_combo_mrp: number
   early_bird_duration_hours: number
   is_early_bird_active: boolean
   early_bird_end_time: string | null
@@ -61,7 +67,15 @@ export function AdminDashboard() {
         .single()
 
       if (error) throw error
-      setPricingSettings(data)
+      setPricingSettings({
+        ...data,
+        usd_combo_early_bird: data.usd_combo_early_bird || 199,
+        usd_combo_regular: data.usd_combo_regular || 299, 
+        usd_combo_mrp: data.usd_combo_mrp || 499,
+        inr_combo_early_bird: data.inr_combo_early_bird || 9999,
+        inr_combo_regular: data.inr_combo_regular || 14999,
+        inr_combo_mrp: data.inr_combo_mrp || 24999
+      })
     } catch (error) {
       console.error('Error fetching pricing settings:', error)
       toast({
@@ -356,10 +370,10 @@ export function AdminDashboard() {
                 </div>
 
                 {/* Price Settings */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* USD Pricing */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Course Only - USD Pricing */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">USD Pricing</h3>
+                    <h3 className="text-lg font-semibold text-primary">Course Only - USD</h3>
                     <div className="space-y-2">
                       <label className="text-sm">Early Bird Price ($)</label>
                       <Input
@@ -386,9 +400,9 @@ export function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* INR Pricing */}
+                  {/* Course Only - INR Pricing */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">INR Pricing</h3>
+                    <h3 className="text-lg font-semibold text-primary">Course Only - INR</h3>
                     <div className="space-y-2">
                       <label className="text-sm">Early Bird Price (₹)</label>
                       <Input
@@ -412,6 +426,85 @@ export function AdminDashboard() {
                         value={pricingSettings.inr_mrp}
                         onChange={(e) => updatePricingSettings({ inr_mrp: parseInt(e.target.value) })}
                       />
+                    </div>
+                  </div>
+
+                  {/* Combo - USD Pricing */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-accent">Combo + Mentorship - USD</h3>
+                    <div className="space-y-2">
+                      <label className="text-sm">Early Bird Price ($)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.usd_combo_early_bird}
+                        onChange={(e) => updatePricingSettings({ usd_combo_early_bird: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">Regular Price ($)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.usd_combo_regular}
+                        onChange={(e) => updatePricingSettings({ usd_combo_regular: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">MRP ($)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.usd_combo_mrp}
+                        onChange={(e) => updatePricingSettings({ usd_combo_mrp: parseInt(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Second Row - Combo INR */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-accent">Combo + Mentorship - INR</h3>
+                    <div className="space-y-2">
+                      <label className="text-sm">Early Bird Price (₹)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.inr_combo_early_bird}
+                        onChange={(e) => updatePricingSettings({ inr_combo_early_bird: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">Regular Price (₹)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.inr_combo_regular}
+                        onChange={(e) => updatePricingSettings({ inr_combo_regular: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm">MRP (₹)</label>
+                      <Input
+                        type="number"
+                        value={pricingSettings.inr_combo_mrp}
+                        onChange={(e) => updatePricingSettings({ inr_combo_mrp: parseInt(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Summary Cards */}
+                  <div className="md:col-span-2 space-y-4">
+                    <h3 className="text-lg font-semibold">Current Pricing Summary</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 border rounded-lg bg-primary/5">
+                        <h4 className="font-medium text-primary">Course Only (INR)</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Early Bird: ₹{pricingSettings.inr_early_bird} | Regular: ₹{pricingSettings.inr_regular}
+                        </p>
+                      </div>
+                      <div className="p-4 border rounded-lg bg-accent/5">
+                        <h4 className="font-medium text-accent">Combo (INR)</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Early Bird: ₹{pricingSettings.inr_combo_early_bird} | Regular: ₹{pricingSettings.inr_combo_regular}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

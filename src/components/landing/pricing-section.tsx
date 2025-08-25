@@ -67,12 +67,12 @@ export function PricingSection() {
   ]
 
   const comboFeatures = [
+    "Everything in Complete Course Access",
     "Direct Mentorship in Community — personal replies to queries, typically within 24 hours",
     "Quick 1:1 Calls (10–15 mins) — scheduled within 24 hours if your issue can't be solved on text",
     "Personal Feedback on Projects",
     "Personal Guidance on Your Own Projects/Ideas",
-    "Extra Post-Course Support — one follow-up call within 30 days",
-    "Everything in Complete Course Access"
+    "Extra Post-Course Support — one follow-up call within 30 days"
   ]
 
   const comparisonFeatures = [

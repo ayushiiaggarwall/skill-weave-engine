@@ -185,17 +185,10 @@ export function PricingSection() {
                 Course + 1:1 Mentorship Combo
               </AnimatedCardTitle>
               
-              {/* Price Breakdown */}
-              <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
-                <div className="flex justify-center items-center text-lg font-semibold">
-                  <span>₹9,999 + ₹14,999 = ₹24,998</span>
+              <div className="space-y-2">
+                <div className="text-lg font-medium text-muted-foreground text-center">
+                  ₹9,999 + ₹14,999 = ₹24,998
                 </div>
-                <div className="text-center text-red-500 font-medium">
-                  Cut and say ₹9,999
-                </div>
-              </div>
-
-              <div className="space-y-2 mt-4">
                 <div className="text-4xl font-bold text-gradient">
                   You Pay Only: ₹9,999
                 </div>

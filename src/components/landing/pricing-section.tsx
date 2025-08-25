@@ -3,7 +3,7 @@ import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { SectionBadge } from "@/components/ui/section-badge"
-import { Zap, Sparkles, Clock } from "lucide-react"
+import { Sparkles, Clock } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { usePricing } from "@/hooks/use-pricing"
 
@@ -11,7 +11,7 @@ export function PricingSection() {
   const navigate = useNavigate()
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
-  const { pricing, isEarlyBird, timeLeft, currentPrice, formatTime } = usePricing()
+  const { isEarlyBird, timeLeft, formatTime } = usePricing()
 
   // Animate features on scroll
   useEffect(() => {
@@ -56,14 +56,34 @@ export function PricingSection() {
     }
   }, [])
 
-  const features = [
-    "5 Weeks of Live Classes (Saturdays & Sundays, 7:30-10 PM IST)",
+  const courseFeatures = [
+    "5 Weeks of Live Classes (Sat & Sun, 7:30–10 PM IST)",
     "Final Week Q&A + Project Demos", 
     "Step-by-Step Curriculum — from basics to launch",
     "Hands-On Projects every week",
-    "Personalized Feedback & Guidance",
     "Lifetime Access to Recordings & Materials",
-    "Community Support Group (peer discussions + resources)"
+    "Community Support Group (peer discussions + resources)",
+    "7 Days Money Back Guarantee"
+  ]
+
+  const comboFeatures = [
+    "Direct Mentorship in Community — personal replies to queries, typically within 24 hours",
+    "Quick 1:1 Calls (10–15 mins) — scheduled within 24 hours if your issue can't be solved on text",
+    "Personal Feedback on Projects",
+    "Personal Guidance on Your Own Projects/Ideas",
+    "Extra Post-Course Support — one follow-up call within 30 days",
+    "Everything in Complete Course Access"
+  ]
+
+  const comparisonFeatures = [
+    { feature: "5 Weeks Live Classes", course: true, combo: true },
+    { feature: "Lifetime Recordings", course: true, combo: true },
+    { feature: "Weekly Projects", course: true, combo: true },
+    { feature: "Community Group", course: true, combo: true },
+    { feature: "Replies to Queries", course: "Group only", combo: "Personal replies within 24 hrs" },
+    { feature: "Quick 1:1 Calls", course: "—", combo: "Scheduled within 24 hrs" },
+    { feature: "Priority Project Feedback", course: "—", combo: true },
+    { feature: "Post-Course Follow-Up Call", course: "—", combo: true }
   ]
 
   return (
@@ -76,48 +96,49 @@ export function PricingSection() {
         <Sparkles className="sparkle absolute bottom-20 right-20 w-3 h-3 text-primary/20" />
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-16">
           <SectionBadge>
             Pricing
           </SectionBadge>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
-            One Price, Everything Included
+            Choose Your Plan
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A hands-on course where you'll master modern tools like Lovable, Supabase, Apify, n8n, and APIs — and walk away with a live project you can showcase.
+            Both plans include 5 weeks of live classes, projects, and lifetime access to recordings.
           </p>
         </div>
 
-        <div className="relative">
-          {/* Early Bird Timer */}
-          {isEarlyBird && (
-            <div className="absolute -top-8 sm:-top-4 left-1/2 transform -translate-x-1/2 z-10 px-4">
-              <div className="bg-red-500 text-white px-3 sm:px-6 py-2 rounded-full shadow-lg animate-pulse flex items-center space-x-1 sm:space-x-2 text-xs sm:text-base">
-                <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="font-semibold whitespace-nowrap">Early Bird Ends: {formatTime(timeLeft)}</span>
-              </div>
+        {/* Early Bird Timer */}
+        {isEarlyBird && (
+          <div className="flex justify-center mb-8">
+            <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg animate-pulse flex items-center space-x-2">
+              <Clock className="w-4 h-4" />
+              <span className="font-semibold">Early Bird Ends: {formatTime(timeLeft)}</span>
             </div>
-          )}
+          </div>
+        )}
 
+        {/* Pricing Cards */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-16">
+          {/* Course Only Plan */}
           <AnimatedCard 
             delay={400}
-            hoverScale={1.01}
             animationType="scale"
-            className="glass-card-strong border-primary/50 shadow-2xl opacity-0"
+            className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative"
           >
-            <AnimatedCardHeader className="text-center pb-8 pt-8">
-              <AnimatedCardTitle className="text-3xl font-bold mb-4">
+            <AnimatedCardHeader className="text-center pb-6">
+              <AnimatedCardTitle className="text-2xl font-bold mb-4">
                 Complete Course Access
               </AnimatedCardTitle>
               <div className="space-y-2">
                 <div className="flex items-center justify-center space-x-2 mb-2">
-                  <span className="text-2xl text-muted-foreground line-through">
-                    {pricing.symbol}{pricing.mrp}
+                  <span className="text-xl text-muted-foreground line-through">
+                    ₹9,999
                   </span>
                 </div>
-                <div className="text-6xl font-bold text-gradient">
-                  {pricing.symbol}{currentPrice}
+                <div className="text-5xl font-bold text-gradient">
+                  ₹5,499
                 </div>
                 <p className="text-muted-foreground">
                   {isEarlyBird ? "Early Bird Offer" : "Regular Price"} • One-time payment
@@ -125,51 +146,160 @@ export function PricingSection() {
               </div>
             </AnimatedCardHeader>
             
-            <AnimatedCardContent className="space-y-8">
-
+            <AnimatedCardContent className="space-y-6">
               {/* Features */}
-              <div ref={featuresRef} className="space-y-4">
-                {features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="feature-item flex items-start opacity-0"
-                  >
+              <div className="space-y-3">
+                {courseFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-start">
                     <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
-                    <span className="text-foreground">{feature}</span>
+                    <span className="text-foreground text-sm">{feature}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Guarantee */}
-              <AnimatedCard
-                delay={800}
-                animationType="fadeUp"
-                className="p-6 rounded-lg bg-green-500/10 border border-green-500/20 hover:bg-green-500/15 transition-colors duration-300"
-              >
-                <div className="flex items-center justify-center mb-2">
-                  <Zap className="w-5 h-5 mr-2 text-green-500" />
-                  <span className="font-semibold text-green-600 dark:text-green-400">
-                    7 Days Money Back Guarantee
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground text-center">
-                  Not satisfied? Get a full refund within 7 days, no questions asked.
-                </p>
-              </AnimatedCard>
-
               {/* CTA Button */}
-              <div className="space-y-4">
-                <AnimatedButton 
-                  size="lg" 
-                  animation="glow"
-                  className="w-full py-6 text-lg font-semibold bg-yellow hover-glow"
-                  onClick={() => navigate("/signup")}
-                >
-                  Enroll Now
-                </AnimatedButton>
-              </div>
+              <AnimatedButton 
+                size="lg" 
+                animation="glow"
+                className="w-full py-4 text-lg font-semibold hover-glow"
+                onClick={() => navigate("/signup")}
+              >
+                Enroll Now — ₹5,499
+              </AnimatedButton>
             </AnimatedCardContent>
           </AnimatedCard>
+
+          {/* Combo Plan */}
+          <AnimatedCard 
+            delay={600}
+            animationType="scale"
+            className="glass-card-strong border-accent/50 shadow-xl hover-lift opacity-0 relative"
+          >
+            {/* Ribbon */}
+            <div className="absolute -top-3 -right-3 bg-accent text-accent-foreground px-4 py-1 rounded-full text-sm font-semibold shadow-lg transform rotate-12">
+              Best Value • Limited Seats
+            </div>
+
+            <AnimatedCardHeader className="text-center pb-6">
+              <AnimatedCardTitle className="text-2xl font-bold mb-4">
+                Course + 1:1 Mentorship Combo
+              </AnimatedCardTitle>
+              
+              {/* Price Breakdown */}
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Course Value:</span>
+                  <span>₹9,999 → ₹5,499</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Mentorship Value:</span>
+                  <span>₹14,999 → ₹6,499</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between font-semibold">
+                  <span>Total Value:</span>
+                  <span>₹24,998</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <div className="text-4xl font-bold text-gradient">
+                  You Pay Only: ₹9,999
+                </div>
+                <p className="text-accent font-semibold">
+                  Save ₹15,000+ on the bundle
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  For limited time period
+                </p>
+              </div>
+            </AnimatedCardHeader>
+            
+            <AnimatedCardContent className="space-y-6">
+              {/* Features */}
+              <div className="space-y-3">
+                {comboFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-start">
+                    <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
+                    <span className="text-foreground text-sm">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA Button */}
+              <AnimatedButton 
+                size="lg" 
+                animation="glow"
+                className="w-full py-4 text-lg font-semibold bg-accent hover:bg-accent/90"
+                onClick={() => navigate("/signup")}
+              >
+                Enroll with 1:1 Mentorship — ₹9,999
+              </AnimatedButton>
+            </AnimatedCardContent>
+          </AnimatedCard>
+        </div>
+
+        {/* Comparison Table */}
+        <div className="bg-card/50 rounded-2xl p-8 backdrop-blur-sm border">
+          <h3 className="text-2xl font-bold text-center mb-8 text-gradient">
+            Plan Comparison
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-4 px-4 font-semibold">Feature</th>
+                  <th className="text-center py-4 px-4 font-semibold">Course Only</th>
+                  <th className="text-center py-4 px-4 font-semibold">Course + Mentorship</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonFeatures.map((item, index) => (
+                  <tr key={index} className="border-b border-border/50 hover:bg-muted/20">
+                    <td className="py-4 px-4 text-sm">{item.feature}</td>
+                    <td className="text-center py-4 px-4 text-sm">
+                      {typeof item.course === 'boolean' ? (
+                        item.course ? (
+                          <span className="text-green-500">✅</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )
+                      ) : (
+                        <span className="text-muted-foreground">{item.course}</span>
+                      )}
+                    </td>
+                    <td className="text-center py-4 px-4 text-sm">
+                      {typeof item.combo === 'boolean' ? (
+                        item.combo ? (
+                          <span className="text-green-500">✅</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )
+                      ) : (
+                        <span className="text-accent font-medium">{item.combo}</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Sticky CTA Bar - placeholder for now */}
+        <div className="mt-12 text-center">
+          <div className="inline-block bg-card/80 backdrop-blur-sm rounded-full px-8 py-4 border shadow-lg">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-muted-foreground">Next cohort starts:</span>
+              <span className="font-semibold text-accent">Sep 21, 2025 - with induction</span>
+              <AnimatedButton 
+                size="sm"
+                onClick={() => navigate("/signup")}
+                className="ml-4"
+              >
+                Enroll Now
+              </AnimatedButton>
+            </div>
+          </div>
         </div>
       </div>
     </section>

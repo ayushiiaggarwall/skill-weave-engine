@@ -187,17 +187,11 @@ export function PricingSection() {
               
               {/* Price Breakdown */}
               <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Course Value:</span>
-                  <span>₹9,999 → ₹5,499</span>
+                <div className="flex justify-center items-center text-lg font-semibold">
+                  <span>₹9,999 + ₹14,999 = ₹24,998</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Mentorship Value:</span>
-                  <span>₹14,999 → ₹6,499</span>
-                </div>
-                <div className="border-t pt-2 flex justify-between font-semibold">
-                  <span>Total Value:</span>
-                  <span>₹24,998</span>
+                <div className="text-center text-red-500 font-medium">
+                  Cut and say ₹9,999
                 </div>
               </div>
 

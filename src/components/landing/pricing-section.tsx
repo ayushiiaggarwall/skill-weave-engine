@@ -67,12 +67,12 @@ export function PricingSection() {
   ]
 
   const comboFeatures = [
+    "Everything in Complete Course Access",
     "Direct Mentorship in Community — personal replies to queries, typically within 24 hours",
     "Quick 1:1 Calls (10–15 mins) — scheduled within 24 hours if your issue can't be solved on text",
     "Personal Feedback on Projects",
     "Personal Guidance on Your Own Projects/Ideas",
-    "Extra Post-Course Support — one follow-up call within 30 days",
-    "Everything in Complete Course Access"
+    "Extra Post-Course Support — one follow-up call within 30 days"
   ]
 
   const comparisonFeatures = [
@@ -185,15 +185,25 @@ export function PricingSection() {
                 Course + 1:1 Mentorship Combo
               </AnimatedCardTitle>
               
-              <div className="space-y-2">
-                <div className="text-lg font-medium text-muted-foreground text-center">
-                  ₹9,999 + ₹14,999 = ₹24,998
+              {/* Price Breakdown */}
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
+                <div className="flex justify-center items-center text-lg font-semibold">
+                  <span>₹9,999 + ₹14,999 = ₹24,998</span>
                 </div>
+                <div className="text-center text-red-500 font-medium">
+                  Cut and say ₹9,999
+                </div>
+              </div>
+
+              <div className="space-y-2 mt-4">
                 <div className="text-4xl font-bold text-gradient">
                   You Pay Only: ₹9,999
                 </div>
                 <p className="text-accent font-semibold">
-                  Save ₹15,000+ on the bundle • For limited time period
+                  Save ₹15,000+ on the bundle
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  For limited time period
                 </p>
               </div>
             </AnimatedCardHeader>

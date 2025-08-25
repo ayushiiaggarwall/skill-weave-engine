@@ -193,10 +193,7 @@ export function PricingSection() {
                   You Pay Only: ₹9,999
                 </div>
                 <p className="text-accent font-semibold">
-                  Save ₹15,000+ on the bundle
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  For limited time period
+                  Save ₹15,000+ on the bundle • For limited time period
                 </p>
               </div>
             </AnimatedCardHeader>

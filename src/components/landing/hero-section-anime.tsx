@@ -215,7 +215,7 @@ export function HeroSectionAnime() {
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center px-6 lg:px-8 overflow-hidden pt-32"
+      className="relative min-h-screen flex items-center justify-center px-6 lg:px-8 overflow-hidden pt-32 pb-16 md:pb-24"
       style={{
         background: `
           radial-gradient(ellipse at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 

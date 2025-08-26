@@ -54,7 +54,7 @@ export function HeroSection() {
   const regularPrice = `${pricing.symbol}${isEarlyBird ? pricing.earlyBird.toLocaleString() : pricing.regular.toLocaleString()}`
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-6 lg:px-8 overflow-hidden pt-32">
+    <section className="relative min-h-screen flex items-center justify-center px-6 lg:px-8 overflow-hidden pt-32 pb-16 md:pb-24">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating Shapes */}

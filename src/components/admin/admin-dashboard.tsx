@@ -18,11 +18,7 @@ interface UserProfile {
   created_at: string
   enrollments?: {
     payment_status: string
-    course_id?: string
-    courses?: {
-      title: string
-      is_active: boolean
-    }
+    course_id: string | null
   }[]
   order_enrollments?: {
     status: string
@@ -59,18 +55,14 @@ export function AdminDashboard() {
 
   const fetchUsers = async () => {
     try {
-      // First get profiles with enrollments
+      // Get profiles with basic enrollments (no course join since foreign key doesn't exist)
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select(`
           *,
           enrollments (
             payment_status,
-            course_id,
-            courses (
-              title,
-              is_active
-            )
+            course_id
           )
         `)
         .order('created_at', { ascending: false })
@@ -376,9 +368,7 @@ export function AdminDashboard() {
                         
                         const isEnrolled = hasCompletedEnrollment || hasOrderEnrollment
                         
-                        const activeCourse = user.enrollments?.find(e => 
-                          ['paid', 'completed'].includes(e.payment_status) && e.courses?.is_active
-                        )?.courses
+                        // Since enrollments don't have course relationship, just use order enrollments
                         
                         const paidOrder = user.order_enrollments?.find(e => e.status === 'paid')
                         const courseType = paidOrder?.course_type || 'N/A'
@@ -409,14 +399,9 @@ export function AdminDashboard() {
                             </td>
                             <td className="p-2">
                               {paidOrder ? (
-                                <span className="text-sm font-medium">
-                                  {courseTitle}
-                                  {activeCourse && (
-                                    <span className="text-xs text-muted-foreground ml-1">
-                                      ({activeCourse.title})
-                                    </span>
-                                  )}
-                                </span>
+                                 <span className="text-sm font-medium">
+                                   {courseTitle}
+                                 </span>
                               ) : (
                                 <span className="text-sm text-muted-foreground">-</span>
                               )}

@@ -238,7 +238,7 @@ export function MyCourses() {
               </div>
               <Badge variant="secondary" className="flex items-center gap-2">
                 <Star className="h-4 w-4" />
-                {enrollmentStatus.cohortName || "Active Learner"}
+                {enrollmentStatus.courseName || "Active Learner"}
               </Badge>
             </div>
 

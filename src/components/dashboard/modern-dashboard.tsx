@@ -215,7 +215,7 @@ export function ModernDashboard() {
                                   Enrolled
                                 </Badge>
                                 <span className="text-xs text-muted-foreground">
-                                  {enrollmentStatus.cohortName && `Cohort: ${enrollmentStatus.cohortName}`}
+                                  {enrollmentStatus.courseName && `Course: ${enrollmentStatus.courseName}`}
                                 </span>
                               </div>
                             </div>

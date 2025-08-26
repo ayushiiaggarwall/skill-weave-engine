@@ -4,28 +4,11 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, DollarSign, Clock, Bell, Trash2, Upload, Award } from "lucide-react"
+import { Users, Bell, Trash2, Upload, Award, BookOpen } from "lucide-react"
 import { Header } from "@/components/landing/header"
 import ContentManagement from './content-management'
 import CertificatesManagement from './certificates-management'
-interface PricingSettings {
-  id: string
-  usd_early_bird: number
-  usd_regular: number
-  usd_mrp: number
-  inr_early_bird: number
-  inr_regular: number
-  inr_mrp: number
-  usd_combo_early_bird: number
-  usd_combo_regular: number
-  usd_combo_mrp: number
-  inr_combo_early_bird: number
-  inr_combo_regular: number
-  inr_combo_mrp: number
-  early_bird_duration_hours: number
-  is_early_bird_active: boolean
-  early_bird_end_time: string | null
-}
+import CourseManagement from './course-management'
 
 interface UserProfile {
   id: string
@@ -35,8 +18,9 @@ interface UserProfile {
   created_at: string
   enrollments?: {
     payment_status: string
-    cohorts?: {
-      name: string
+    course_id?: string
+    courses?: {
+      title: string
       is_active: boolean
     }
   }[]
@@ -57,51 +41,21 @@ interface Announcement {
   title: string
   body: string
   created_at: string
-  cohort_id?: string | null
+  course_id?: string | null
 }
 
 export function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('pricing')
-  const [pricingSettings, setPricingSettings] = useState<PricingSettings | null>(null)
+  const [activeTab, setActiveTab] = useState('courses')
   const [users, setUsers] = useState<UserProfile[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', body: '' })
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
-    fetchPricingSettings()
     fetchUsers()
     fetchAnnouncements()
   }, [])
-
-  const fetchPricingSettings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('pricing_settings')
-        .select('*')
-        .single()
-
-      if (error) throw error
-      setPricingSettings({
-        ...data,
-        usd_combo_early_bird: data.usd_combo_early_bird || 199,
-        usd_combo_regular: data.usd_combo_regular || 299, 
-        usd_combo_mrp: data.usd_combo_mrp || 499,
-        inr_combo_early_bird: data.inr_combo_early_bird || 9999,
-        inr_combo_regular: data.inr_combo_regular || 14999,
-        inr_combo_mrp: data.inr_combo_mrp || 24999
-      })
-    } catch (error) {
-      console.error('Error fetching pricing settings:', error)
-      toast({
-        title: "Error",
-        description: "Failed to fetch pricing settings",
-        variant: "destructive"
-      })
-    }
-  }
 
   const fetchUsers = async () => {
     try {
@@ -112,8 +66,9 @@ export function AdminDashboard() {
           *,
           enrollments (
             payment_status,
-            cohorts (
-              name,
+            course_id,
+            courses (
+              title,
               is_active
             )
           )
@@ -163,53 +118,6 @@ export function AdminDashboard() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const updatePricingSettings = async (updates: Partial<PricingSettings>) => {
-    if (!pricingSettings) return
-
-    setSaving(true)
-    try {
-      const { error } = await supabase
-        .from('pricing_settings')
-        .update(updates)
-        .eq('id', pricingSettings.id)
-
-      if (error) throw error
-
-      setPricingSettings({ ...pricingSettings, ...updates })
-      toast({
-        title: "Success",
-        description: "Pricing settings updated successfully"
-      })
-    } catch (error) {
-      console.error('Error updating pricing settings:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update pricing settings",
-        variant: "destructive"
-      })
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const activateEarlyBird = async (durationHours: number) => {
-    const endTime = new Date()
-    endTime.setHours(endTime.getHours() + durationHours)
-
-    await updatePricingSettings({
-      is_early_bird_active: true,
-      early_bird_duration_hours: durationHours,
-      early_bird_end_time: endTime.toISOString()
-    })
-  }
-
-  const deactivateEarlyBird = async () => {
-    await updatePricingSettings({
-      is_early_bird_active: false,
-      early_bird_end_time: null
-    })
   }
 
   const fetchAnnouncements = async () => {
@@ -314,428 +222,224 @@ export function AdminDashboard() {
             <p className="text-muted-foreground">Manage course pricing, content, and view users</p>
           </div>
 
-{/* Tab Navigation */}
-<div className="flex justify-center space-x-4 mb-8">
-  <Button
-    variant={activeTab === 'pricing' ? 'default' : 'outline'}
-    onClick={() => setActiveTab('pricing')}
-    className="flex items-center gap-2"
-  >
-    <DollarSign className="h-4 w-4" />
-    Pricing
-  </Button>
-  <Button
-    variant={activeTab === 'content' ? 'default' : 'outline'}
-    onClick={() => setActiveTab('content')}
-    className="flex items-center gap-2"
-  >
-    <Upload className="h-4 w-4" />
-    Course Content
-  </Button>
-  <Button
-    variant={activeTab === 'certificates' ? 'default' : 'outline'}
-    onClick={() => setActiveTab('certificates')}
-    className="flex items-center gap-2"
-  >
-    <Award className="h-4 w-4" />
-    Certificates
-  </Button>
-  <Button
-    variant={activeTab === 'announcements' ? 'default' : 'outline'}
-    onClick={() => setActiveTab('announcements')}
-    className="flex items-center gap-2"
-  >
-    <Bell className="h-4 w-4" />
-    Announcements
-  </Button>
-  <Button
-    variant={activeTab === 'users' ? 'default' : 'outline'}
-    onClick={() => setActiveTab('users')}
-    className="flex items-center gap-2"
-  >
-    <Users className="h-4 w-4" />
-    Users
-  </Button>
-</div>
+          {/* Tab Navigation */}
+          <div className="flex justify-center space-x-4 mb-8">
+            <Button
+              variant={activeTab === 'courses' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('courses')}
+              className="flex items-center gap-2"
+            >
+              <BookOpen className="h-4 w-4" />
+              Courses
+            </Button>
+            <Button
+              variant={activeTab === 'content' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('content')}
+              className="flex items-center gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Course Content
+            </Button>
+            <Button
+              variant={activeTab === 'certificates' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('certificates')}
+              className="flex items-center gap-2"
+            >
+              <Award className="h-4 w-4" />
+              Certificates
+            </Button>
+            <Button
+              variant={activeTab === 'announcements' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('announcements')}
+              className="flex items-center gap-2"
+            >
+              <Bell className="h-4 w-4" />
+              Announcements
+            </Button>
+            <Button
+              variant={activeTab === 'users' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('users')}
+              className="flex items-center gap-2"
+            >
+              <Users className="h-4 w-4" />
+              Users
+            </Button>
+          </div>
 
-{activeTab === 'content' && (
-  <ContentManagement />
-)}
-{activeTab === 'certificates' && (
-  <CertificatesManagement />
-)}
+          {activeTab === 'courses' && (
+            <CourseManagement />
+          )}
+          {activeTab === 'content' && (
+            <ContentManagement />
+          )}
+          {activeTab === 'certificates' && (
+            <CertificatesManagement />
+          )}
 
-        {activeTab === 'pricing' && (
-        <AnimatedCard>
-          <AnimatedCardHeader>
-            <AnimatedCardTitle className="flex items-center space-x-2">
-              <DollarSign className="w-5 h-5" />
-              <span>Pricing Management</span>
-            </AnimatedCardTitle>
-          </AnimatedCardHeader>
-          <AnimatedCardContent className="space-y-6">
-            {pricingSettings && (
-              <>
-                {/* Early Bird Controls */}
+          {activeTab === 'announcements' && (
+            <AnimatedCard>
+              <AnimatedCardHeader>
+                <AnimatedCardTitle className="flex items-center space-x-2">
+                  <Bell className="w-5 h-5" />
+                  <span>Announcements Management</span>
+                </AnimatedCardTitle>
+              </AnimatedCardHeader>
+              <AnimatedCardContent className="space-y-6">
+                {/* Create New Announcement */}
                 <div className="p-4 border rounded-lg space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center space-x-2">
-                    <Clock className="w-4 h-4" />
-                    <span>Early Bird Offer</span>
-                  </h3>
-                  
-                  <div className="flex items-center space-x-4">
-                    <span className="text-sm">Status:</span>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      pricingSettings.is_early_bird_active 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}>
-                      {pricingSettings.is_early_bird_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button 
-                      onClick={() => activateEarlyBird(4)}
-                      disabled={saving}
-                      size="sm"
-                    >
-                      Activate 4 Hours
-                    </Button>
-                    <Button 
-                      onClick={() => activateEarlyBird(24)}
-                      disabled={saving}
-                      size="sm"
-                    >
-                      Activate 24 Hours
-                    </Button>
-                    <Button 
-                      onClick={() => activateEarlyBird(168)}
-                      disabled={saving}
-                      size="sm"
-                    >
-                      Activate 7 Days
-                    </Button>
-                    <Button 
-                      onClick={deactivateEarlyBird}
-                      disabled={saving}
-                      variant="destructive"
-                      size="sm"
-                    >
-                      Deactivate
+                  <h3 className="text-lg font-semibold">Create New Announcement</h3>
+                  <div className="space-y-3">
+                    <Input
+                      placeholder="Announcement title"
+                      value={newAnnouncement.title}
+                      onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                    />
+                    <textarea
+                      placeholder="Announcement body"
+                      value={newAnnouncement.body}
+                      onChange={(e) => setNewAnnouncement({ ...newAnnouncement, body: e.target.value })}
+                      className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      rows={3}
+                    />
+                    <Button onClick={createAnnouncement}>
+                      Create Announcement
                     </Button>
                   </div>
                 </div>
 
-                {/* Price Settings */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Course Only - USD Pricing */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-primary">Course Only - USD</h3>
-                    <div className="space-y-2">
-                      <label className="text-sm">Early Bird Price ($)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.usd_early_bird}
-                        onChange={(e) => updatePricingSettings({ usd_early_bird: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">Regular Price ($)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.usd_regular}
-                        onChange={(e) => updatePricingSettings({ usd_regular: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">MRP ($)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.usd_mrp}
-                        onChange={(e) => updatePricingSettings({ usd_mrp: parseInt(e.target.value) })}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Course Only - INR Pricing */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-primary">Course Only - INR</h3>
-                    <div className="space-y-2">
-                      <label className="text-sm">Early Bird Price (₹)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.inr_early_bird}
-                        onChange={(e) => updatePricingSettings({ inr_early_bird: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">Regular Price (₹)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.inr_regular}
-                        onChange={(e) => updatePricingSettings({ inr_regular: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">MRP (₹)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.inr_mrp}
-                        onChange={(e) => updatePricingSettings({ inr_mrp: parseInt(e.target.value) })}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Combo - USD Pricing */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-accent">Combo + Mentorship - USD</h3>
-                    <div className="space-y-2">
-                      <label className="text-sm">Early Bird Price ($)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.usd_combo_early_bird}
-                        onChange={(e) => updatePricingSettings({ usd_combo_early_bird: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">Regular Price ($)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.usd_combo_regular}
-                        onChange={(e) => updatePricingSettings({ usd_combo_regular: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">MRP ($)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.usd_combo_mrp}
-                        onChange={(e) => updatePricingSettings({ usd_combo_mrp: parseInt(e.target.value) })}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Second Row - Combo INR */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-accent">Combo + Mentorship - INR</h3>
-                    <div className="space-y-2">
-                      <label className="text-sm">Early Bird Price (₹)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.inr_combo_early_bird}
-                        onChange={(e) => updatePricingSettings({ inr_combo_early_bird: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">Regular Price (₹)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.inr_combo_regular}
-                        onChange={(e) => updatePricingSettings({ inr_combo_regular: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm">MRP (₹)</label>
-                      <Input
-                        type="number"
-                        value={pricingSettings.inr_combo_mrp}
-                        onChange={(e) => updatePricingSettings({ inr_combo_mrp: parseInt(e.target.value) })}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Summary Cards */}
-                  <div className="md:col-span-2 space-y-4">
-                    <h3 className="text-lg font-semibold">Current Pricing Summary</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 border rounded-lg bg-primary/5">
-                        <h4 className="font-medium text-primary">Course Only (INR)</h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Early Bird: ₹{pricingSettings.inr_early_bird} | Regular: ₹{pricingSettings.inr_regular}
-                        </p>
-                      </div>
-                      <div className="p-4 border rounded-lg bg-accent/5">
-                        <h4 className="font-medium text-accent">Combo (INR)</h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Early Bird: ₹{pricingSettings.inr_combo_early_bird} | Regular: ₹{pricingSettings.inr_combo_regular}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </AnimatedCardContent>
-        </AnimatedCard>
-        )}
-
-        {activeTab === 'announcements' && (
-        <AnimatedCard>
-          <AnimatedCardHeader>
-            <AnimatedCardTitle className="flex items-center space-x-2">
-              <Bell className="w-5 h-5" />
-              <span>Announcements Management</span>
-            </AnimatedCardTitle>
-          </AnimatedCardHeader>
-          <AnimatedCardContent className="space-y-6">
-            {/* Create New Announcement */}
-            <div className="p-4 border rounded-lg space-y-4">
-              <h3 className="text-lg font-semibold">Create New Announcement</h3>
-              <div className="space-y-3">
-                <Input
-                  placeholder="Announcement title"
-                  value={newAnnouncement.title}
-                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
-                />
-                <textarea
-                  placeholder="Announcement body"
-                  value={newAnnouncement.body}
-                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, body: e.target.value })}
-                  className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  rows={3}
-                />
-                <Button onClick={createAnnouncement} disabled={saving}>
-                  Create Announcement
-                </Button>
-              </div>
-            </div>
-
-            {/* Existing Announcements */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Existing Announcements ({announcements.length})</h3>
-              {announcements.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">No announcements yet</p>
-              ) : (
-                <div className="space-y-3">
-                  {announcements.map((announcement) => (
-                    <div key={announcement.id} className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium">{announcement.title}</h4>
-                          <p className="text-sm text-muted-foreground mt-1">{announcement.body}</p>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {new Date(announcement.created_at).toLocaleString()}
-                          </p>
+                {/* Existing Announcements */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Existing Announcements ({announcements.length})</h3>
+                  {announcements.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">No announcements yet</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {announcements.map((announcement) => (
+                        <div key={announcement.id} className="p-4 border rounded-lg">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium">{announcement.title}</h4>
+                              <p className="text-sm text-muted-foreground mt-1">{announcement.body}</p>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                {new Date(announcement.created_at).toLocaleString()}
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => deleteAnnouncement(announcement.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteAnnouncement(announcement.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
-          </AnimatedCardContent>
-        </AnimatedCard>
-        )}
+              </AnimatedCardContent>
+            </AnimatedCard>
+          )}
 
-        {activeTab === 'users' && (
-        <AnimatedCard>
-          <AnimatedCardHeader>
-            <AnimatedCardTitle className="flex items-center space-x-2">
-              <Users className="w-5 h-5" />
-              <span>Registered Users ({users.length})</span>
-            </AnimatedCardTitle>
-          </AnimatedCardHeader>
-          <AnimatedCardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2">Name</th>
-                    <th className="text-left p-2">Email</th>
-                    <th className="text-left p-2">Role</th>
-                    <th className="text-left p-2">Enrollment Status</th>
-                    <th className="text-left p-2">Course Type</th>
-                    <th className="text-left p-2">Amount Paid</th>
-                    <th className="text-left p-2">Joined</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => {
-                    // Check enrollment status
-                    const hasCompletedEnrollment = user.enrollments?.some(e => 
-                      ['paid', 'completed'].includes(e.payment_status)
-                    ) || false
-                    
-                    const hasOrderEnrollment = user.order_enrollments?.some(e => 
-                      e.status === 'paid'
-                    ) || false
-                    
-                    const isEnrolled = hasCompletedEnrollment || hasOrderEnrollment
-                    
-                    const activeCohort = user.enrollments?.find(e => 
-                      ['paid', 'completed'].includes(e.payment_status) && e.cohorts?.is_active
-                    )?.cohorts
-                    
-                    const paidOrder = user.order_enrollments?.find(e => e.status === 'paid')
-                    const courseType = paidOrder?.course_type || 'N/A'
-                    const courseTitle = paidOrder?.courses?.title || courseType
-                    const amountPaid = paidOrder ? `${paidOrder.currency === 'USD' ? '$' : '₹'}${paidOrder.amount}` : 'N/A'
-                    
-                    return (
-                      <tr key={user.id} className="border-b hover:bg-muted/50">
-                        <td className="p-2">{user.name}</td>
-                        <td className="p-2">{user.email}</td>
-                        <td className="p-2">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            user.role === 'admin' 
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                          }`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="p-2">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            isEnrolled
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                          }`}>
-                            {isEnrolled ? 'Enrolled' : 'Not Enrolled'}
-                          </span>
-                        </td>
-                        <td className="p-2">
-                          {paidOrder ? (
-                            <span className="text-sm font-medium">
-                              {courseTitle}
-                              {activeCohort && (
-                                <span className="text-xs text-muted-foreground ml-1">
-                                  ({activeCohort.name})
-                                </span>
-                              )}
-                            </span>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">-</span>
-                          )}
-                        </td>
-                        <td className="p-2">
-                          <span className={`text-sm font-medium ${
-                            paidOrder ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
-                          }`}>
-                            {amountPaid}
-                          </span>
-                        </td>
-                        <td className="p-2">
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </td>
+          {activeTab === 'users' && (
+            <AnimatedCard>
+              <AnimatedCardHeader>
+                <AnimatedCardTitle className="flex items-center space-x-2">
+                  <Users className="w-5 h-5" />
+                  <span>Registered Users ({users.length})</span>
+                </AnimatedCardTitle>
+              </AnimatedCardHeader>
+              <AnimatedCardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2">Name</th>
+                        <th className="text-left p-2">Email</th>
+                        <th className="text-left p-2">Role</th>
+                        <th className="text-left p-2">Enrollment Status</th>
+                        <th className="text-left p-2">Course Type</th>
+                        <th className="text-left p-2">Amount Paid</th>
+                        <th className="text-left p-2">Joined</th>
                       </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </AnimatedCardContent>
-        </AnimatedCard>
-        )}
+                    </thead>
+                    <tbody>
+                      {users.map((user) => {
+                        // Check enrollment status
+                        const hasCompletedEnrollment = user.enrollments?.some(e => 
+                          ['paid', 'completed'].includes(e.payment_status)
+                        ) || false
+                        
+                        const hasOrderEnrollment = user.order_enrollments?.some(e => 
+                          e.status === 'paid'
+                        ) || false
+                        
+                        const isEnrolled = hasCompletedEnrollment || hasOrderEnrollment
+                        
+                        const activeCourse = user.enrollments?.find(e => 
+                          ['paid', 'completed'].includes(e.payment_status) && e.courses?.is_active
+                        )?.courses
+                        
+                        const paidOrder = user.order_enrollments?.find(e => e.status === 'paid')
+                        const courseType = paidOrder?.course_type || 'N/A'
+                        const courseTitle = paidOrder?.courses?.title || courseType
+                        const amountPaid = paidOrder ? `${paidOrder.currency === 'USD' ? '$' : '₹'}${paidOrder.amount}` : 'N/A'
+                        
+                        return (
+                          <tr key={user.id} className="border-b hover:bg-muted/50">
+                            <td className="p-2">{user.name}</td>
+                            <td className="p-2">{user.email}</td>
+                            <td className="p-2">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                user.role === 'admin' 
+                                  ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              }`}>
+                                {user.role}
+                              </span>
+                            </td>
+                            <td className="p-2">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                isEnrolled
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                              }`}>
+                                {isEnrolled ? 'Enrolled' : 'Not Enrolled'}
+                              </span>
+                            </td>
+                            <td className="p-2">
+                              {paidOrder ? (
+                                <span className="text-sm font-medium">
+                                  {courseTitle}
+                                  {activeCourse && (
+                                    <span className="text-xs text-muted-foreground ml-1">
+                                      ({activeCourse.title})
+                                    </span>
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">-</span>
+                              )}
+                            </td>
+                            <td className="p-2">
+                              <span className={`text-sm font-medium ${
+                                paidOrder ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
+                              }`}>
+                                {amountPaid}
+                              </span>
+                            </td>
+                            <td className="p-2">
+                              {new Date(user.created_at).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </AnimatedCardContent>
+            </AnimatedCard>
+          )}
         </div>
       </div>
     </div>

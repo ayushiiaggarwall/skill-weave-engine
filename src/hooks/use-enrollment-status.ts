@@ -4,9 +4,9 @@ import { useAuth } from '@/contexts/auth-context'
 
 export interface EnrollmentStatus {
   isEnrolled: boolean
-  hasActiveCohort: boolean
+  hasActiveCourse: boolean
   paymentStatus: 'pending' | 'completed' | 'failed' | 'paid' | null
-  cohortName?: string
+  courseName?: string
   loading: boolean
 }
 
@@ -14,7 +14,7 @@ export function useEnrollmentStatus(): EnrollmentStatus {
   const { user } = useAuth()
   const [status, setStatus] = useState<EnrollmentStatus>({
     isEnrolled: false,
-    hasActiveCohort: false,
+    hasActiveCourse: false,
     paymentStatus: null,
     loading: true
   })
@@ -23,7 +23,7 @@ export function useEnrollmentStatus(): EnrollmentStatus {
     if (!user) {
       setStatus({
         isEnrolled: false,
-        hasActiveCohort: false,
+        hasActiveCourse: false,
         paymentStatus: null,
         loading: false
       })
@@ -32,28 +32,10 @@ export function useEnrollmentStatus(): EnrollmentStatus {
 
     const checkEnrollmentStatus = async () => {
       try {
-        // Check for completed enrollments
-        const { data: enrollments, error: enrollmentError } = await supabase
-          .from('enrollments')
-          .select(`
-            payment_status,
-            cohort_id,
-            cohorts (
-              name,
-              is_active
-            )
-          `)
-          .eq('user_id', user.id)
-
-        if (enrollmentError) {
-          console.error('Error fetching enrollments:', enrollmentError)
-          return
-        }
-
-        // Check for completed order enrollments
+        // Check for completed order enrollments (primary method now)
         const { data: orderEnrollments, error: orderError } = await supabase
           .from('order_enrollments')
-          .select('status, user_email, user_id')
+          .select('status, user_email, user_id, courses(title)')
           .or(`user_id.eq.${user.id},user_email.eq.${user.email}`)
 
         if (orderError) {
@@ -64,19 +46,14 @@ export function useEnrollmentStatus(): EnrollmentStatus {
         const hasCompletedPayment = orderEnrollments?.some(order => 
           order.status === 'paid'
         ) || false
-        const hasActiveCohortEnrollment = enrollments?.some(
-          enrollment => (['paid','completed'].includes((enrollment.payment_status as unknown as string))) && enrollment.cohorts?.is_active
-        ) || false
 
-        const activeCohort = enrollments?.find(
-          enrollment => (['paid','completed'].includes((enrollment.payment_status as unknown as string))) && enrollment.cohorts?.is_active
-        )?.cohorts
+        const paidOrder = orderEnrollments?.find(order => order.status === 'paid')
 
         setStatus({
-          isEnrolled: hasCompletedPayment || hasActiveCohortEnrollment,
-          hasActiveCohort: hasActiveCohortEnrollment,
-          paymentStatus: hasCompletedPayment ? 'completed' : enrollments?.[0]?.payment_status || null,
-          cohortName: activeCohort?.name,
+          isEnrolled: hasCompletedPayment,
+          hasActiveCourse: hasCompletedPayment,
+          paymentStatus: hasCompletedPayment ? 'completed' : null,
+          courseName: paidOrder?.courses?.title || 'Course',
           loading: false
         })
       } catch (error) {

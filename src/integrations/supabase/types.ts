@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           body: string
           cohort_id: string | null
+          course_id: string | null
           created_at: string
           id: string
           title: string
@@ -25,6 +26,7 @@ export type Database = {
         Insert: {
           body: string
           cohort_id?: string | null
+          course_id?: string | null
           created_at?: string
           id?: string
           title: string
@@ -32,19 +34,12 @@ export type Database = {
         Update: {
           body?: string
           cohort_id?: string | null
+          course_id?: string | null
           created_at?: string
           id?: string
           title?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "announcements_cohort_id_fkey"
-            columns: ["cohort_id"]
-            isOneToOne: false
-            referencedRelation: "cohorts"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       assignments: {
         Row: {
@@ -125,33 +120,6 @@ export type Database = {
           },
         ]
       }
-      cohorts: {
-        Row: {
-          created_at: string
-          end_date: string
-          id: string
-          is_active: boolean
-          name: string
-          start_date: string
-        }
-        Insert: {
-          created_at?: string
-          end_date: string
-          id?: string
-          is_active?: boolean
-          name: string
-          start_date: string
-        }
-        Update: {
-          created_at?: string
-          end_date?: string
-          id?: string
-          is_active?: boolean
-          name?: string
-          start_date?: string
-        }
-        Relationships: []
-      }
       coupons: {
         Row: {
           active: boolean | null
@@ -224,14 +192,56 @@ export type Database = {
         }
         Relationships: []
       }
+      course_pricing: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          inr_early_bird: number
+          inr_mrp: number
+          inr_regular: number
+          updated_at: string
+          usd_early_bird: number
+          usd_mrp: number
+          usd_regular: number
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          inr_early_bird: number
+          inr_mrp: number
+          inr_regular: number
+          updated_at?: string
+          usd_early_bird: number
+          usd_mrp: number
+          usd_regular: number
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          inr_early_bird?: number
+          inr_mrp?: number
+          inr_regular?: number
+          updated_at?: string
+          usd_early_bird?: number
+          usd_mrp?: number
+          usd_regular?: number
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           content: string
           created_at: string
           deliverables: string[] | null
+          end_date: string | null
           id: string
+          is_active: boolean
           mini_project: string | null
           objective: string
+          start_date: string | null
           title: string
           updated_at: string
           week_number: number
@@ -240,9 +250,12 @@ export type Database = {
           content: string
           created_at?: string
           deliverables?: string[] | null
+          end_date?: string | null
           id?: string
+          is_active?: boolean
           mini_project?: string | null
           objective: string
+          start_date?: string | null
           title: string
           updated_at?: string
           week_number: number
@@ -251,9 +264,12 @@ export type Database = {
           content?: string
           created_at?: string
           deliverables?: string[] | null
+          end_date?: string | null
           id?: string
+          is_active?: boolean
           mini_project?: string | null
           objective?: string
+          start_date?: string | null
           title?: string
           updated_at?: string
           week_number?: number
@@ -263,6 +279,7 @@ export type Database = {
       enrollments: {
         Row: {
           cohort_id: string
+          course_id: string | null
           created_at: string
           id: string
           payment_status: Database["public"]["Enums"]["payment_status"]
@@ -270,6 +287,7 @@ export type Database = {
         }
         Insert: {
           cohort_id: string
+          course_id?: string | null
           created_at?: string
           id?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -277,19 +295,13 @@ export type Database = {
         }
         Update: {
           cohort_id?: string
+          course_id?: string | null
           created_at?: string
           id?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "enrollments_cohort_id_fkey"
-            columns: ["cohort_id"]
-            isOneToOne: false
-            referencedRelation: "cohorts"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "enrollments_user_id_fkey"
             columns: ["user_id"]
@@ -417,69 +429,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      pricing_settings: {
-        Row: {
-          created_at: string
-          early_bird_duration_hours: number
-          early_bird_end_time: string | null
-          id: string
-          inr_combo_early_bird: number | null
-          inr_combo_mrp: number | null
-          inr_combo_regular: number | null
-          inr_early_bird: number
-          inr_mrp: number
-          inr_regular: number
-          is_early_bird_active: boolean
-          updated_at: string
-          usd_combo_early_bird: number | null
-          usd_combo_mrp: number | null
-          usd_combo_regular: number | null
-          usd_early_bird: number
-          usd_mrp: number
-          usd_regular: number
-        }
-        Insert: {
-          created_at?: string
-          early_bird_duration_hours?: number
-          early_bird_end_time?: string | null
-          id?: string
-          inr_combo_early_bird?: number | null
-          inr_combo_mrp?: number | null
-          inr_combo_regular?: number | null
-          inr_early_bird?: number
-          inr_mrp?: number
-          inr_regular?: number
-          is_early_bird_active?: boolean
-          updated_at?: string
-          usd_combo_early_bird?: number | null
-          usd_combo_mrp?: number | null
-          usd_combo_regular?: number | null
-          usd_early_bird?: number
-          usd_mrp?: number
-          usd_regular?: number
-        }
-        Update: {
-          created_at?: string
-          early_bird_duration_hours?: number
-          early_bird_end_time?: string | null
-          id?: string
-          inr_combo_early_bird?: number | null
-          inr_combo_mrp?: number | null
-          inr_combo_regular?: number | null
-          inr_early_bird?: number
-          inr_mrp?: number
-          inr_regular?: number
-          is_early_bird_active?: boolean
-          updated_at?: string
-          usd_combo_early_bird?: number | null
-          usd_combo_mrp?: number | null
-          usd_combo_regular?: number | null
-          usd_early_bird?: number
-          usd_mrp?: number
-          usd_regular?: number
-        }
-        Relationships: []
       }
       profiles: {
         Row: {

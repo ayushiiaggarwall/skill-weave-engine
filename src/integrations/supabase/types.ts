@@ -366,6 +366,8 @@ export type Database = {
         Row: {
           amount: number
           coupon_code: string | null
+          course_id: string | null
+          course_type: string | null
           created_at: string
           currency: string
           gateway: string
@@ -379,6 +381,8 @@ export type Database = {
         Insert: {
           amount: number
           coupon_code?: string | null
+          course_id?: string | null
+          course_type?: string | null
           created_at?: string
           currency: string
           gateway: string
@@ -392,6 +396,8 @@ export type Database = {
         Update: {
           amount?: number
           coupon_code?: string | null
+          course_id?: string | null
+          course_type?: string | null
           created_at?: string
           currency?: string
           gateway?: string
@@ -402,7 +408,15 @@ export type Database = {
           user_email?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "order_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pricing_settings: {
         Row: {

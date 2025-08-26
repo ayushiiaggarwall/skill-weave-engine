@@ -42,6 +42,13 @@ interface UserProfile {
   }[]
   order_enrollments?: {
     status: string
+    amount: number
+    currency: string
+    course_type: string | null
+    course_id?: string | null
+    courses?: {
+      title: string
+    } | null
   }[]
 }
 
@@ -115,10 +122,21 @@ export function AdminDashboard() {
 
       if (profilesError) throw profilesError
 
-      // Then get order enrollments separately
+      // Then get order enrollments separately with course info
       const { data: orderEnrollments, error: orderError } = await supabase
         .from('order_enrollments')
-        .select('user_id, user_email, status')
+        .select(`
+          user_id, 
+          user_email, 
+          status, 
+          amount, 
+          currency, 
+          course_type,
+          course_id,
+          courses (
+            title
+          )
+        `)
 
       if (orderError) throw orderError
 
@@ -636,7 +654,8 @@ export function AdminDashboard() {
                     <th className="text-left p-2">Email</th>
                     <th className="text-left p-2">Role</th>
                     <th className="text-left p-2">Enrollment Status</th>
-                    <th className="text-left p-2">Course</th>
+                    <th className="text-left p-2">Course Type</th>
+                    <th className="text-left p-2">Amount Paid</th>
                     <th className="text-left p-2">Joined</th>
                   </tr>
                 </thead>
@@ -656,6 +675,11 @@ export function AdminDashboard() {
                     const activeCohort = user.enrollments?.find(e => 
                       ['paid', 'completed'].includes(e.payment_status) && e.cohorts?.is_active
                     )?.cohorts
+                    
+                    const paidOrder = user.order_enrollments?.find(e => e.status === 'paid')
+                    const courseType = paidOrder?.course_type || 'N/A'
+                    const courseTitle = paidOrder?.courses?.title || courseType
+                    const amountPaid = paidOrder ? `${paidOrder.currency === 'USD' ? '$' : '₹'}${paidOrder.amount}` : 'N/A'
                     
                     return (
                       <tr key={user.id} className="border-b hover:bg-muted/50">
@@ -680,13 +704,25 @@ export function AdminDashboard() {
                           </span>
                         </td>
                         <td className="p-2">
-                          {activeCohort ? (
-                            <span className="text-sm text-primary font-medium">
-                              {activeCohort.name}
+                          {paidOrder ? (
+                            <span className="text-sm font-medium">
+                              {courseTitle}
+                              {activeCohort && (
+                                <span className="text-xs text-muted-foreground ml-1">
+                                  ({activeCohort.name})
+                                </span>
+                              )}
                             </span>
                           ) : (
                             <span className="text-sm text-muted-foreground">-</span>
                           )}
+                        </td>
+                        <td className="p-2">
+                          <span className={`text-sm font-medium ${
+                            paidOrder ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
+                          }`}>
+                            {amountPaid}
+                          </span>
                         </td>
                         <td className="p-2">
                           {new Date(user.created_at).toLocaleDateString()}

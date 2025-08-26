@@ -290,16 +290,26 @@ export function PricingSection() {
           </div>
         </div>
 
-        {/* Sticky CTA Bar - placeholder for now */}
+        {/* Sticky CTA Bar */}
         <div className="mt-12 text-center">
-          <div className="inline-block bg-card/80 backdrop-blur-sm rounded-full px-8 py-4 border shadow-lg">
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">Next cohort starts:</span>
-              <span className="font-semibold text-accent">Sep 21, 2025 - Induction</span>
+          <div className="inline-block bg-card/80 backdrop-blur-sm rounded-2xl px-8 py-6 border shadow-lg max-w-4xl">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm text-muted-foreground">Next cohort starts:</span>
+                    <span className="font-semibold text-accent">Sep 21, 2025 - Induction</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Course timeline:</span>
+                    <span className="font-semibold text-foreground">27th September to 26th October, 2025</span>
+                  </div>
+                </div>
+              </div>
               <AnimatedButton 
-                size="sm"
+                size="lg"
                 onClick={() => handleEnrollClick('regular')}
-                className="ml-4"
+                className="flex-shrink-0"
               >
                 Enroll Now
               </AnimatedButton>

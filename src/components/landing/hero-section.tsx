@@ -1,10 +1,11 @@
 import { motion } from "framer-motion"
-import { ArrowRight, Play, Trophy, Star, Sparkles } from "lucide-react"
+import { ArrowRight, Trophy, Star, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AnimeDemo } from "@/components/ui/anime-demo"
 import { courseData } from "@/lib/course-data"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/contexts/auth-context"
 
 interface FloatingElementProps {
   children: React.ReactNode
@@ -35,6 +36,16 @@ function FloatingElement({ children, delay = 0, duration = 6, className = "" }: 
 
 export function HeroSection() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+
+  const handleEnrollClick = (pricingType: 'regular' | 'combo') => {
+    if (!user) {
+      navigate("/signup")
+    } else {
+      // Navigate to payment page with pricing type
+      navigate(`/pay?type=${pricingType}`)
+    }
+  }
   
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6 lg:px-8 overflow-hidden pt-32">
@@ -167,10 +178,10 @@ export function HeroSection() {
               <Button 
                 size="lg" 
                 className="px-10 py-4 text-lg button-3d hover-glow relative overflow-hidden group"
-                onClick={() => navigate("/signup")}
+                onClick={() => handleEnrollClick('regular')}
               >
                 <span className="relative z-10 flex items-center">
-                  Enroll Now - ${courseData.price}
+                  Enroll Now - ₹5499
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -184,9 +195,10 @@ export function HeroSection() {
                 variant="outline" 
                 size="lg" 
                 className="px-10 py-4 text-lg glass-card border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all duration-300"
+                onClick={() => handleEnrollClick('combo')}
               >
-                <Play className="mr-3 h-5 w-5" />
-                See Syllabus
+                <Star className="mr-3 h-5 w-5" />
+                Enroll with 1:1 Mentorship - ₹9999
               </Button>
             </motion.div>
           </motion.div>

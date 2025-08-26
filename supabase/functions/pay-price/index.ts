@@ -11,6 +11,7 @@ interface PriceRequest {
   regionOverride?: 'in' | 'intl';
   earlyOverride?: boolean;
   coupon?: string;
+  pricingType?: 'regular' | 'combo';
 }
 
 interface PriceResponse {
@@ -45,9 +46,9 @@ serve(async (req) => {
     );
 
     const body: PriceRequest = await req.json();
-    const { email, regionOverride, earlyOverride, coupon } = body;
+    const { email, regionOverride, earlyOverride, coupon, pricingType = 'regular' } = body;
 
-    logStep("Request received", { email, regionOverride, earlyOverride, coupon });
+    logStep("Request received", { email, regionOverride, earlyOverride, coupon, pricingType });
 
     // Determine region
     let region: 'in' | 'intl' = 'intl';
@@ -103,11 +104,19 @@ serve(async (req) => {
     if (region === 'in') {
       currency = 'INR';
       symbol = '₹';
-      amount = isEarlyBird ? pricingSettings.inr_early_bird * 100 : pricingSettings.inr_regular * 100; // Convert to paise
+      if (pricingType === 'combo') {
+        amount = isEarlyBird ? pricingSettings.inr_combo_early_bird * 100 : pricingSettings.inr_combo_regular * 100;
+      } else {
+        amount = isEarlyBird ? pricingSettings.inr_early_bird * 100 : pricingSettings.inr_regular * 100;
+      }
     } else {
       currency = 'USD';
       symbol = '$';
-      amount = isEarlyBird ? pricingSettings.usd_early_bird * 100 : pricingSettings.usd_regular * 100; // Convert to cents
+      if (pricingType === 'combo') {
+        amount = isEarlyBird ? pricingSettings.usd_combo_early_bird * 100 : pricingSettings.usd_combo_regular * 100;
+      } else {
+        amount = isEarlyBird ? pricingSettings.usd_early_bird * 100 : pricingSettings.usd_regular * 100;
+      }
     }
 
     logStep("Base price calculated", { amount, currency, isEarlyBird });

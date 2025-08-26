@@ -13,7 +13,18 @@ export function PricingSection() {
   const { user } = useAuth()
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
-  const { isEarlyBird, timeLeft, formatTime } = usePricing()
+  const { pricing, isEarlyBird, timeLeft, formatTime } = usePricing()
+
+  // Calculate combo pricing based on region  
+  const comboEarlyPrice = pricing.currency === 'INR' ? '₹9,999' : '$199'
+  const comboRegularPrice = pricing.currency === 'INR' ? '₹14,999' : '$2,949'
+  const comboMrpPrice = pricing.currency === 'INR' ? '₹24,999' : '$799'
+  
+  const regularEarlyPrice = `${pricing.symbol}${pricing.earlyBird.toLocaleString()}`
+  const regularRegularPrice = `${pricing.symbol}${pricing.regular.toLocaleString()}`
+  const regularMrpPrice = `${pricing.symbol}${pricing.mrp.toLocaleString()}`
+  
+  const currentRegularPrice = isEarlyBird ? regularEarlyPrice : regularRegularPrice
 
   const handleEnrollClick = (pricingType: 'regular' | 'combo') => {
     if (!user) {
@@ -144,11 +155,11 @@ export function PricingSection() {
               <div className="space-y-2">
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <span className="text-xl text-muted-foreground line-through">
-                    ₹9,999
+                    {regularMrpPrice}
                   </span>
                 </div>
                 <div className="text-5xl font-bold text-gradient">
-                  ₹5,499
+                  {currentRegularPrice}
                 </div>
                 <p className="text-muted-foreground">
                   {isEarlyBird ? "Early Bird Offer" : "Regular Price"} • One-time payment
@@ -174,7 +185,7 @@ export function PricingSection() {
                 className="w-full py-4 text-lg font-semibold hover-glow"
                 onClick={() => handleEnrollClick('regular')}
               >
-                Enroll Now — ₹5,499
+                Enroll Now — {currentRegularPrice}
               </AnimatedButton>
             </AnimatedCardContent>
           </AnimatedCard>
@@ -197,13 +208,13 @@ export function PricingSection() {
               
               <div className="space-y-2">
                 <div className="text-lg font-medium text-muted-foreground text-center">
-                  ₹9,999 + ₹14,999 = ₹24,998
+                  {comboEarlyPrice} + {comboRegularPrice} = {comboMrpPrice}
                 </div>
                 <div className="text-4xl font-bold text-gradient">
-                  You Pay Only: ₹9,999
+                  You Pay Only: {comboEarlyPrice}
                 </div>
                 <p className="text-accent font-semibold">
-                  Save ₹15,000+ on the bundle • For limited time period
+                  Save {pricing.currency === 'INR' ? '₹15,000+' : '$600+'} on the bundle • For limited time period
                 </p>
               </div>
             </AnimatedCardHeader>
@@ -226,7 +237,7 @@ export function PricingSection() {
                 className="w-full py-4 text-lg font-semibold hover-glow"
                 onClick={() => handleEnrollClick('combo')}
               >
-                Enroll with 1:1 Mentorship — ₹9,999
+                Enroll with 1:1 Mentorship — {comboEarlyPrice}
               </AnimatedButton>
             </AnimatedCardContent>
           </AnimatedCard>

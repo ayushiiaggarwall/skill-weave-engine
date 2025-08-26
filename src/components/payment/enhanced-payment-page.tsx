@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
 import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe } from "lucide-react"
+import { useSearchParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 
 interface PriceData {
@@ -30,6 +31,8 @@ declare global {
 export function EnhancedPaymentPage() {
   const { user } = useAuth()
   const { toast } = useToast()
+  const [searchParams] = useSearchParams()
+  const pricingType = searchParams.get('type') || 'regular' // 'regular' or 'combo'
   const [isLoading, setIsLoading] = useState(false)
   const [priceData, setPriceData] = useState<PriceData | null>(null)
   const [couponCode, setCouponCode] = useState("")
@@ -38,7 +41,7 @@ export function EnhancedPaymentPage() {
     if (user?.email) {
       fetchPricing()
     }
-  }, [user])
+  }, [user, pricingType])
 
   const fetchPricing = async () => {
     if (!user?.email) return
@@ -47,7 +50,8 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
-          coupon: couponCode || undefined
+          coupon: couponCode || undefined,
+          pricingType: pricingType // Add pricing type to the request
         }
       })
 
@@ -71,7 +75,8 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
-          coupon: couponCode.trim()
+          coupon: couponCode.trim(),
+          pricingType: pricingType
         }
       })
 
@@ -257,9 +262,14 @@ export function EnhancedPaymentPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h3 className="font-semibold text-lg">5-Week No-Code to Product Course</h3>
+                <h3 className="font-semibold text-lg">
+                  {pricingType === 'combo' ? '5-Week Course + 1:1 Mentorship Combo' : '5-Week No-Code to Product Course'}
+                </h3>
                 <p className="text-muted-foreground">
-                  Master Lovable, Supabase, Apify, n8n, and APIs to build and launch your product
+                  {pricingType === 'combo' 
+                    ? 'Complete course access with personal mentorship and 1:1 calls'
+                    : 'Master Lovable, Supabase, Apify, n8n, and APIs to build and launch your product'
+                  }
                 </p>
               </div>
               
@@ -276,6 +286,18 @@ export function EnhancedPaymentPage() {
                   <CreditCard className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm">7-day money back guarantee</span>
                 </div>
+                {pricingType === 'combo' && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm">Personal 1:1 mentorship calls</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm">Priority project feedback</span>
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>

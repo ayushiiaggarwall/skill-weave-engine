@@ -6,6 +6,7 @@ import { AnimeDemo } from "@/components/ui/anime-demo"
 import { courseData } from "@/lib/course-data"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
+import { usePricing } from "@/hooks/use-pricing"
 
 interface FloatingElementProps {
   children: React.ReactNode
@@ -37,6 +38,7 @@ function FloatingElement({ children, delay = 0, duration = 6, className = "" }: 
 export function HeroSection() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { pricing, isEarlyBird } = usePricing()
 
   const handleEnrollClick = (pricingType: 'regular' | 'combo') => {
     if (!user) {
@@ -46,6 +48,10 @@ export function HeroSection() {
       navigate(`/pay?type=${pricingType}`)
     }
   }
+
+  // Calculate combo pricing based on region
+  const comboPrice = pricing.currency === 'INR' ? '₹9,999' : '$199'
+  const regularPrice = `${pricing.symbol}${isEarlyBird ? pricing.earlyBird.toLocaleString() : pricing.regular.toLocaleString()}`
   
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6 lg:px-8 overflow-hidden pt-32">
@@ -181,7 +187,7 @@ export function HeroSection() {
                 onClick={() => handleEnrollClick('regular')}
               >
                 <span className="relative z-10 flex items-center">
-                  Enroll Now - ₹5499
+                  Enroll Now - {regularPrice}
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -198,7 +204,7 @@ export function HeroSection() {
                 onClick={() => handleEnrollClick('combo')}
               >
                 <Star className="mr-3 h-5 w-5" />
-                Enroll with 1:1 Mentorship - ₹9999
+                Enroll with 1:1 Mentorship - {comboPrice}
               </Button>
             </motion.div>
           </motion.div>

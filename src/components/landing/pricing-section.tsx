@@ -302,7 +302,7 @@ export function PricingSection() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Course timeline:</span>
-                    <span className="font-semibold text-foreground">27th September to 26th October, 2025</span>
+                    <span className="font-semibold text-accent">27th September to 26th October, 2025</span>
                   </div>
                 </div>
               </div>

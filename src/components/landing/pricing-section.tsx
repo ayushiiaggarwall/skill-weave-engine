@@ -18,7 +18,7 @@ export function PricingSection() {
   // Calculate combo pricing based on region  
   const comboEarlyPrice = pricing.currency === 'INR' ? '₹9,999' : '$199'
   const comboRegularPrice = pricing.currency === 'INR' ? '₹14,999' : '$2,949'
-  const comboMrpPrice = pricing.currency === 'INR' ? '₹24,999' : '$799'
+  const comboMrpPrice = pricing.currency === 'INR' ? '₹24,998' : '$799'
   
   const regularEarlyPrice = `${pricing.symbol}${pricing.earlyBird.toLocaleString()}`
   const regularRegularPrice = `${pricing.symbol}${pricing.regular.toLocaleString()}`

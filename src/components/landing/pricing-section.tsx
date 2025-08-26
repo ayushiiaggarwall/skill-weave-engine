@@ -211,9 +211,9 @@ export function PricingSection() {
                   {comboEarlyPrice} + {comboRegularPrice} = {comboMrpPrice}
                 </div>
                 <div className="text-4xl font-bold text-gradient">
-                  You Pay Only: {comboEarlyPrice}
+                  You Pay Only {comboEarlyPrice}
                 </div>
-                <p className="text-muted-foreground">
+                <p className="text-accent font-semibold">
                   Save {pricing.currency === 'INR' ? '₹15,000+' : '$600+'} on the bundle • For limited time period
                 </p>
               </div>

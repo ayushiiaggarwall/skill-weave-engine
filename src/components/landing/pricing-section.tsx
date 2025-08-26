@@ -6,12 +6,22 @@ import { SectionBadge } from "@/components/ui/section-badge"
 import { Sparkles, Clock } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { usePricing } from "@/hooks/use-pricing"
+import { useAuth } from "@/contexts/auth-context"
 
 export function PricingSection() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
   const { isEarlyBird, timeLeft, formatTime } = usePricing()
+
+  const handleEnrollClick = (pricingType: 'regular' | 'combo') => {
+    if (!user) {
+      navigate("/signup")
+    } else {
+      navigate(`/pay?type=${pricingType}`)
+    }
+  }
 
   // Animate features on scroll
   useEffect(() => {
@@ -162,7 +172,7 @@ export function PricingSection() {
                 size="lg" 
                 animation="glow"
                 className="w-full py-4 text-lg font-semibold hover-glow"
-                onClick={() => navigate("/signup")}
+                onClick={() => handleEnrollClick('regular')}
               >
                 Enroll Now — ₹5,499
               </AnimatedButton>
@@ -214,7 +224,7 @@ export function PricingSection() {
                 size="lg" 
                 animation="glow"
                 className="w-full py-4 text-lg font-semibold hover-glow"
-                onClick={() => navigate("/signup")}
+                onClick={() => handleEnrollClick('combo')}
               >
                 Enroll with 1:1 Mentorship — ₹9,999
               </AnimatedButton>
@@ -277,7 +287,7 @@ export function PricingSection() {
               <span className="font-semibold text-accent">Sep 21, 2025 - Induction</span>
               <AnimatedButton 
                 size="sm"
-                onClick={() => navigate("/signup")}
+                onClick={() => handleEnrollClick('regular')}
                 className="ml-4"
               >
                 Enroll Now

@@ -132,7 +132,8 @@ export function EnhancedPaymentPage() {
       const { data: orderData, error } = await supabase.functions.invoke('pay-create-order', {
         body: {
           email: user.email,
-          coupon: priceData.couponApplied?.code
+          coupon: priceData.couponApplied?.code,
+          pricingType: pricingType
         }
       })
 
@@ -192,7 +193,8 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('paypal-create-order', {
         body: { 
           email: user.email,
-          coupon: priceData.couponApplied?.code 
+          coupon: priceData.couponApplied?.code,
+          pricingType: pricingType
         }
       });
 
@@ -369,16 +371,11 @@ export function EnhancedPaymentPage() {
               {/* Payment Button */}
               <Button
                 onClick={priceData.region === 'in' ? handleRazorpayPayment : handlePayPalPayment}
-                disabled={isLoading || priceData.region === 'intl'}
+                disabled={isLoading}
                 className="w-full"
                 size="lg"
               >
-                {priceData.region === 'intl' ? (
-                  <>
-                    <Clock className="mr-2 h-4 w-4" />
-                    International Payments - Coming Soon
-                  </>
-                ) : isLoading ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
@@ -386,7 +383,7 @@ export function EnhancedPaymentPage() {
                 ) : (
                   <>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay {priceData.display} - Enroll Now via Razorpay
+                    Pay {priceData.display} - Enroll Now via {priceData.region === 'in' ? 'Razorpay' : 'PayPal'}
                   </>
                 )}
               </Button>

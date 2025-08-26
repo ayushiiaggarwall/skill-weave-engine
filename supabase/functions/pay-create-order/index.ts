@@ -9,6 +9,7 @@ const corsHeaders = {
 interface CreateOrderRequest {
   email: string;
   coupon?: string;
+  pricingType?: 'regular' | 'combo';
 }
 
 interface CreateOrderResponse {
@@ -47,13 +48,14 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const body: CreateOrderRequest = await req.json();
-    const { email, coupon } = body;
+    const { email, coupon, pricingType = 'regular' } = body;
 
     // Get current pricing for India
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
       body: {
         email,
-        coupon
+        coupon,
+        pricingType
       }
     });
 

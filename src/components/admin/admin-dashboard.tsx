@@ -33,6 +33,16 @@ interface UserProfile {
   email: string
   role: string
   created_at: string
+  enrollments?: {
+    payment_status: string
+    cohorts?: {
+      name: string
+      is_active: boolean
+    }
+  }[]
+  order_enrollments?: {
+    status: string
+  }[]
 }
 
 interface Announcement {
@@ -88,13 +98,43 @@ export function AdminDashboard() {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      // First get profiles with enrollments
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          enrollments (
+            payment_status,
+            cohorts (
+              name,
+              is_active
+            )
+          )
+        `)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setUsers(data || [])
+      if (profilesError) throw profilesError
+
+      // Then get order enrollments separately
+      const { data: orderEnrollments, error: orderError } = await supabase
+        .from('order_enrollments')
+        .select('user_id, user_email, status')
+
+      if (orderError) throw orderError
+
+      // Combine the data
+      const usersWithEnrollments = profilesData?.map(profile => {
+        const userOrderEnrollments = orderEnrollments?.filter(order => 
+          order.user_id === profile.id || order.user_email === profile.email
+        ) || []
+        
+        return {
+          ...profile,
+          order_enrollments: userOrderEnrollments
+        }
+      }) || []
+
+      setUsers(usersWithEnrollments)
     } catch (error) {
       console.error('Error fetching users:', error)
       toast({
@@ -595,28 +635,65 @@ export function AdminDashboard() {
                     <th className="text-left p-2">Name</th>
                     <th className="text-left p-2">Email</th>
                     <th className="text-left p-2">Role</th>
+                    <th className="text-left p-2">Enrollment Status</th>
+                    <th className="text-left p-2">Course</th>
                     <th className="text-left p-2">Joined</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="border-b hover:bg-muted/50">
-                      <td className="p-2">{user.name}</td>
-                      <td className="p-2">{user.email}</td>
-                      <td className="p-2">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          user.role === 'admin' 
-                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="p-2">
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
+                  {users.map((user) => {
+                    // Check enrollment status
+                    const hasCompletedEnrollment = user.enrollments?.some(e => 
+                      ['paid', 'completed'].includes(e.payment_status)
+                    ) || false
+                    
+                    const hasOrderEnrollment = user.order_enrollments?.some(e => 
+                      e.status === 'paid'
+                    ) || false
+                    
+                    const isEnrolled = hasCompletedEnrollment || hasOrderEnrollment
+                    
+                    const activeCohort = user.enrollments?.find(e => 
+                      ['paid', 'completed'].includes(e.payment_status) && e.cohorts?.is_active
+                    )?.cohorts
+                    
+                    return (
+                      <tr key={user.id} className="border-b hover:bg-muted/50">
+                        <td className="p-2">{user.name}</td>
+                        <td className="p-2">{user.email}</td>
+                        <td className="p-2">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            user.role === 'admin' 
+                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="p-2">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            isEnrolled
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                          }`}>
+                            {isEnrolled ? 'Enrolled' : 'Not Enrolled'}
+                          </span>
+                        </td>
+                        <td className="p-2">
+                          {activeCohort ? (
+                            <span className="text-sm text-primary font-medium">
+                              {activeCohort.name}
+                            </span>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">-</span>
+                          )}
+                        </td>
+                        <td className="p-2">
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>

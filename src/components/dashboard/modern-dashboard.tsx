@@ -29,9 +29,31 @@ export function ModernDashboard() {
   const enrollmentStatus = useEnrollmentStatus()
   const navigate = useNavigate()
   const [announcements, setAnnouncements] = useState<any[]>([])
+  const [courses, setCourses] = useState<any[]>([])
 
   useEffect(() => {
     fetchAnnouncements()
+    fetchCourses()
+    
+    // Set up real-time subscriptions
+    const coursesChannel = supabase
+      .channel('courses-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'courses'
+        },
+        () => {
+          fetchCourses()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(coursesChannel)
+    }
   }, [])
 
   const fetchAnnouncements = async () => {
@@ -46,6 +68,21 @@ export function ModernDashboard() {
       setAnnouncements(data || [])
     } catch (error) {
       console.error('Error fetching announcements:', error)
+    }
+  }
+
+  const fetchCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .order('week_number', { ascending: true })
+        .limit(5)
+
+      if (error) throw error
+      setCourses(data || [])
+    } catch (error) {
+      console.error('Error fetching courses:', error)
     }
   }
 
@@ -321,20 +358,32 @@ export function ModernDashboard() {
                         Popular Courses
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                            <BookOpen className="w-4 h-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium text-sm">No-Code Fundamentals</h4>
-                            <p className="text-xs text-muted-foreground">5 weeks</p>
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </CardContent>
+                     <CardContent className="space-y-3">
+                       {courses.length === 0 ? (
+                         <div className="p-3 bg-muted/10 rounded-lg border border-muted/20">
+                           <h4 className="font-medium text-sm">No courses available</h4>
+                           <p className="text-xs text-muted-foreground mt-1">
+                             Courses will appear here once they are published.
+                           </p>
+                         </div>
+                       ) : (
+                         <div className="space-y-2">
+                           {courses.map((course) => (
+                             <div key={course.id} className="flex items-center gap-2">
+                               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                                 <BookOpen className="w-4 h-4 text-white" />
+                               </div>
+                               <div className="flex-1">
+                                 <h4 className="font-medium text-sm">{course.title}</h4>
+                                 <p className="text-xs text-muted-foreground">
+                                   Week {course.week_number}
+                                 </p>
+                               </div>
+                             </div>
+                           ))}
+                         </div>
+                       )}
+                     </CardContent>
                   </Card>
                 </motion.div>
 

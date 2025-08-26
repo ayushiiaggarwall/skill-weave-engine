@@ -383,7 +383,7 @@ export function EnhancedPaymentPage() {
                 ) : (
                   <>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay {priceData.display} via {priceData.region === 'in' ? 'Razorpay' : 'PayPal'}
+                    Pay {priceData.display} - Enroll Now via {priceData.region === 'in' ? 'Razorpay' : 'PayPal'}
                   </>
                 )}
               </Button>

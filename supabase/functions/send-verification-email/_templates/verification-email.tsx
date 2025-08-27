@@ -13,7 +13,7 @@ import {
 import * as React from 'npm:react@18.3.1'
 
 interface VerificationEmailProps {
-  supabase_url: string
+  app_base_url: string
   email_action_type: string
   redirect_to: string
   token_hash: string
@@ -23,7 +23,7 @@ interface VerificationEmailProps {
 
 export const VerificationEmail = ({
   token,
-  supabase_url,
+  app_base_url,
   email_action_type,
   redirect_to,
   token_hash,
@@ -54,7 +54,7 @@ export const VerificationEmail = ({
         <Section style={buttonSection}>
           <Button
             style={button}
-            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+            href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
           >
             Verify Email Address
           </Button>
@@ -66,7 +66,7 @@ export const VerificationEmail = ({
         
         <Section style={codeSection}>
           <Link
-            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+            href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
             target="_blank"
             style={{
               color: '#1e293b',
@@ -75,7 +75,7 @@ export const VerificationEmail = ({
               fontSize: '14px',
             }}
           >
-            {`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+            {`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
           </Link>
         </Section>
         
@@ -89,8 +89,9 @@ export const VerificationEmail = ({
         
         <Section style={footer}>
           <Text style={footerText}>
-            Best regards,<br />
-            Ayushi Aggarwal and Team
+            Warm regards,<br />
+            Ayushi Aggarwal<br />
+            Tech With Ayushi Aggarwal
           </Text>
         </Section>
       </Container>

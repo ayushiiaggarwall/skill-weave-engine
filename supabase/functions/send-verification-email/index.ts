@@ -71,15 +71,18 @@ Deno.serve(async (req) => {
     let html: string
     let subject: string
 
+    const appBaseUrl = Deno.env.get('APP_BASE_URL') || 'https://example.com'
+
     if (email_action_type === 'recovery') {
       // Password recovery email
       console.log('Rendering password reset email template...')
+      const redirectTo = `${appBaseUrl}/reset-password`
       html = await renderAsync(
         React.createElement(PasswordResetEmail, {
-          supabase_url: Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co',
+          app_base_url: appBaseUrl,
           token,
           token_hash,
-          redirect_to: redirect_to || 'https://ayushiaggarwal.tech/reset-password',
+          redirect_to: redirect_to || redirectTo,
           email_action_type,
           user_email: user.email,
         })
@@ -88,12 +91,13 @@ Deno.serve(async (req) => {
     } else {
       // Verification email (signup)
       console.log('Rendering verification email template...')
+      const redirectTo = `${appBaseUrl}/dashboard`
       html = await renderAsync(
         React.createElement(VerificationEmail, {
-          supabase_url: Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co',
+          app_base_url: appBaseUrl,
           token,
           token_hash,
-          redirect_to: redirect_to || `${Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co'}/dashboard`,
+          redirect_to: redirect_to || redirectTo,
           email_action_type,
           user_email: user.email,
         })

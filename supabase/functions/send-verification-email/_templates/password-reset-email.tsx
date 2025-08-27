@@ -13,7 +13,7 @@ import {
 import * as React from 'npm:react@18.3.1'
 
 interface PasswordResetEmailProps {
-  supabase_url: string
+  app_base_url: string
   email_action_type: string
   redirect_to: string
   token_hash: string
@@ -23,7 +23,7 @@ interface PasswordResetEmailProps {
 
 export const PasswordResetEmail = ({
   token_hash,
-  supabase_url,
+  app_base_url,
   email_action_type,
   redirect_to,
   user_email,
@@ -39,7 +39,7 @@ export const PasswordResetEmail = ({
         </Text>
         <Section style={buttonContainer}>
           <Button
-            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+            href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
             style={button}
           >
             Reset Password
@@ -49,10 +49,10 @@ export const PasswordResetEmail = ({
           Or, copy and paste this link into your browser:
         </Text>
         <Link
-          href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+          href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
           style={link}
         >
-          {`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+          {`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
         </Link>
         <Text style={disclaimer}>
           If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.

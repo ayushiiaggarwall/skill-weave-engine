@@ -71,12 +71,14 @@ Deno.serve(async (req) => {
     let html: string
     let subject: string
 
-    const appBaseUrl = Deno.env.get('APP_BASE_URL') || 'https://example.com'
+    const appBaseUrl = Deno.env.get('APP_BASE_URL') || 'https://ayushiaggarwal.tech'
 
     if (email_action_type === 'recovery') {
       // Password recovery email
       console.log('Rendering password reset email template...')
+      console.log('App base URL:', appBaseUrl)
       const redirectTo = `${appBaseUrl}/reset-password`
+      console.log('Redirect URL:', redirectTo)
       html = await renderAsync(
         React.createElement(PasswordResetEmail, {
           app_base_url: appBaseUrl,
@@ -91,7 +93,9 @@ Deno.serve(async (req) => {
     } else {
       // Verification email (signup)
       console.log('Rendering verification email template...')
+      console.log('App base URL:', appBaseUrl)
       const redirectTo = `${appBaseUrl}/dashboard`
+      console.log('Redirect URL:', redirectTo)
       html = await renderAsync(
         React.createElement(VerificationEmail, {
           app_base_url: appBaseUrl,

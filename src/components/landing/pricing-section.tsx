@@ -293,8 +293,10 @@ export function PricingSection() {
                         {pricing.symbol}{pricing.current.toLocaleString()}
                       </div>
                       <p className="text-muted-foreground">
-                        {(course.title.toLowerCase().includes('pro') || course.title.toLowerCase().includes('mentorship')) 
+                        {course.title.toLowerCase().includes('pro') 
                           ? "Bring your Idea to Life • Limited Seats Only"
+                          : course.title.toLowerCase().includes('mentorship')
+                          ? "Save ₹15,000+ on the bundle • For limited time period"
                           : "Bring your Idea to Life • Limited Seats Only"
                         }
                       </p>

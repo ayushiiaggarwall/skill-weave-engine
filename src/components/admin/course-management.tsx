@@ -56,6 +56,9 @@ export default function CourseManagement() {
     end_date: '',
     is_active: false
   })
+  
+  const [isNewPlanForExisting, setIsNewPlanForExisting] = useState(false)
+  const [selectedExistingCourse, setSelectedExistingCourse] = useState<string>('')
 
   const [newPricing, setNewPricing] = useState({
     inr_mrp: 9999,
@@ -110,6 +113,41 @@ export default function CourseManagement() {
     }
   }
 
+  const copyFromExistingCourse = async () => {
+    if (!selectedExistingCourse) return
+
+    try {
+      const { data: existingCourse, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', selectedExistingCourse)
+        .single()
+
+      if (error) throw error
+
+      // Copy course data but keep the title and plans from current form
+      setNewCourse(prev => ({
+        ...prev,
+        objective: existingCourse.objective,
+        total_weeks: existingCourse.total_weeks || 5,
+        deliverables: existingCourse.deliverables || [],
+        mini_project: existingCourse.mini_project || ''
+      }))
+
+      toast({
+        title: "Success",
+        description: "Course data copied from existing course"
+      })
+    } catch (error) {
+      console.error('Error copying course data:', error)
+      toast({
+        title: "Error",
+        description: "Failed to copy course data",
+        variant: "destructive"
+      })
+    }
+  }
+
   const createCourse = async () => {
     if (!newCourse.title.trim() || !newCourse.objective.trim()) {
       toast({
@@ -140,6 +178,35 @@ export default function CourseManagement() {
 
       if (courseError) throw courseError
 
+      // If this is a new plan for existing course, copy course weeks
+      if (isNewPlanForExisting && selectedExistingCourse) {
+        const { data: existingWeeks, error: weeksError } = await supabase
+          .from('course_weeks')
+          .select('*')
+          .eq('course_id', selectedExistingCourse)
+
+        if (!weeksError && existingWeeks) {
+          const { error: copyWeeksError } = await supabase
+            .from('course_weeks')
+            .insert(
+              existingWeeks.map(week => ({
+                course_id: courseData.id,
+                week_number: week.week_number,
+                title: week.title,
+                objective: week.objective,
+                content: week.content,
+                mini_project: week.mini_project,
+                deliverables: week.deliverables,
+                visible: week.visible
+              }))
+            )
+
+          if (copyWeeksError) {
+            console.error('Error copying course weeks:', copyWeeksError)
+          }
+        }
+      }
+
       // Create pricing for the new course
       const { error: pricingError } = await supabase
         .from('course_pricing')
@@ -161,6 +228,8 @@ export default function CourseManagement() {
         end_date: '',
         is_active: false
       })
+      setIsNewPlanForExisting(false)
+      setSelectedExistingCourse('')
       setNewPricing({
         inr_mrp: 9999,
         inr_regular: 6499,
@@ -361,6 +430,52 @@ export default function CourseManagement() {
                   onChange={(e) => setNewCourse({...newCourse, end_date: e.target.value})}
                 />
               </div>
+            </div>
+            
+            
+            {/* New Plan Option */}
+            <div className="border-t pt-4">
+              <div className="flex items-center space-x-2 mb-4">
+                <input
+                  type="checkbox"
+                  id="isNewPlan"
+                  checked={isNewPlanForExisting}
+                  onChange={(e) => setIsNewPlanForExisting(e.target.checked)}
+                />
+                <label htmlFor="isNewPlan" className="text-sm font-medium">
+                  Create new plan for existing course
+                </label>
+              </div>
+              
+              {isNewPlanForExisting && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Select Existing Course</label>
+                    <select
+                      className="w-full p-2 border rounded-md"
+                      value={selectedExistingCourse}
+                      onChange={(e) => setSelectedExistingCourse(e.target.value)}
+                    >
+                      <option value="">Select a course...</option>
+                      {courses.map(course => (
+                        <option key={course.id} value={course.id}>
+                          {course.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {selectedExistingCourse && (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={copyFromExistingCourse}
+                      className="w-full"
+                    >
+                      Copy Course Data
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">

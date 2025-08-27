@@ -27,22 +27,37 @@ export function CoursePage() {
 
   const fetchCourses = async () => {
     try {
-      // First, get active courses to find the course ID and title
+      // Specifically get the Essential Track course
       const { data: coursesData, error: coursesError } = await supabase
         .from('courses')
-        .select('id, title')
+        .select('id, title, objective')
         .eq('is_active', true)
+        .ilike('title', '%Essential Track%')
         .limit(1)
 
       if (coursesError) throw coursesError
 
+      let courseId: string
+      
       if (!coursesData || coursesData.length === 0) {
-        console.log('No active courses found')
-        return
+        // Fallback to any active course if Essential Track not found
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('courses')
+          .select('id, title, objective')
+          .eq('is_active', true)
+          .limit(1)
+        
+        if (fallbackError) throw fallbackError
+        if (!fallbackData || fallbackData.length === 0) {
+          console.log('No active courses found')
+          return
+        }
+        setCourseTitle(fallbackData[0].title)
+        courseId = fallbackData[0].id
+      } else {
+        courseId = coursesData[0].id
+        setCourseTitle(coursesData[0].title)
       }
-
-      const courseId = coursesData[0].id
-      setCourseTitle(coursesData[0].title)
 
       // Now get the course weeks for the active course
       const { data, error } = await supabase

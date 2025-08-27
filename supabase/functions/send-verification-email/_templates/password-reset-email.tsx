@@ -52,12 +52,9 @@ export const PasswordResetEmail = ({
           </Button>
         </Section>
         <Text style={text}>Or, copy and paste this link into your browser:</Text>
-        <Link
-          href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
-          style={link}
-        >
+        <Text style={code}>
           {`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
-        </Link>
+        </Text>
         <Text style={disclaimer}>
           If you didn't request this, you can safely ignore this email, your account will remain secure.
         </Text>
@@ -143,4 +140,16 @@ const footer = {
   marginTop: '32px',
   paddingTop: '20px',
   borderTop: '1px solid #eee',
+}
+
+const code = {
+  fontFamily:
+    'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  backgroundColor: '#f4f4f4',
+  border: '1px solid #eee',
+  borderRadius: '4px',
+  padding: '12px',
+  display: 'block' as const,
+  color: '#333333',
+  wordBreak: 'break-all' as const,
 }

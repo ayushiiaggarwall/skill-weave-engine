@@ -97,12 +97,17 @@ Deno.serve(async (req) => {
       })
     )
 
+    console.log('Preparing plain text version for better deliverability...')
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+    const plainText = `Hi ${firstName || 'there'},\n\nWe received a request to reset your password for your Tech With Ayushi Aggarwal account.\n\nOpen this link to set up a new password:\n${supabaseUrl}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}\n\nIf you didn't request this, you can safely ignore this email, your account will remain secure.\n\nFor your security, this link will expire in 1 hour.\n\nThanks,\nAyushi Aggarwal & Team`
+
     console.log('Sending password reset email via Resend...')
     const { data, error } = await resend.emails.send({
       from: `${Deno.env.get('RESEND_FROM_NAME')} <${Deno.env.get('RESEND_FROM_EMAIL')}>`,
       to: [user.email],
       subject: 'Reset Your Password',
       html,
+      text: plainText,
     })
 
     if (error) {

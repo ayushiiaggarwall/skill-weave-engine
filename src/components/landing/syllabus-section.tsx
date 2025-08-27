@@ -158,7 +158,7 @@ export function SyllabusSection() {
           <SectionBadge>
             Course Curriculum
           </SectionBadge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient leading-relaxed pb-2">
             5-Week Journey to Success
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">

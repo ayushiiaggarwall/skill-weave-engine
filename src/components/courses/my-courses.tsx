@@ -12,11 +12,7 @@ import { motion } from "framer-motion"
 import { 
   BookOpen, 
   Clock,
-  Play,
-  CheckCircle,
   Star,
-  Calendar,
-  Users,
   ExternalLink,
   FileText,
   Video,
@@ -126,7 +122,13 @@ export function MyCourses() {
         .order('week_number', { ascending: true })
 
       if (error) throw error
-      setCourseWeeks((data || []) as CourseWeek[])
+      
+      // Filter out duplicates by week_number, keeping the first one
+      const uniqueWeeks = (data || []).filter((week, index, array) => 
+        array.findIndex(w => w.week_number === week.week_number) === index
+      )
+      
+      setCourseWeeks(uniqueWeeks as CourseWeek[])
     } catch (error) {
       console.error('Error fetching course weeks:', error)
       toast({
@@ -179,7 +181,7 @@ export function MyCourses() {
     }
   }
 
-  const overallProgress = courseWeeks.length > 0 ? Math.round((courseWeeks.filter(w => w.week_number <= 1).length / courseWeeks.length) * 100) : 0
+  const overallProgress = 0 // Course hasn't started yet
 
   if (enrollmentStatus.loading) {
     return (
@@ -292,7 +294,7 @@ export function MyCourses() {
                       `Started ${new Date().toLocaleDateString()}`
                     )}
                   </span>
-                  <span>{courseWeeks.filter(w => w.week_number <= 1).length}/{courseWeeks.length} weeks completed</span>
+                  <span>0/{courseWeeks.length} weeks completed</span>
                 </div>
               </CardContent>
             </Card>
@@ -307,12 +309,6 @@ export function MyCourses() {
               </div>
             ) : (
               courseWeeks.map((week, index) => {
-                // Determine week status - for now, just mark week 1 as current and others as locked
-                const status: 'completed' | 'current' | 'locked' = 
-                  week.week_number === 1 ? 'current' : 
-                  week.week_number < 1 ? 'completed' : 'locked'
-                const progress = week.week_number === 1 ? 25 : 0
-                
                 // Parse content into topics
                 const topics = week.content.split('\n')
                   .filter(line => line.trim().startsWith('-') || line.trim().startsWith('->'))
@@ -326,35 +322,17 @@ export function MyCourses() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <Card className={`transition-all duration-300 hover:shadow-lg pt-4 ${
-                      status === 'current' ? 'ring-2 ring-primary' : 
-                      status === 'locked' ? 'opacity-60' : ''
-                    }`}>
+                    <Card className="transition-all duration-300 hover:shadow-lg pt-4 opacity-60">
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-lg ${
-                              status === 'completed' ? 'bg-green-100 dark:bg-green-900' :
-                              status === 'current' ? 'bg-primary/10' : 'bg-muted'
-                            }`}>
-                              {status === 'completed' ? (
-                                <CheckCircle className="h-6 w-6 text-green-600" />
-                              ) : status === 'current' ? (
-                                <Play className="h-6 w-6 text-primary" />
-                              ) : (
-                                <BookOpen className="h-6 w-6 text-muted-foreground" />
-                              )}
+                            <div className="p-3 rounded-lg bg-muted">
+                              <BookOpen className="h-6 w-6 text-muted-foreground" />
                             </div>
                             <div>
                               <div className="flex items-center gap-2 mb-1">
                                 <Badge variant="outline">Week {week.week_number}</Badge>
-                                <Badge variant={
-                                  status === 'completed' ? 'default' :
-                                  status === 'current' ? 'secondary' : 'outline'
-                                }>
-                                  {status === 'completed' ? 'Completed' :
-                                   status === 'current' ? 'In Progress' : 'Locked'}
-                                </Badge>
+                                <Badge variant="outline">Locked</Badge>
                               </div>
                               <CardTitle className="text-xl mb-2">{week.title}</CardTitle>
                               <p className="text-muted-foreground">{week.objective}</p>
@@ -365,27 +343,10 @@ export function MyCourses() {
                               <Clock className="h-4 w-4" />
                               {week.week_number === 1 ? '10 hours' : `${8 + week.week_number}+ hours`}
                             </div>
-                            {status !== 'locked' && (
-                              <Button size="sm" variant={status === 'current' ? 'default' : 'outline'}>
-                                {status === 'completed' ? 'Review' : 'Continue'}
-                                <ExternalLink className="h-4 w-4 ml-2" />
-                              </Button>
-                            )}
                           </div>
                         </div>
                       </CardHeader>
                       <CardContent>
-                        {/* Progress Bar */}
-                        {status !== 'locked' && (
-                          <div className="mb-4">
-                            <div className="flex justify-between text-sm mb-2">
-                              <span>Progress</span>
-                              <span>{progress}%</span>
-                            </div>
-                            <Progress value={progress} className="h-2" />
-                          </div>
-                        )}
-
                         {/* Topics */}
                         <div>
                           <h4 className="font-medium mb-3 flex items-center gap-2">
@@ -396,9 +357,7 @@ export function MyCourses() {
                             {topics.slice(0, 4).map((topic, topicIndex) => (
                               <div key={topicIndex} className="flex items-start gap-2">
                                 <span className="text-green-500 mt-1">•</span>
-                                <span className={`text-sm ${status === 'locked' ? 'opacity-50' : ''}`}>
-                                  {topic}
-                                </span>
+                                <span className="text-sm opacity-50">{topic}</span>
                               </div>
                             ))}
                             {topics.length > 4 && (
@@ -417,22 +376,6 @@ export function MyCourses() {
                               Week Project
                             </h5>
                             <p className="text-sm text-muted-foreground">{week.mini_project}</p>
-                          </div>
-                        )}
-
-                        {/* Additional Info for Current Module */}
-                        {status === 'current' && (
-                          <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                            <div className="flex items-center gap-2 text-sm">
-                              <Calendar className="h-4 w-4 text-primary" />
-                              <span className="font-medium">Next Live Session:</span>
-                              <span>Sat/Sun at 7:30 PM IST</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm mt-2">
-                              <Users className="h-4 w-4 text-primary" />
-                              <span className="font-medium">Study Group:</span>
-                              <span>Join your cohort discussion</span>
-                            </div>
                           </div>
                         )}
                       </CardContent>

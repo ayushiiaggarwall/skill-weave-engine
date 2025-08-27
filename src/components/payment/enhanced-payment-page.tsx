@@ -39,6 +39,7 @@ export function EnhancedPaymentPage() {
   const [courseData, setCourseData] = useState<any>(null)
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
+  const [invalidCouponError, setInvalidCouponError] = useState(false)
   useEffect(() => {
     if (user?.email && (courseId || pricingType)) {
       fetchPricing()
@@ -94,6 +95,7 @@ export function EnhancedPaymentPage() {
     if (!couponCode.trim() || !user?.email) return
 
     setIsApplyingCoupon(true)
+    setInvalidCouponError(false) // Reset error state
     try {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
@@ -119,12 +121,9 @@ export function EnhancedPaymentPage() {
       
       // Check if coupon was invalid
       if (data.invalidCoupon) {
-        toast({
-          title: "Invalid Coupon",
-          description: "The coupon code is not valid or has expired",
-          variant: "destructive"
-        })
+        setInvalidCouponError(true)
       } else if (data.couponApplied) {
+        setInvalidCouponError(false)
         toast({
           title: "Coupon Applied!",
           description: `${data.couponApplied.code} - ${data.couponApplied.type === 'percent' ? `${data.couponApplied.value}% off` : `${data.currency === 'INR' ? '₹' : '$'}${data.couponApplied.value / 100} off`}`,
@@ -134,11 +133,7 @@ export function EnhancedPaymentPage() {
       console.error('Error applying coupon:', error)
       // Handle FunctionsHttpError for invalid coupons
       if (error?.name === 'FunctionsHttpError' || (error?.message && error.message.includes('non-2xx status code'))) {
-        toast({
-          title: "Invalid Coupon",
-          description: "The coupon code is not valid or has expired",
-          variant: "destructive"
-        })
+        setInvalidCouponError(true)
       } else {
         toast({
           title: "Error",
@@ -393,6 +388,11 @@ export function EnhancedPaymentPage() {
                     {isApplyingCoupon ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
                   </Button>
                 </div>
+                {invalidCouponError && (
+                  <div className="text-red-500 text-sm font-medium">
+                    Invalid coupon code
+                  </div>
+                )}
               </div>
 
               {/* Price Summary */}

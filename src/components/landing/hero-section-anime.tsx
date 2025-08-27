@@ -5,7 +5,7 @@ import { courseData } from "@/lib/course-data"
 import { useNavigate } from "react-router-dom"
 import { animate, stagger } from 'animejs'
 import { useAuth } from "@/contexts/auth-context"
-import { usePricing } from "@/hooks/use-pricing"
+
 
 interface FloatingElementProps {
   children: React.ReactNode
@@ -150,7 +150,7 @@ export function HeroSectionAnime() {
   const buttonsRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { pricing, isEarlyBird } = usePricing()
+  
 
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
@@ -162,8 +162,6 @@ export function HeroSectionAnime() {
     }
   }
 
-  // Get current pricing based on location
-  const currentPrice = `${pricing.symbol}${isEarlyBird ? pricing.earlyBird.toLocaleString() : pricing.regular.toLocaleString()}`
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -300,7 +298,7 @@ export function HeroSectionAnime() {
                 onClick={handleEnrollClick}
               >
                 <span className="relative z-10 flex items-center">
-                  Apply Now - {currentPrice}
+                  Apply Now
                   <ArrowRight className="ml-3 h-5 w-5" />
                 </span>
               </Button>

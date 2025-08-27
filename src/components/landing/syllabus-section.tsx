@@ -1,15 +1,95 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { Badge } from "@/components/ui/badge"
 import { SectionBadge } from "@/components/ui/section-badge"
 import { courseData } from "@/lib/course-data"
 import { Clock } from "lucide-react"
+import { supabase } from "@/integrations/supabase/client"
+
+interface CourseWeek {
+  id: string
+  week_number: number
+  title: string
+  objective: string
+  content: string
+  mini_project: string | null
+  visible: boolean
+}
 
 
 export function SyllabusSection() {
   const cardsRef = useRef<HTMLDivElement>(null)
   const toolsRef = useRef<HTMLDivElement>(null)
+  const [courseWeeks, setCourseWeeks] = useState<CourseWeek[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch course weeks data with real-time updates
+  useEffect(() => {
+    const fetchCourseWeeks = async () => {
+      try {
+        setLoading(true)
+        
+        // First get the active course
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select('id, title')
+          .eq('is_active', true)
+          .limit(1)
+          .single()
+
+        if (courseError) {
+          console.error('Error fetching course:', courseError)
+          setLoading(false)
+          return
+        }
+
+        // Then get the course weeks
+        const { data: weeksData, error: weeksError } = await supabase
+          .from('course_weeks')
+          .select('*')
+          .eq('course_id', courseData.id)
+          .eq('visible', true)
+          .order('week_number', { ascending: true })
+
+        if (weeksError) {
+          console.error('Error fetching course weeks:', weeksError)
+          setLoading(false)
+          return
+        }
+
+        setCourseWeeks(weeksData || [])
+      } catch (error) {
+        console.error('Error:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCourseWeeks()
+
+    // Set up real-time subscription for course_weeks table
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'course_weeks'
+        },
+        (payload) => {
+          console.log('Course weeks changed:', payload)
+          // Refetch data when changes occur
+          fetchCourseWeeks()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   // Animate cards in a staggered pattern
   useEffect(() => {
@@ -88,35 +168,102 @@ export function SyllabusSection() {
         </div>
 
         <div ref={cardsRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courseData.syllabus.map((week, index) => (
-            <div key={index} className="week-card opacity-0">
-              <AnimatedCard 
-                hoverScale={1.02}
-                animationType="rotate"
-                className="glass-card h-full group cursor-pointer"
-              >
-                <AnimatedCardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 group-hover:bg-primary/20 transition-colors">
-                      Week {index + 1}
-                    </Badge>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="w-4 h-4 mr-1" />
-                      5 hours
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="week-card opacity-0">
+                <AnimatedCard 
+                  hoverScale={1.02}
+                  animationType="rotate"
+                  className="glass-card h-full group cursor-pointer"
+                >
+                  <AnimatedCardHeader>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-16 h-6 bg-muted-foreground/20 rounded animate-pulse" />
+                      <div className="w-12 h-4 bg-muted-foreground/20 rounded animate-pulse" />
                     </div>
-                  </div>
-                  <AnimatedCardTitle className="text-xl text-gradient group-hover:text-primary transition-colors">
-                    {typeof week === 'string' ? week : week.title}
-                  </AnimatedCardTitle>
-                </AnimatedCardHeader>
-                <AnimatedCardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
-                    {typeof week === 'string' ? week : week.description}
-                  </p>
-                </AnimatedCardContent>
-              </AnimatedCard>
-            </div>
-          ))}
+                    <div className="w-3/4 h-6 bg-muted-foreground/20 rounded animate-pulse" />
+                  </AnimatedCardHeader>
+                  <AnimatedCardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="w-full h-3 bg-muted-foreground/20 rounded animate-pulse" />
+                      <div className="w-2/3 h-3 bg-muted-foreground/20 rounded animate-pulse" />
+                    </div>
+                  </AnimatedCardContent>
+                </AnimatedCard>
+              </div>
+            ))
+          ) : courseWeeks.length > 0 ? (
+            // Real-time course weeks data
+            courseWeeks.map((week) => (
+              <div key={week.id} className="week-card opacity-0">
+                <AnimatedCard 
+                  hoverScale={1.02}
+                  animationType="rotate"
+                  className="glass-card h-full group cursor-pointer"
+                >
+                  <AnimatedCardHeader>
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 group-hover:bg-primary/20 transition-colors">
+                        Week {week.week_number}
+                      </Badge>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4 mr-1" />
+                        5 hours
+                      </div>
+                    </div>
+                    <AnimatedCardTitle className="text-xl text-gradient group-hover:text-primary transition-colors">
+                      {week.title}
+                    </AnimatedCardTitle>
+                  </AnimatedCardHeader>
+                  <AnimatedCardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
+                      {week.objective}
+                    </p>
+                    {week.mini_project && (
+                      <div className="mt-3">
+                        <p className="text-xs font-semibold text-primary mb-1">Mini Project:</p>
+                        <p className="text-xs text-muted-foreground">
+                          {week.mini_project}
+                        </p>
+                      </div>
+                    )}
+                  </AnimatedCardContent>
+                </AnimatedCard>
+              </div>
+            ))
+          ) : (
+            // Fallback to static data if no real-time data available
+            courseData.syllabus.map((week, index) => (
+              <div key={index} className="week-card opacity-0">
+                <AnimatedCard 
+                  hoverScale={1.02}
+                  animationType="rotate"
+                  className="glass-card h-full group cursor-pointer"
+                >
+                  <AnimatedCardHeader>
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 group-hover:bg-primary/20 transition-colors">
+                        Week {index + 1}
+                      </Badge>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4 mr-1" />
+                        5 hours
+                      </div>
+                    </div>
+                    <AnimatedCardTitle className="text-xl text-gradient group-hover:text-primary transition-colors">
+                      {typeof week === 'string' ? week : week.title}
+                    </AnimatedCardTitle>
+                  </AnimatedCardHeader>
+                  <AnimatedCardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
+                      {typeof week === 'string' ? week : week.description}
+                    </p>
+                  </AnimatedCardContent>
+                </AnimatedCard>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Tools Section */}

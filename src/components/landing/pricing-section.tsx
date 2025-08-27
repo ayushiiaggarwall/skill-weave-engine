@@ -181,15 +181,28 @@ export function PricingSection() {
     }
   }, [])
 
-  const courseFeatures = [
-    "5 Weeks of Live Classes (Sat & Sun, 7:30–10 PM IST)",
-    "Final Week Q&A + Project Demos", 
-    "Step-by-Step Curriculum — from basics to launch",
-    "Hands-On Projects every week",
-    "Lifetime Access to Recordings & Materials",
-    "Community Support Group (peer discussions + resources)",
-    "7 Days Money Back Guarantee"
-  ]
+  const getCourseFeatures = (courseTitle: string) => {
+    if (courseTitle.toLowerCase().includes('pro') || courseTitle.toLowerCase().includes('mentorship')) {
+      return [
+        "Everything in Complete Course Access",
+        "Direct Mentorship in Community — personal replies to queries, typically within 24 hours",
+        "Quick 1:1 Calls (10–15 mins) — scheduled within 24 hours if your issue can't be solved on text",
+        "Personal Feedback on Projects",
+        "Personal Guidance on Your Own Projects/Ideas",
+        "Extra Post-Course Support — one follow-up call within 30 days"
+      ]
+    }
+    
+    return [
+      "5 Weeks of Live Classes (Sat & Sun, 7:30–10 PM IST)",
+      "Final Week Q&A + Project Demos", 
+      "Step-by-Step Curriculum — from basics to launch",
+      "Hands-On Projects every week",
+      "Lifetime Access to Recordings & Materials",
+      "Community Support Group (peer discussions + resources)",
+      "7 Days Money Back Guarantee"
+    ]
+  }
 
 
 
@@ -259,6 +272,13 @@ export function PricingSection() {
                   animationType="scale"
                   className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative"
                 >
+                  {/* Best Value Badge for Pro Track */}
+                  {(course.title.toLowerCase().includes('pro') || course.title.toLowerCase().includes('mentorship')) && (
+                    <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                      BEST VALUE • LIMITED SEATS
+                    </div>
+                  )}
+                  
                   <AnimatedCardHeader className="text-center pb-6">
                     <AnimatedCardTitle className="text-2xl font-bold mb-4">
                       {course.title}
@@ -273,7 +293,10 @@ export function PricingSection() {
                         {pricing.symbol}{pricing.current.toLocaleString()}
                       </div>
                       <p className="text-muted-foreground">
-                        {pricing.isEarlyBird ? "Early Bird Offer" : "Regular Price"} • One-time payment
+                        {(course.title.toLowerCase().includes('pro') || course.title.toLowerCase().includes('mentorship')) 
+                          ? "Save ₹15,000+ on the bundle • For limited time period"
+                          : (pricing.isEarlyBird ? "Early Bird Offer" : "Regular Price") + " • One-time payment"
+                        }
                       </p>
                     </div>
                   </AnimatedCardHeader>
@@ -281,7 +304,7 @@ export function PricingSection() {
                   <AnimatedCardContent className="space-y-6">
                     {/* Features */}
                     <div className="space-y-3">
-                      {courseFeatures.map((feature, featureIndex) => (
+                      {getCourseFeatures(course.title).map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-start">
                           <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
                           <span className="text-foreground text-sm">{feature}</span>
@@ -305,6 +328,65 @@ export function PricingSection() {
           </div>
         )}
 
+        {/* Plan Comparison Table */}
+        <div className="mt-16 mb-12">
+          <h3 className="text-3xl font-bold text-center mb-8 text-gradient">Plan Comparison</h3>
+          <div className="max-w-4xl mx-auto bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border/50">
+                    <th className="text-left p-6 font-semibold text-foreground">Feature</th>
+                    <th className="text-center p-6 font-semibold text-foreground">Course Only</th>
+                    <th className="text-center p-6 font-semibold text-foreground">Course + Mentorship</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  <tr className="border-b border-border/20">
+                    <td className="p-4 text-muted-foreground">5 Weeks Live Classes</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="border-b border-border/20">
+                    <td className="p-4 text-muted-foreground">Lifetime Recordings</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="border-b border-border/20">
+                    <td className="p-4 text-muted-foreground">Weekly Projects</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="border-b border-border/20">
+                    <td className="p-4 text-muted-foreground">Community Group</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="border-b border-border/20">
+                    <td className="p-4 text-muted-foreground">Replies to Queries</td>
+                    <td className="p-4 text-center text-muted-foreground">Group only</td>
+                    <td className="p-4 text-center text-green-500">Personal replies within 24 hrs</td>
+                  </tr>
+                  <tr className="border-b border-border/20">
+                    <td className="p-4 text-muted-foreground">Quick 1:1 Calls</td>
+                    <td className="p-4 text-center text-muted-foreground">—</td>
+                    <td className="p-4 text-center text-green-500">Scheduled within 24 hrs</td>
+                  </tr>
+                  <tr className="border-b border-border/20">
+                    <td className="p-4 text-muted-foreground">Priority Project Feedback</td>
+                    <td className="p-4 text-center text-muted-foreground">—</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 text-muted-foreground">Post-Course Follow-Up Call</td>
+                    <td className="p-4 text-center text-muted-foreground">—</td>
+                    <td className="p-4 text-center text-green-500">✅</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         {/* Course Info Bar */}
         <div className="mt-12 text-center">

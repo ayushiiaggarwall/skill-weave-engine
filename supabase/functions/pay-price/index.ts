@@ -219,6 +219,12 @@ serve(async (req) => {
           error: couponError?.message,
           data: couponData 
         });
+        
+        // Return error for invalid coupon
+        return new Response(JSON.stringify({ error: "Invalid coupon code" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
       }
     }
 

@@ -42,10 +42,7 @@ export function PricingSection() {
   // Detect user's region for pricing
   const { region, loading: regionLoading } = useRegionDetection()
   
-  // FOR TESTING: Force Indian region to test pricing logic
-  const testRegion = 'in' // Change this to 'intl' to test USD pricing
-  
-  console.log('Current region detected:', region, 'Test region:', testRegion, 'Loading:', regionLoading)
+  console.log('Current region detected:', region, 'Loading:', regionLoading)
   
   // Get timer data from the first active course
   const { timeLeft, formatTime, isEarlyBird } = useCoursePricing()
@@ -110,12 +107,12 @@ export function PricingSection() {
     const coursePriceData = course.course_pricing[0]
     if (!coursePriceData) return { current: 0, mrp: 0, symbol: '₹', isEarlyBird: false }
     
-    console.log('Getting price for region:', region, 'Test region:', testRegion, 'Course pricing data:', coursePriceData)
+    console.log('Getting price for region:', region, 'Course pricing data:', coursePriceData)
     
-    // Use region detection to show appropriate pricing - temporarily using testRegion
+    // Use region detection to show appropriate pricing
     let regular, mrp, earlyBird, symbol
     
-    if (testRegion === 'in') {
+    if (region === 'in') {
       // Indian pricing
       console.log('Using Indian pricing')
       regular = coursePriceData.inr_regular

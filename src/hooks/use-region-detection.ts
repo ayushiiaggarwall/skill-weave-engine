@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { supabase } from '@/integrations/supabase/client'
 
 export function useRegionDetection() {
   const [region, setRegion] = useState<'in' | 'intl'>('intl') // Default to international
@@ -7,53 +8,24 @@ export function useRegionDetection() {
   useEffect(() => {
     const detectRegion = async () => {
       try {
-        console.log('Detecting region via IP...')
+        console.log('Detecting region via backend function...')
         
-        // Try multiple IP detection services that support CORS
-        let ipData = null
+        // Call our backend function for region detection
+        const { data, error } = await supabase.functions.invoke('detect-region')
         
-        // First try: ipify + ipapi.co (separate calls)
-        try {
-          const ipResponse = await fetch('https://api.ipify.org?format=json')
-          const ipResult = await ipResponse.json()
-          console.log('IP detected:', ipResult.ip)
-          
-          // Use a different service for country detection
-          const countryResponse = await fetch(`https://ipapi.co/${ipResult.ip}/json/`)
-          ipData = await countryResponse.json()
-        } catch (error) {
-          console.log('First method failed, trying alternative...')
-          
-          // Fallback: Try ipapi.com (different from ipapi.co)
-          try {
-            const response = await fetch('https://ipapi.com/ip_api.php?ip=', {
-              method: 'GET'
-            })
-            ipData = await response.json()
-          } catch (error2) {
-            console.log('Second method failed, trying third option...')
-            
-            // Second fallback: httpbin.org for IP + manual country detection
-            const ipResponse2 = await fetch('https://httpbin.org/ip')
-            const ipResult2 = await ipResponse2.json()
-            console.log('IP from httpbin:', ipResult2.origin)
-            // For testing, we'll assume Indian IPs start with certain ranges
-            // This is a simplified check - in production you'd want a proper IP-to-country service
-            ipData = { country_code: 'IN' } // Temporary for Indian users
-          }
-        }
+        if (error) throw error
         
-        console.log('IP detection response:', ipData)
+        console.log('Region detection response:', data)
         
-        if (ipData && ipData.country_code === 'IN') {
-          console.log('Setting region to IN')
+        if (data && data.region === 'in') {
+          console.log('Setting region to IN based on backend detection')
           setRegion('in')
         } else {
-          console.log('Setting region to intl, country code:', ipData?.country_code)
+          console.log('Setting region to intl, country code:', data?.country_code)
           setRegion('intl')
         }
       } catch (error) {
-        console.error('Failed to detect region:', error)
+        console.error('Failed to detect region via backend:', error)
         // Default to international if detection fails
         setRegion('intl')
       } finally {

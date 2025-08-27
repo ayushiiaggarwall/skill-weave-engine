@@ -3,11 +3,10 @@ import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { SectionBadge } from "@/components/ui/section-badge"
-import { Sparkles, Clock, Settings } from "lucide-react"
+import { Sparkles, Clock } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { supabase } from "@/integrations/supabase/client"
-import { useAdminRole } from "@/hooks/use-admin-role"
 import { useCoursePricing } from "@/hooks/use-course-pricing"
 
 interface CoursePricing {
@@ -31,14 +30,11 @@ interface CourseWithPricing {
 export function PricingSection() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { isAdmin } = useAdminRole()
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
   
   const [courses, setCourses] = useState<CourseWithPricing[]>([])
   const [loading, setLoading] = useState(true)
-  const [isEarlyBirdEnabled, setIsEarlyBirdEnabled] = useState(false)
-  const [userRegion, setUserRegion] = useState<'INR' | 'USD'>('INR')
   
   // Get timer data from the first active course
   const { timeLeft, formatTime, isEarlyBird } = useCoursePricing()
@@ -61,14 +57,7 @@ export function PricingSection() {
   // Fetch courses and pricing data
   useEffect(() => {
     fetchCoursesData()
-    detectUserRegion()
   }, [])
-
-  const detectUserRegion = () => {
-    // Detect user region based on timezone or other factors
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    setUserRegion(timezone.includes('Asia/Kolkata') || timezone.includes('Asia/Calcutta') ? 'INR' : 'USD')
-  }
 
   const fetchCoursesData = async () => {
     try {
@@ -98,9 +87,6 @@ export function PricingSection() {
       }
 
       setCourses(coursesWithPricing)
-      setIsEarlyBirdEnabled(coursesWithPricing.some(c => 
-        Boolean(c.course_pricing[0]?.is_early_bird_active)
-      ))
     } catch (error) {
       console.error('Error fetching courses:', error)
     } finally {
@@ -108,44 +94,26 @@ export function PricingSection() {
     }
   }
 
-  const toggleEarlyBird = async () => {
-    if (!isAdmin) return
-    
-    const newStatus = !isEarlyBirdEnabled
-    setIsEarlyBirdEnabled(newStatus)
-    
-    try {
-      // Update all active courses' early bird status
-      for (const course of courses) {
-        await supabase
-          .from('course_pricing')
-          .update({ is_early_bird_active: newStatus })
-          .eq('course_id', course.id)
-      }
-      
-      await fetchCoursesData()
-    } catch (error) {
-      console.error('Error updating early bird status:', error)
-      setIsEarlyBirdEnabled(!newStatus) // Revert on error
-    }
-  }
-
   const getPrice = (course: CourseWithPricing) => {
-    const pricing = course.course_pricing[0]
-    if (!pricing) return { current: 0, mrp: 0, symbol: '₹', isEarlyBird: false }
+    const coursePriceData = course.course_pricing[0]
+    if (!coursePriceData) return { current: 0, mrp: 0, symbol: '₹', isEarlyBird: false }
     
-    const isRegionalINR = userRegion === 'INR'
+    // Always show INR pricing as default
+    const regular = coursePriceData.inr_regular
+    const mrp = coursePriceData.inr_mrp
+    const earlyBird = coursePriceData.inr_early_bird
+    const symbol = '₹'
     
-    const regular = isRegionalINR ? pricing.inr_regular : pricing.usd_regular
-    const earlyBird = isRegionalINR ? pricing.inr_early_bird : pricing.usd_early_bird
-    const mrp = isRegionalINR ? pricing.inr_mrp : pricing.usd_mrp
-    const symbol = isRegionalINR ? '₹' : '$'
+    // Check if early bird is active and valid
+    const isEarlyBird = coursePriceData.is_early_bird_active && 
+                        coursePriceData.early_bird_end_date &&
+                        new Date(coursePriceData.early_bird_end_date) > new Date()
     
     return {
-      current: isEarlyBirdEnabled ? earlyBird : regular,
+      current: isEarlyBird ? earlyBird : regular,
       mrp,
       symbol,
-      isEarlyBird: isEarlyBirdEnabled
+      isEarlyBird
     }
   }
 
@@ -237,8 +205,6 @@ export function PricingSection() {
     ]
   }
 
-
-
   return (
     <section id="pricing" className="py-24 px-6 lg:px-8 bg-muted/30 relative overflow-hidden">
       {/* Floating background sparkles */}
@@ -262,26 +228,8 @@ export function PricingSection() {
           </p>
         </div>
 
-        {/* Admin Controls */}
-        {isAdmin && (
-          <div className="flex justify-center mb-8">
-            <div className="bg-card border rounded-lg p-4 flex items-center gap-4">
-              <Settings className="w-5 h-5 text-muted-foreground" />
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isEarlyBirdEnabled}
-                  onChange={toggleEarlyBird}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm font-medium">Enable Early Bird Pricing</span>
-              </label>
-            </div>
-          </div>
-        )}
-
         {/* Early Bird Timer */}
-        {(isEarlyBirdEnabled || isEarlyBird) && (
+        {isEarlyBird && (
           <div className="flex flex-col items-center mb-8 space-y-3">
             <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg animate-pulse flex items-center space-x-2">
               <Clock className="w-4 h-4" />

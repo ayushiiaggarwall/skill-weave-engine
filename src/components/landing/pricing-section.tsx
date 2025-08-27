@@ -3,12 +3,13 @@ import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { SectionBadge } from "@/components/ui/section-badge"
-import { Sparkles, Clock } from "lucide-react"
+import { Sparkles, Clock, Tag } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { supabase } from "@/integrations/supabase/client"
 import { useCoursePricing } from "@/hooks/use-course-pricing"
 import { useRegionDetection } from "@/hooks/use-region-detection"
+import { useToast } from "@/hooks/use-toast"
 
 interface CoursePricing {
   inr_regular: number
@@ -31,11 +32,16 @@ interface CourseWithPricing {
 export function PricingSection() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { toast } = useToast()
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
   
   const [courses, setCourses] = useState<CourseWithPricing[]>([])
   const [loading, setLoading] = useState(true)
+  const [couponCode, setCouponCode] = useState("")
+  const [invalidCoupon, setInvalidCoupon] = useState(false)
+  const [appliedCoupons, setAppliedCoupons] = useState<{[courseId: string]: any}>({})
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   
   // Detect user's region for pricing
   const { region } = useRegionDetection()
@@ -95,6 +101,57 @@ export function PricingSection() {
       console.error('Error fetching courses:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return
+    
+    setIsApplyingCoupon(true)
+    setInvalidCoupon(false)
+    
+    try {
+      // For each course, check if coupon is valid
+      const courseId = courses[0]?.id // Use first course for validation
+      if (!courseId) return
+      
+      const { data, error } = await supabase.functions.invoke('pay-price', {
+        body: {
+          email: user?.email || 'test@example.com',
+          courseId: courseId,
+          coupon: couponCode.trim(),
+          pricingType: 'regular'
+        }
+      })
+
+      if (error) {
+        console.error('Error applying coupon:', error)
+        setInvalidCoupon(true)
+        return
+      }
+      
+      // Check if coupon was invalid
+      if (data.invalidCoupon) {
+        setInvalidCoupon(true)
+      } else if (data.couponApplied) {
+        // Apply coupon to all courses
+        const newAppliedCoupons = {...appliedCoupons}
+        courses.forEach(course => {
+          newAppliedCoupons[course.id] = data.couponApplied
+        })
+        setAppliedCoupons(newAppliedCoupons)
+        setInvalidCoupon(false)
+        
+        toast({
+          title: "Coupon Applied!",
+          description: `${data.couponApplied.code} - ${data.couponApplied.type === 'percent' ? `${data.couponApplied.value}% off` : `${data.currency === 'INR' ? '₹' : '$'}${data.couponApplied.value / 100} off`}`,
+        })
+      }
+    } catch (error: any) {
+      console.error('Error applying coupon:', error)
+      setInvalidCoupon(true)
+    } finally {
+      setIsApplyingCoupon(false)
     }
   }
 
@@ -337,6 +394,41 @@ export function PricingSection() {
             })}
           </div>
         )}
+
+        {/* Coupon Section */}
+        <div className="max-w-md mx-auto mb-16">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg p-6">
+            <div className="flex items-center justify-center mb-4">
+              <Tag className="w-5 h-5 text-primary mr-2" />
+              <h3 className="text-lg font-semibold">Have a Coupon Code?</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter coupon code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="flex-1 px-4 py-2 border rounded-lg bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
+                />
+                <AnimatedButton 
+                  onClick={applyCoupon}
+                  disabled={!couponCode.trim() || isApplyingCoupon}
+                  size="sm"
+                  className="px-6"
+                >
+                  {isApplyingCoupon ? 'Applying...' : 'Apply'}
+                </AnimatedButton>
+              </div>
+              {invalidCoupon && (
+                <div className="text-red-500 text-sm font-medium">
+                  Invalid coupon code
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Plan Comparison Table */}
         <div className="mt-16 mb-12">

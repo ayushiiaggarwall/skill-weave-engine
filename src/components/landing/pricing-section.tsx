@@ -296,7 +296,7 @@ export function PricingSection() {
             <div className="flex flex-col items-center text-center">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm text-muted-foreground">Next cohort starts:</span>
-                <span className="font-semibold text-accent">Sep 21, 2025 - Induction</span>
+                <span className="font-semibold text-accent">Sep 21, 2025 (Induction)</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Course timeline:</span>

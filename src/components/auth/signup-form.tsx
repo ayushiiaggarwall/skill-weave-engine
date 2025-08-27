@@ -69,7 +69,7 @@ export function SignupForm() {
         // Check if the error is due to hook timeout (422 error)
         if (error.message.includes('422') || error.message.includes('hook') || error.message.includes('timeout')) {
           // Hook timed out but email is likely sent successfully
-          setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for a beautiful verification message to activate your account. (Note: Verification email is on its way)")
+          setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account. (Note: Verification email is on its way)")
           // Redirect user to continue their journey
           setTimeout(() => {
             if (isEnrollment) {
@@ -84,7 +84,7 @@ export function SignupForm() {
           setError(error.message)
         }
       } else {
-        setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for a beautiful verification message to activate your account.")
+        setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account.")
         // Redirect after a delay
         setTimeout(() => {
           if (isEnrollment) {
@@ -100,7 +100,7 @@ export function SignupForm() {
       
       // If it's a hook timeout error, treat it as success
       if (errorMessage.includes('422') || errorMessage.includes('hook') || errorMessage.includes('timeout')) {
-        setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for a beautiful verification message to activate your account. (Note: Verification email is on its way)")
+        setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account. (Note: Verification email is on its way)")
         setTimeout(() => {
           if (isEnrollment) {
             navigate('/payment')

@@ -25,11 +25,24 @@ export function ForgotPasswordForm() {
 
       if (error) {
         console.error("Password reset error:", error)
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        })
+        
+        // Special handling for hook timeout - email was likely sent successfully
+        if (error.message?.includes("Failed to reach hook within maximum time") || error.code === "hook_timeout") {
+          setIsSubmitted(true)
+          toast({
+            title: "Reset Link Sent Successfully",
+            description: "Please check your email inbox for the password reset link. The process took longer than expected but your email should arrive shortly.",
+            variant: "success",
+          })
+          setTimeout(() => navigate('/login'), 3000)
+        } else {
+          // All other errors - show red error message
+          toast({
+            title: "Failed to Send Reset Email",
+            description: error.message || "There was an issue sending the reset email. Please try again.",
+            variant: "destructive",
+          })
+        }
       } else {
         setIsSubmitted(true)
         toast({

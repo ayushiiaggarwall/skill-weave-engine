@@ -277,27 +277,32 @@ export function SyllabusSection() {
             </p>
           </div>
           
-          <div ref={toolsRef} className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+          <div ref={toolsRef} className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {[
-              { name: "Lovable", tagline: "Visual Frontend Builder", oneLiner: "Design beautiful frontends in hours, not weeks" },
-              { name: "Bolt", tagline: "Instant Deployment", oneLiner: "Deploy full-stack apps instantly, without worrying about infra." },
-              { name: "Supabase", tagline: "Backend as a Service", oneLiner: "Handle auth, database, and backend without code" },
-              { name: "n8n", tagline: "Workflow Automation", oneLiner: "Automate workflows and connect APIs seamlessly" },
-              { name: "PayPal", tagline: "Global Payments", oneLiner: "Enable trusted global payments with one-click checkout." },
-              { name: "Razorpay", tagline: "Indian Payments", oneLiner: "Accept seamless payments in India with cards, UPI, and wallets." },
-              { name: "Resend", tagline: "Email Service", oneLiner: "Send professional, branded emails to users" },
-              { name: "Vapi", tagline: "AI Voice", oneLiner: "Build AI voice assistants inside your app" }
+              { name: "Lovable", tagline: "Visual Frontend Builder", oneLiner: "Design beautiful frontends in hours, not weeks", color: "bg-gradient-to-br from-purple-500 to-blue-600" },
+              { name: "Bolt", tagline: "Instant Deployment", oneLiner: "Deploy full-stack apps instantly, without worrying about infra.", color: "bg-gradient-to-br from-yellow-400 to-orange-500" },
+              { name: "Supabase", tagline: "Backend as a Service", oneLiner: "Handle auth, database, and backend without code", color: "bg-gradient-to-br from-green-400 to-blue-500" },
+              { name: "n8n", tagline: "Workflow Automation", oneLiner: "Automate workflows and connect APIs seamlessly", color: "bg-gradient-to-br from-pink-400 to-purple-600" },
+              { name: "PayPal", tagline: "Global Payments", oneLiner: "Enable trusted global payments with one-click checkout.", color: "bg-gradient-to-br from-blue-600 to-blue-700" },
+              { name: "Razorpay", tagline: "Indian Payments", oneLiner: "Accept seamless payments in India with cards, UPI, and wallets.", color: "bg-gradient-to-br from-blue-500 to-indigo-600" },
+              { name: "Resend", tagline: "Email Service", oneLiner: "Send professional, branded emails to users", color: "bg-gradient-to-br from-orange-400 to-red-500" },
+              { name: "Vapi", tagline: "AI Voice", oneLiner: "Build AI voice assistants inside your app", color: "bg-gradient-to-br from-purple-500 to-indigo-600" }
             ].map((tool, index) => (
-              <div key={index} className="tool-badge opacity-0 group">
-                <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 hover:bg-card hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto group-hover:bg-primary/20 transition-colors">
-                    <span className="text-primary font-bold text-lg">{tool.name.charAt(0)}</span>
+              <div key={index} className="tool-badge opacity-0 group relative">
+                {/* Hover tooltip */}
+                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-popover border border-border rounded-lg px-3 py-2 text-sm text-popover-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 whitespace-nowrap shadow-lg">
+                  {tool.oneLiner}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-border"></div>
+                </div>
+                
+                <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 hover:bg-card hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                  {/* Logo box */}
+                  <div className={`w-16 h-16 ${tool.color} rounded-xl flex items-center justify-center mb-4 mx-auto shadow-lg`}>
+                    <span className="text-white font-bold text-xl">{tool.name.charAt(0)}</span>
                   </div>
+                  
                   <h4 className="font-semibold text-foreground mb-2">{tool.name}</h4>
-                  <p className="text-sm text-muted-foreground mb-3">{tool.tagline}</p>
-                  <p className="text-xs text-muted-foreground/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 min-h-[2.5rem] flex items-center">
-                    {tool.oneLiner}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{tool.tagline}</p>
                 </div>
               </div>
             ))}

@@ -272,7 +272,7 @@ export function PricingSection() {
                   animationType="scale"
                   className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative"
                 >
-                  {/* Best Value Badge for Pro Track */}
+                  {/* Best Value Badge for Pro Track Only */}
                   {(course.title.toLowerCase().includes('pro') || course.title.toLowerCase().includes('mentorship')) && (
                     <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
                       BEST VALUE • LIMITED SEATS

@@ -292,7 +292,7 @@ export function PricingSection() {
                   )}
                   
                   <AnimatedCardHeader className="text-center pb-6">
-                    <AnimatedCardTitle className="text-2xl font-bold mb-4">
+                    <AnimatedCardTitle className="text-2xl font-bold mb-4 leading-relaxed">
                       {course.title}
                     </AnimatedCardTitle>
                     <div className="space-y-2">

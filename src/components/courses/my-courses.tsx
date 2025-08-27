@@ -89,10 +89,12 @@ export function MyCourses() {
   const enrollmentStatus = useEnrollmentStatus()
   const [courseContent, setCourseContent] = useState<CourseContent[]>([])
   const [contentLoading, setContentLoading] = useState(true)
+  const [courseStartDate, setCourseStartDate] = useState<string | null>(null)
 
   useEffect(() => {
     if (enrollmentStatus.isEnrolled) {
       fetchCourseContent()
+      fetchCourseDetails()
       setupRealtimeSubscription()
     }
   }, [enrollmentStatus.isEnrolled])
@@ -117,6 +119,23 @@ export function MyCourses() {
       })
     } finally {
       setContentLoading(false)
+    }
+  }
+
+  const fetchCourseDetails = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('start_date')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (error) throw error
+      setCourseStartDate(data?.start_date || null)
+    } catch (error) {
+      console.error('Error fetching course details:', error)
     }
   }
 
@@ -257,7 +276,24 @@ export function MyCourses() {
                 </div>
                 <Progress value={overallProgress} className="h-3" />
                 <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                  <span>Started {new Date().toLocaleDateString()}</span>
+                  <span>
+                    {courseStartDate ? (
+                      (() => {
+                        const startDate = new Date(courseStartDate)
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        startDate.setHours(0, 0, 0, 0)
+                        
+                        if (startDate <= today) {
+                          return `Started ${startDate.toLocaleDateString()}`
+                        } else {
+                          return `Starts ${startDate.toLocaleDateString()}`
+                        }
+                      })()
+                    ) : (
+                      `Started ${new Date().toLocaleDateString()}`
+                    )}
+                  </span>
                   <span>{courseModules.filter(m => m.status === 'completed').length}/{courseModules.length} modules completed</span>
                 </div>
               </CardContent>

@@ -4,7 +4,7 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, Bell, Trash2, Upload, Award, BookOpen, DollarSign, Calendar } from "lucide-react"
+import { Users, Bell, Trash2, Upload, Award, BookOpen, DollarSign, Calendar, BarChart3 } from "lucide-react"
 import { Header } from "@/components/landing/header"
 import ContentManagement from './content-management'
 import CertificatesManagement from './certificates-management'
@@ -18,6 +18,7 @@ interface UserProfile {
   email: string
   role: string
   created_at: string
+  referral_source?: string | null
   enrollments?: {
     payment_status: string
     course_id: string | null
@@ -34,6 +35,16 @@ interface UserProfile {
   }[]
 }
 
+interface ReferralStats {
+  source: string
+  count: number
+}
+
+interface LeadStats {
+  source: string
+  count: number
+}
+
 interface Announcement {
   id: string
   title: string
@@ -47,13 +58,75 @@ export function AdminDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', body: '' })
+  const [referralStats, setReferralStats] = useState<ReferralStats[]>([])
+  const [leadStats, setLeadStats] = useState<LeadStats[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
   useEffect(() => {
     fetchUsers()
     fetchAnnouncements()
-  }, [])
+    if (activeTab === 'analytics') {
+      fetchReferralStats()
+    }
+  }, [activeTab])
+
+  const fetchReferralStats = async () => {
+    try {
+      // Fetch user referral sources
+      const { data: profileStats, error: profileError } = await supabase
+        .from('profiles')
+        .select('referral_source')
+        .not('referral_source', 'is', null)
+
+      if (profileError) throw profileError
+
+      // Fetch lead referral sources
+      const { data: leadStats, error: leadError } = await supabase
+        .from('leads')
+        .select('referral_source')
+        .not('referral_source', 'is', null)
+
+      if (leadError) throw leadError
+
+      // Aggregate profile stats
+      const profileCounts: { [key: string]: number } = {}
+      profileStats?.forEach(profile => {
+        if (profile.referral_source) {
+          profileCounts[profile.referral_source] = (profileCounts[profile.referral_source] || 0) + 1
+        }
+      })
+
+      // Aggregate lead stats
+      const leadCounts: { [key: string]: number } = {}
+      leadStats?.forEach(lead => {
+        if (lead.referral_source) {
+          leadCounts[lead.referral_source] = (leadCounts[lead.referral_source] || 0) + 1
+        }
+      })
+
+      // Convert to arrays
+      const referralStatsArray = Object.entries(profileCounts).map(([source, count]) => ({
+        source,
+        count
+      }))
+
+      const leadStatsArray = Object.entries(leadCounts).map(([source, count]) => ({
+        source,
+        count
+      }))
+
+      setReferralStats(referralStatsArray)
+      setLeadStats(leadStatsArray)
+    } catch (error) {
+      console.error('Error fetching referral stats:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch referral statistics",
+        variant: "destructive"
+      })
+    }
+  }
 
   const fetchUsers = async () => {
     try {
@@ -267,6 +340,14 @@ export function AdminDashboard() {
               Announcements
             </Button>
             <Button
+              variant={activeTab === 'analytics' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('analytics')}
+              className="flex items-center gap-2"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </Button>
+            <Button
               variant={activeTab === 'users' ? 'default' : 'outline'}
               onClick={() => setActiveTab('users')}
               className="flex items-center gap-2"
@@ -357,6 +438,96 @@ export function AdminDashboard() {
             </AnimatedCard>
           )}
 
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              {/* Referral Analytics */}
+              <AnimatedCard>
+                <AnimatedCardHeader>
+                  <AnimatedCardTitle className="flex items-center space-x-2">
+                    <BarChart3 className="w-5 h-5" />
+                    <span>Referral Source Analytics</span>
+                  </AnimatedCardTitle>
+                </AnimatedCardHeader>
+                <AnimatedCardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* User Signups by Source */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">User Signups by Source</h3>
+                      {referralStats.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">No referral data available</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {referralStats
+                            .sort((a, b) => b.count - a.count)
+                            .map((stat) => (
+                            <div key={stat.source} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                              <span className="font-medium capitalize">{stat.source.replace('_', ' ')}</span>
+                              <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm">
+                                {stat.count}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Contact Form Leads by Source */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Contact Form Leads by Source</h3>
+                      {leadStats.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">No lead data available</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {leadStats
+                            .sort((a, b) => b.count - a.count)
+                            .map((stat) => (
+                            <div key={stat.source} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                              <span className="font-medium capitalize">{stat.source.replace('_', ' ')}</span>
+                              <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm">
+                                {stat.count}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Combined Statistics */}
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-4">Total Traffic Summary</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg">
+                        <div className="text-2xl font-bold text-primary">
+                          {referralStats.reduce((sum, stat) => sum + stat.count, 0)}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Total Signups</div>
+                      </div>
+                      <div className="p-4 bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-lg">
+                        <div className="text-2xl font-bold text-secondary-foreground">
+                          {leadStats.reduce((sum, stat) => sum + stat.count, 0)}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Total Leads</div>
+                      </div>
+                      <div className="p-4 bg-gradient-to-r from-green-100/50 to-green-50/50 rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">
+                          {users.filter(u => u.order_enrollments?.some(e => e.status === 'paid')).length}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Paid Enrollments</div>
+                      </div>
+                      <div className="p-4 bg-gradient-to-r from-blue-100/50 to-blue-50/50 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {users.length}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Total Users</div>
+                      </div>
+                    </div>
+                  </div>
+                </AnimatedCardContent>
+              </AnimatedCard>
+            </div>
+          )}
+
           {activeTab === 'users' && (
             <AnimatedCard>
               <AnimatedCardHeader>
@@ -369,15 +540,16 @@ export function AdminDashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-2">Name</th>
-                        <th className="text-left p-2">Email</th>
-                        <th className="text-left p-2">Role</th>
-                        <th className="text-left p-2">Enrollment Status</th>
-                        <th className="text-left p-2">Course Type</th>
-                        <th className="text-left p-2">Amount Paid</th>
-                        <th className="text-left p-2">Joined</th>
-                      </tr>
+                       <tr className="border-b">
+                         <th className="text-left p-2">Name</th>
+                         <th className="text-left p-2">Email</th>
+                         <th className="text-left p-2">Role</th>
+                         <th className="text-left p-2">Source</th>
+                         <th className="text-left p-2">Enrollment Status</th>
+                         <th className="text-left p-2">Course Type</th>
+                         <th className="text-left p-2">Amount Paid</th>
+                         <th className="text-left p-2">Joined</th>
+                       </tr>
                     </thead>
                     <tbody>
                       {users.map((user) => {
@@ -411,15 +583,24 @@ export function AdminDashboard() {
                               }`}>
                                 {user.role}
                               </span>
-                            </td>
-                            <td className="p-2">
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                isEnrolled
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                              }`}>
-                                {isEnrolled ? 'Enrolled' : 'Not Enrolled'}
-                              </span>
+                             </td>
+                             <td className="p-2">
+                               <span className={`px-2 py-1 rounded text-xs ${
+                                 user.referral_source 
+                                   ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                                   : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                               }`}>
+                                 {user.referral_source ? user.referral_source.replace('_', ' ') : 'Direct'}
+                               </span>
+                             </td>
+                             <td className="p-2">
+                               <span className={`px-2 py-1 rounded text-xs ${
+                                 isEnrolled
+                                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                   : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                               }`}>
+                                 {isEnrolled ? 'Enrolled' : 'Not Enrolled'}
+                               </span>
                             </td>
                             <td className="p-2">
                               {paidOrder ? (

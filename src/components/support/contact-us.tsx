@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToastContext } from "@/components/ui/toast-provider"
+import { useReferralTracking } from "@/hooks/use-referral-tracking"
 import { supabase } from "@/integrations/supabase/client"
 import { Mail, Phone, Send } from "lucide-react"
 
@@ -17,6 +18,7 @@ export function ContactUs() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToastContext()
+  const { getReferralSource } = useReferralTracking()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -33,12 +35,14 @@ export function ContactUs() {
     try {
       console.log('Submitting contact form...', formData)
       
+      const referralSource = getReferralSource()
       const { data, error } = await supabase.functions.invoke('contact-form', {
         body: {
           name: formData.name,
           email: formData.email,
           subject: formData.subject,
-          message: formData.message
+          message: formData.message,
+          referral_source: referralSource
         }
       })
 

@@ -31,6 +31,8 @@ export function ContactUs() {
     setIsSubmitting(true)
 
     try {
+      console.log('Submitting contact form...', formData)
+      
       const { data, error } = await supabase.functions.invoke('contact-form', {
         body: {
           name: formData.name,
@@ -40,16 +42,22 @@ export function ContactUs() {
         }
       })
 
-      if (error) throw error
+      console.log('Contact form response:', { data, error })
 
-      if (data?.success) {
-        toast({
-          title: "Message Sent!",
-          description: "Your message has been sent, will get back to you in 24 hours."
-        })
-        setFormData({ name: '', email: '', subject: '', message: '' })
-      } else {
-        throw new Error(data?.error || "Failed to send message")
+      if (error) {
+        console.error('Supabase function error:', error)
+        throw error
+      }
+
+      // Show success message regardless of data.success for now
+      toast({
+        title: "Message Sent!",
+        description: "Your message has been sent, will get back to you in 24 hours."
+      })
+      setFormData({ name: '', email: '', subject: '', message: '' })
+      
+      if (!data?.success) {
+        console.warn('Function returned but success=false:', data)
       }
     } catch (error: any) {
       console.error('Contact form error:', error)

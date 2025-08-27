@@ -4,7 +4,7 @@ import { Header } from "@/components/landing/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
+import { useToastContext } from "@/components/ui/toast-provider"
 import { supabase } from "@/integrations/supabase/client"
 import { Mail, Phone, Send } from "lucide-react"
 
@@ -16,7 +16,7 @@ export function ContactUs() {
     message: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
+  const { toast } = useToastContext()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target

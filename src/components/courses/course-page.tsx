@@ -19,6 +19,7 @@ export function CoursePage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedWeek, setSelectedWeek] = useState<Course | null>(null)
   const [loading, setLoading] = useState(true)
+  const [courseTitle, setCourseTitle] = useState<string>('')
 
   useEffect(() => {
     fetchCourses()
@@ -26,10 +27,10 @@ export function CoursePage() {
 
   const fetchCourses = async () => {
     try {
-      // First, get active courses to find the course ID
+      // First, get active courses to find the course ID and title
       const { data: coursesData, error: coursesError } = await supabase
         .from('courses')
-        .select('id')
+        .select('id, title')
         .eq('is_active', true)
         .limit(1)
 
@@ -41,6 +42,7 @@ export function CoursePage() {
       }
 
       const courseId = coursesData[0].id
+      setCourseTitle(coursesData[0].title)
 
       // Now get the course weeks for the active course
       const { data, error } = await supabase
@@ -106,7 +108,7 @@ export function CoursePage() {
         <div className="container mx-auto max-w-7xl px-6">
           <div className="mb-8 text-center">
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent mb-4">
-              Course Curriculum
+              {courseTitle || 'Course Curriculum'}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Master the art of turning ideas into real products in just 5 weeks with our step-by-step Builder’s Program

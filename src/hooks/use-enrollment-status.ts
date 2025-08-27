@@ -7,6 +7,15 @@ export interface EnrollmentStatus {
   hasActiveCourse: boolean
   paymentStatus: 'pending' | 'completed' | 'failed' | 'paid' | null
   courseName?: string
+  courseData?: {
+    id: string
+    title: string
+    objective: string
+    start_date: string | null
+    end_date: string | null
+    total_weeks: number | null
+    plans: string[]
+  }
   loading: boolean
 }
 
@@ -16,6 +25,7 @@ export function useEnrollmentStatus(): EnrollmentStatus {
     isEnrolled: false,
     hasActiveCourse: false,
     paymentStatus: null,
+    courseData: undefined,
     loading: true
   })
 
@@ -25,6 +35,7 @@ export function useEnrollmentStatus(): EnrollmentStatus {
         isEnrolled: false,
         hasActiveCourse: false,
         paymentStatus: null,
+        courseData: undefined,
         loading: false
       })
       return
@@ -35,7 +46,21 @@ export function useEnrollmentStatus(): EnrollmentStatus {
         // Check for completed order enrollments (primary method now)
         const { data: orderEnrollments, error: orderError } = await supabase
           .from('order_enrollments')
-          .select('status, user_email, user_id, courses(title)')
+          .select(`
+            status, 
+            user_email, 
+            user_id, 
+            course_id,
+            courses(
+              id,
+              title,
+              objective,
+              start_date,
+              end_date,
+              total_weeks,
+              plans
+            )
+          `)
           .or(`user_id.eq.${user.id},user_email.eq.${user.email}`)
 
         if (orderError) {
@@ -48,12 +73,22 @@ export function useEnrollmentStatus(): EnrollmentStatus {
         ) || false
 
         const paidOrder = orderEnrollments?.find(order => order.status === 'paid')
+        const courseData = paidOrder?.courses
 
         setStatus({
           isEnrolled: hasCompletedPayment,
           hasActiveCourse: hasCompletedPayment,
           paymentStatus: hasCompletedPayment ? 'completed' : null,
-          courseName: paidOrder?.courses?.title || 'Course',
+          courseName: courseData?.title || 'Course',
+          courseData: courseData ? {
+            id: courseData.id,
+            title: courseData.title,
+            objective: courseData.objective,
+            start_date: courseData.start_date,
+            end_date: courseData.end_date,
+            total_weeks: courseData.total_weeks,
+            plans: courseData.plans || []
+          } : undefined,
           loading: false
         })
       } catch (error) {

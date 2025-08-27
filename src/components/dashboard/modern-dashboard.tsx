@@ -192,12 +192,12 @@ export function ModernDashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                  {enrollmentStatus.isEnrolled ? (
+                  {enrollmentStatus.isEnrolled && enrollmentStatus.courseData ? (
                     <Card className="glass-card-strong hover-lift pt-4">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           <BookOpen className="w-5 h-5" />
-                          My Courses
+                          My Enrolled Course
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -207,20 +207,47 @@ export function ModernDashboard() {
                               <Play className="w-8 h-8 text-white" />
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-semibold text-lg">5-Week Idea to Product Course</h3>
+                              <h3 className="font-semibold text-lg">{enrollmentStatus.courseData.title}</h3>
                               <p className="text-sm text-muted-foreground mb-2">
-                                Build real products without writing code
+                                {enrollmentStatus.courseData.objective}
                               </p>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <Badge className="bg-success/10 text-success border-success/20">
                                   Enrolled
                                 </Badge>
-                                <span className="text-xs text-muted-foreground">
-                                  {enrollmentStatus.courseName && `Course: ${enrollmentStatus.courseName}`}
-                                </span>
+                                {enrollmentStatus.courseData.total_weeks && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {enrollmentStatus.courseData.total_weeks} weeks
+                                  </Badge>
+                                )}
+                                {enrollmentStatus.courseData.start_date && (
+                                  <span className="text-xs text-muted-foreground">
+                                    Starts: {new Date(enrollmentStatus.courseData.start_date).toLocaleDateString()}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
+                          
+                          {/* Course Plans */}
+                          {enrollmentStatus.courseData.plans && enrollmentStatus.courseData.plans.length > 0 && (
+                            <div className="space-y-2">
+                              <h4 className="font-medium text-sm">What you'll learn:</h4>
+                              <div className="grid gap-2">
+                                {enrollmentStatus.courseData.plans.slice(0, 3).map((plan, index) => (
+                                  <div key={index} className="flex items-center gap-2 text-sm">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                                    <span>{plan}</span>
+                                  </div>
+                                ))}
+                                {enrollmentStatus.courseData.plans.length > 3 && (
+                                  <div className="text-sm text-muted-foreground">
+                                    +{enrollmentStatus.courseData.plans.length - 3} more topics
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
                           
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
@@ -229,7 +256,10 @@ export function ModernDashboard() {
                             </div>
                             <Progress value={0} className="h-2" />
                             <p className="text-xs text-muted-foreground">
-                              Course will begin soon. You'll receive updates via email.
+                              {enrollmentStatus.courseData.start_date 
+                                ? `Course starts on ${new Date(enrollmentStatus.courseData.start_date).toLocaleDateString()}`
+                                : "Course will begin soon. You'll receive updates via email."
+                              }
                             </p>
                           </div>
                         </div>

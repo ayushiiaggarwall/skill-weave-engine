@@ -3,7 +3,7 @@ import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { VerificationEmail } from './_templates/verification-email.tsx'
-import { PasswordResetEmail } from '../send-password-reset/_templates/password-reset-email.tsx'
+import { PasswordResetEmail } from './_templates/password-reset-email.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 const hookSecret = Deno.env.get('SEND_VERIFICATION_EMAIL_HOOK_SECRET') as string

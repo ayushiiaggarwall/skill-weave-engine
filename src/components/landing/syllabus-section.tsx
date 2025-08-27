@@ -280,12 +280,12 @@ export function SyllabusSection() {
           <div ref={toolsRef} className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {[
               { name: "Lovable", oneLiner: "Design beautiful frontends in hours, not weeks", logo: "/lovable-uploads/d8a5e593-bab9-4ad5-92d2-3a3d53457250.png" },
-              { name: "Bolt", oneLiner: "Deploy full-stack apps instantly, without worrying about infra.", logo: "/lovable-uploads/e00831f8-a93b-4edb-9354-0e43ed153af8.png" },
-              { name: "Supabase", oneLiner: "Handle auth, database, and backend without code", logo: "/lovable-uploads/8074c5c7-61d9-45a9-972e-38135fcf5d4d.png" },
+              { name: "Bolt", oneLiner: "Deploy full-stack apps instantly, without worrying about infra.", logo: "/lovable-uploads/9494f231-0779-4d9c-8306-28dc6423b3e9.png" },
+              { name: "Supabase", oneLiner: "Handle auth, database, and backend without code", logo: "/lovable-uploads/e00831f8-a93b-4edb-9354-0e43ed153af8.png" },
               { name: "n8n", oneLiner: "Automate workflows and connect APIs seamlessly", logo: "/lovable-uploads/1aa0e46f-7cf0-483f-9f31-05c855c02f62.png" },
               { name: "PayPal", oneLiner: "Enable trusted global payments with one-click checkout.", logo: "/lovable-uploads/9ce84486-3a6c-430e-87b8-ac8a88aa3b59.png" },
               { name: "Razorpay", oneLiner: "Accept seamless payments in India with cards, UPI, and wallets.", logo: "/lovable-uploads/52f26c15-a572-4aed-8a3d-710d6e8792a1.png" },
-              { name: "Resend", oneLiner: "Send professional, branded emails to users", logo: "/lovable-uploads/9494f231-0779-4d9c-8306-28dc6423b3e9.png" },
+              { name: "Resend", oneLiner: "Send professional, branded emails to users", logo: "/lovable-uploads/8074c5c7-61d9-45a9-972e-38135fcf5d4d.png" },
               { name: "Vapi", oneLiner: "Build AI voice assistants inside your app", logo: "/lovable-uploads/9148f631-1e6c-49af-ad0a-fa5c54049dc7.png" }
             ].map((tool, index) => (
               <div key={index} className="tool-badge opacity-0 group relative">

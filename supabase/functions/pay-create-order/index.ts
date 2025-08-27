@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface CreateOrderRequest {
   email: string;
+  courseId?: string;
   coupon?: string;
   pricingType?: 'regular' | 'combo';
 }
@@ -48,12 +49,13 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const body: CreateOrderRequest = await req.json();
-    const { email, coupon, pricingType = 'regular' } = body;
+    const { email, courseId, coupon, pricingType = 'regular' } = body;
 
     // Get current pricing for India
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
       body: {
         email,
+        courseId,
         coupon,
         pricingType
       }
@@ -110,6 +112,7 @@ serve(async (req) => {
       .insert({
         user_email: user.email,
         user_id: user.id,
+        course_id: courseId,
         gateway: 'razorpay',
         order_id: razorpayOrder.id,
         currency: 'INR',

@@ -182,6 +182,18 @@ export function PricingSection() {
   }, [])
 
   const getCourseFeatures = (courseTitle: string) => {
+    if (courseTitle.toLowerCase().includes('essential')) {
+      return [
+        "5 Weeks of Live Classes (Sat & Sun, 7:30–10 PM IST)",
+        "Final Week Q&A + Project Demos",
+        "Step-by-Step Curriculum — from basics to launch",
+        "Hands-On Projects every week",
+        "Lifetime Access to Recordings & Materials",
+        "Community Support Group (peer discussions + resources)",
+        "7 Days Money Back Guarantee"
+      ]
+    }
+    
     if (courseTitle.toLowerCase().includes('pro') || courseTitle.toLowerCase().includes('mentorship')) {
       return [
         "Everything in Complete Course Access",
@@ -270,7 +282,7 @@ export function PricingSection() {
                   key={course.id}
                   delay={400 + (index * 200)}
                   animationType="scale"
-                  className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative"
+                  className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative flex flex-col h-full"
                 >
                   {/* Best Value Badge for Pro Track Only */}
                   {(course.title.toLowerCase().includes('pro') || course.title.toLowerCase().includes('mentorship')) && (
@@ -303,9 +315,9 @@ export function PricingSection() {
                     </div>
                   </AnimatedCardHeader>
                   
-                  <AnimatedCardContent className="space-y-6">
+                  <AnimatedCardContent className="space-y-6 flex-grow flex flex-col">
                     {/* Features */}
-                    <div className="space-y-3">
+                    <div className="space-y-3 flex-grow">
                       {getCourseFeatures(course.title).map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-start">
                           <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
@@ -315,14 +327,16 @@ export function PricingSection() {
                     </div>
 
                     {/* CTA Button */}
-                    <AnimatedButton 
-                      size="lg" 
-                      animation="glow"
-                      className="w-full py-4 text-lg font-semibold hover-glow"
-                      onClick={() => handleEnrollClick(course.id)}
-                    >
-                      Enroll Now — {pricing.symbol}{pricing.current.toLocaleString()}
-                    </AnimatedButton>
+                    <div className="mt-auto pt-4">
+                      <AnimatedButton 
+                        size="lg" 
+                        animation="glow"
+                        className="w-full py-4 text-lg font-semibold hover-glow"
+                        onClick={() => handleEnrollClick(course.id)}
+                      >
+                        Enroll Now — {pricing.symbol}{pricing.current.toLocaleString()}
+                      </AnimatedButton>
+                    </div>
                   </AnimatedCardContent>
                 </AnimatedCard>
               )

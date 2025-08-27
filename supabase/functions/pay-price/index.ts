@@ -165,6 +165,8 @@ serve(async (req) => {
     // Apply coupon if provided
     let couponApplied;
     if (coupon) {
+      logStep("Looking for coupon", { coupon: coupon.toUpperCase() });
+      
       const { data: couponData, error: couponError } = await supabaseClient
         .from('coupons')
         .select('*')
@@ -172,12 +174,16 @@ serve(async (req) => {
         .eq('active', true)
         .single();
 
-      if (!couponError && couponData) {
-        logStep("Coupon found", couponData);
+      logStep("Coupon query result", { couponData, couponError });
 
+      if (!couponError && couponData) {
+        logStep("Coupon found and valid", couponData);
+
+        const originalAmount = amount;
         if (couponData.type === 'percent') {
           amount = Math.floor(amount * (100 - couponData.value) / 100);
         } else if (couponData.type === 'flat') {
+          // For flat discounts, the value is stored in cents
           amount = Math.max(amount - couponData.value, 0);
         }
 
@@ -187,9 +193,18 @@ serve(async (req) => {
           value: couponData.value
         };
 
-        logStep("Coupon applied", { couponApplied, newAmount: amount });
+        logStep("Coupon applied successfully", { 
+          couponApplied, 
+          originalAmount, 
+          newAmount: amount,
+          discount: originalAmount - amount
+        });
       } else {
-        logStep("Coupon not found or inactive", { coupon });
+        logStep("Coupon not found or inactive", { 
+          coupon: coupon.toUpperCase(), 
+          error: couponError?.message,
+          data: couponData 
+        });
       }
     }
 

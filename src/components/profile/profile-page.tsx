@@ -89,15 +89,14 @@ export function ProfilePage() {
     
     setProfileSaving(true)
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          name: profileData.name,
-          date_of_birth: profileData.dateOfBirth || null,
-          about: profileData.about || null,
-          profile_picture_url: profileData.profilePictureUrl || null
-        })
-        .eq('id', user.id)
+      // Use the secure profile update function instead of direct table update
+      const { error } = await supabase.rpc('update_profile_secure', {
+        p_name: profileData.name,
+        p_email: undefined, // Email updates are not allowed through this function
+        p_date_of_birth: profileData.dateOfBirth || undefined,
+        p_about: profileData.about || undefined,
+        p_profile_picture_url: profileData.profilePictureUrl || undefined
+      })
 
       if (error) throw error
 

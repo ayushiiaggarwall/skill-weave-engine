@@ -609,6 +609,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_profile_secure: {
+        Args: {
+          p_about?: string
+          p_date_of_birth?: string
+          p_email?: string
+          p_name?: string
+          p_profile_picture_url?: string
+        }
+        Returns: undefined
+      }
+      update_user_role: {
+        Args: {
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "student" | "admin"

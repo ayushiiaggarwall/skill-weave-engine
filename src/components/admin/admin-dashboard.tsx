@@ -4,11 +4,12 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, Bell, Trash2, Upload, Award, BookOpen } from "lucide-react"
+import { Users, Bell, Trash2, Upload, Award, BookOpen, DollarSign } from "lucide-react"
 import { Header } from "@/components/landing/header"
 import ContentManagement from './content-management'
 import CertificatesManagement from './certificates-management'
 import CourseManagement from './course-management'
+import PricingCouponManagement from './pricing-coupon-management'
 
 interface UserProfile {
   id: string
@@ -241,6 +242,14 @@ export function AdminDashboard() {
               Certificates
             </Button>
             <Button
+              variant={activeTab === 'pricing' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('pricing')}
+              className="flex items-center gap-2"
+            >
+              <DollarSign className="h-4 w-4" />
+              Pricing & Coupons
+            </Button>
+            <Button
               variant={activeTab === 'announcements' ? 'default' : 'outline'}
               onClick={() => setActiveTab('announcements')}
               className="flex items-center gap-2"
@@ -266,6 +275,9 @@ export function AdminDashboard() {
           )}
           {activeTab === 'certificates' && (
             <CertificatesManagement />
+          )}
+          {activeTab === 'pricing' && (
+            <PricingCouponManagement />
           )}
 
           {activeTab === 'announcements' && (

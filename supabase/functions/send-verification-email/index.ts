@@ -3,6 +3,7 @@ import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { VerificationEmail } from './_templates/verification-email.tsx'
+import { PasswordResetEmail } from '../send-password-reset/_templates/password-reset-email.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 const hookSecret = Deno.env.get('SEND_VERIFICATION_EMAIL_HOOK_SECRET') as string
@@ -64,20 +65,41 @@ Deno.serve(async (req) => {
       email_data: { token, token_hash, redirect_to, email_action_type },
     } = webhookData
 
-    console.log(`Sending verification email to: ${user.email}`)
+    console.log(`Sending email to: ${user.email}`)
     console.log(`Email action type: ${email_action_type}`)
 
-    // Render the React email template
-    const html = await renderAsync(
-      React.createElement(VerificationEmail, {
-        supabase_url: Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co',
-        token,
-        token_hash,
-        redirect_to: redirect_to || `${Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co'}/dashboard`,
-        email_action_type,
-        user_email: user.email,
-      })
-    )
+    let html: string
+    let subject: string
+
+    if (email_action_type === 'recovery') {
+      // Password recovery email
+      console.log('Rendering password reset email template...')
+      html = await renderAsync(
+        React.createElement(PasswordResetEmail, {
+          supabase_url: Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co',
+          token,
+          token_hash,
+          redirect_to: redirect_to || 'https://ayushiaggarwal.tech/reset-password',
+          email_action_type,
+          user_email: user.email,
+        })
+      )
+      subject = 'Reset Your Password'
+    } else {
+      // Verification email (signup)
+      console.log('Rendering verification email template...')
+      html = await renderAsync(
+        React.createElement(VerificationEmail, {
+          supabase_url: Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co',
+          token,
+          token_hash,
+          redirect_to: redirect_to || `${Deno.env.get('SUPABASE_URL') ?? 'https://xujaxssbncobmiwxbaxh.supabase.co'}/dashboard`,
+          email_action_type,
+          user_email: user.email,
+        })
+      )
+      subject = 'Welcome! Please verify your email address'
+    }
 
     // Get sender information from secrets
     const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'hello@ayushiaggarwal.tech'
@@ -90,7 +112,7 @@ Deno.serve(async (req) => {
     const { data, error } = await resend.emails.send({
       from: fromAddress,
       to: [user.email],
-      subject: 'Welcome! Please verify your email address',
+      subject,
       html,
     })
 
@@ -104,7 +126,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Verification email sent successfully',
+        message: email_action_type === 'recovery' ? 'Password reset email sent successfully' : 'Verification email sent successfully',
         email_id: data?.id 
       }),
       {
@@ -123,7 +145,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: false,
         error: {
-          message: error.message || 'Failed to send verification email',
+          message: error.message || 'Failed to send email',
           code: error.code || 'UNKNOWN_ERROR',
         },
       }),

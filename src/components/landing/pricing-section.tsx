@@ -144,10 +144,12 @@ export function PricingSection() {
 
   // Animate features on scroll
   useEffect(() => {
+    let hasAnimated = false
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && featuresRef.current) {
+          if (entry.isIntersecting && featuresRef.current && !hasAnimated) {
+            hasAnimated = true
             animate(featuresRef.current.querySelectorAll('.feature-item'), {
               opacity: [0, 1],
               translateX: [-20, 0],

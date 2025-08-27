@@ -93,10 +93,12 @@ export function SyllabusSection() {
 
   // Animate cards in a staggered pattern
   useEffect(() => {
+    let hasAnimated = false
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && cardsRef.current) {
+          if (entry.isIntersecting && cardsRef.current && !hasAnimated) {
+            hasAnimated = true
             animate(cardsRef.current.querySelectorAll('.week-card'), {
               opacity: [0, 1],
               translateY: [50, 0],
@@ -120,10 +122,12 @@ export function SyllabusSection() {
 
   // Animate tools with morphing effect
   useEffect(() => {
+    let hasAnimated = false
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && toolsRef.current) {
+          if (entry.isIntersecting && toolsRef.current && !hasAnimated) {
+            hasAnimated = true
             animate(toolsRef.current.querySelectorAll('.tool-badge'), {
               opacity: [0, 1],
               scale: [0.8, 1.05, 1],

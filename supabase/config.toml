@@ -3,6 +3,9 @@ project_id = "xujaxssbncobmiwxbaxh"
 [functions.send-verification-email]
 verify_jwt = false
 
+[functions.send-password-reset]
+verify_jwt = false
+
 [functions.pay-price]
 verify_jwt = false
 

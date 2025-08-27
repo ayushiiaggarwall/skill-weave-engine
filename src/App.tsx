@@ -9,6 +9,8 @@ import { PricingSection } from './components/landing/pricing-section'
 import { Footer } from './components/landing/footer'
 import { LoginForm } from './components/auth/login-form'
 import { SignupForm } from './components/auth/signup-form'
+import { ForgotPasswordForm } from './components/auth/forgot-password-form'
+import { ResetPasswordForm } from './components/auth/reset-password-form'
 import { ModernDashboard } from './components/dashboard/modern-dashboard'
 import { PaymentPage } from './components/payment/payment-page'
 import { EnhancedPaymentPage } from './components/payment/enhanced-payment-page'
@@ -75,6 +77,8 @@ function App() {
                 <SignupForm />
               </div>
             } />
+            <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+            <Route path="/reset-password" element={<ResetPasswordForm />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/pay" element={<EnhancedPaymentPage />} />
             <Route path="/pay/success" element={<PaymentSuccess />} />

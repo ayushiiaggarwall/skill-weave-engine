@@ -205,14 +205,24 @@ export function LoginForm() {
               Continue with Google
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <a
-                href={`/signup${isEnrollment ? '?enroll=true' : ''}`}
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                Sign up
-              </a>
+            <div className="text-center space-y-2">
+              <div className="text-sm text-muted-foreground">
+                <a
+                  href="/forgot-password"
+                  className="text-primary hover:text-primary/80 font-medium"
+                >
+                  Forgot your password?
+                </a>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <a
+                  href={`/signup${isEnrollment ? '?enroll=true' : ''}`}
+                  className="text-primary hover:text-primary/80 font-medium"
+                >
+                  Sign up
+                </a>
+              </div>
             </div>
           </CardContent>
         </Card>

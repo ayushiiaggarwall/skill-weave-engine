@@ -41,8 +41,11 @@ export function Footer() {
               <a href="mailto:hello@ayushiaggarwal.tech" className="block text-muted-foreground hover:text-primary transition-colors">
                 hello@ayushiaggarwal.tech
               </a>
+              <a href="tel:+917973195812" className="block text-muted-foreground hover:text-primary transition-colors">
+                +91-7973195812
+              </a>
               <a href="/contact" className="block text-muted-foreground hover:text-primary transition-colors">
-                Support Us
+                Reach Out to Us
               </a>
             </div>
           </div>

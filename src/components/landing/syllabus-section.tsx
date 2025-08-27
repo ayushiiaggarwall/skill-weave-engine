@@ -268,21 +268,37 @@ export function SyllabusSection() {
 
         {/* Tools Section */}
         <div className="mt-20 text-center">
-          <div className="mb-8">
-            <h3 className="text-3xl font-bold text-gradient">
-              Master These Tools
+          <div className="mb-12">
+            <h3 className="text-3xl font-bold text-gradient mb-4">
+              Your Builder's Toolkit
             </h3>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Learn by building with the same tools powering modern startups.
+            </p>
           </div>
           
-          <div ref={toolsRef} className="flex flex-wrap justify-center gap-4">
-            {courseData.tools.map((tool, index) => (
-              <div key={index} className="tool-badge opacity-0">
-                <Badge 
-                  variant="outline" 
-                  className="px-6 py-3 text-lg bg-transparent border-black/20 dark:bg-white/5 dark:border-white/20 hover:bg-primary/10 hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer"
-                >
-                  {tool}
-                </Badge>
+          <div ref={toolsRef} className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {[
+              { name: "Lovable", tagline: "Visual Frontend Builder", oneLiner: "Design beautiful frontends in hours, not weeks" },
+              { name: "Bolt", tagline: "Instant Deployment", oneLiner: "Deploy full-stack apps instantly, without worrying about infra." },
+              { name: "Supabase", tagline: "Backend as a Service", oneLiner: "Handle auth, database, and backend without code" },
+              { name: "n8n", tagline: "Workflow Automation", oneLiner: "Automate workflows and connect APIs seamlessly" },
+              { name: "PayPal", tagline: "Global Payments", oneLiner: "Enable trusted global payments with one-click checkout." },
+              { name: "Razorpay", tagline: "Indian Payments", oneLiner: "Accept seamless payments in India with cards, UPI, and wallets." },
+              { name: "Resend", tagline: "Email Service", oneLiner: "Send professional, branded emails to users" },
+              { name: "Vapi", tagline: "AI Voice", oneLiner: "Build AI voice assistants inside your app" }
+            ].map((tool, index) => (
+              <div key={index} className="tool-badge opacity-0 group">
+                <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 hover:bg-card hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto group-hover:bg-primary/20 transition-colors">
+                    <span className="text-primary font-bold text-lg">{tool.name.charAt(0)}</span>
+                  </div>
+                  <h4 className="font-semibold text-foreground mb-2">{tool.name}</h4>
+                  <p className="text-sm text-muted-foreground mb-3">{tool.tagline}</p>
+                  <p className="text-xs text-muted-foreground/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 min-h-[2.5rem] flex items-center">
+                    {tool.oneLiner}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

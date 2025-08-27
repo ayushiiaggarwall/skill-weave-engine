@@ -237,6 +237,48 @@ export type Database = {
         }
         Relationships: []
       }
+      course_weeks: {
+        Row: {
+          content: string
+          course_id: string
+          created_at: string
+          deliverables: string[] | null
+          id: string
+          mini_project: string | null
+          objective: string
+          title: string
+          updated_at: string
+          visible: boolean
+          week_number: number
+        }
+        Insert: {
+          content: string
+          course_id: string
+          created_at?: string
+          deliverables?: string[] | null
+          id?: string
+          mini_project?: string | null
+          objective: string
+          title: string
+          updated_at?: string
+          visible?: boolean
+          week_number: number
+        }
+        Update: {
+          content?: string
+          course_id?: string
+          created_at?: string
+          deliverables?: string[] | null
+          id?: string
+          mini_project?: string | null
+          objective?: string
+          title?: string
+          updated_at?: string
+          visible?: boolean
+          week_number?: number
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           content: string

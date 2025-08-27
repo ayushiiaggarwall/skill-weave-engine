@@ -26,9 +26,28 @@ export function CoursePage() {
 
   const fetchCourses = async () => {
     try {
-      const { data, error } = await supabase
+      // First, get active courses to find the course ID
+      const { data: coursesData, error: coursesError } = await supabase
         .from('courses')
+        .select('id')
+        .eq('is_active', true)
+        .limit(1)
+
+      if (coursesError) throw coursesError
+
+      if (!coursesData || coursesData.length === 0) {
+        console.log('No active courses found')
+        return
+      }
+
+      const courseId = coursesData[0].id
+
+      // Now get the course weeks for the active course
+      const { data, error } = await supabase
+        .from('course_weeks')
         .select('*')
+        .eq('course_id', courseId)
+        .eq('visible', true)
         .order('week_number')
 
       if (error) throw error

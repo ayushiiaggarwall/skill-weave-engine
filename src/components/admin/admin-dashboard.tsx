@@ -4,12 +4,13 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, Bell, Trash2, Upload, Award, BookOpen, DollarSign } from "lucide-react"
+import { Users, Bell, Trash2, Upload, Award, BookOpen, DollarSign, Calendar } from "lucide-react"
 import { Header } from "@/components/landing/header"
 import ContentManagement from './content-management'
 import CertificatesManagement from './certificates-management'
 import CourseManagement from './course-management'
 import PricingCouponManagement from './pricing-coupon-management'
+import CourseWeeksManagement from './course-weeks-management'
 
 interface UserProfile {
   id: string
@@ -226,6 +227,14 @@ export function AdminDashboard() {
               Courses
             </Button>
             <Button
+              variant={activeTab === 'weeks' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('weeks')}
+              className="flex items-center gap-2"
+            >
+              <Calendar className="h-4 w-4" />
+              Course Weeks
+            </Button>
+            <Button
               variant={activeTab === 'content' ? 'default' : 'outline'}
               onClick={() => setActiveTab('content')}
               className="flex items-center gap-2"
@@ -269,6 +278,9 @@ export function AdminDashboard() {
 
           {activeTab === 'courses' && (
             <CourseManagement />
+          )}
+          {activeTab === 'weeks' && (
+            <CourseWeeksManagement />
           )}
           {activeTab === 'content' && (
             <ContentManagement />

@@ -234,7 +234,10 @@ export default function PricingCouponManagement() {
       {/* Course Pricing Management */}
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Course Pricing Management</h2>
+          <h2 className="text-2xl font-bold">Course-wise Pricing Management</h2>
+          <div className="text-sm text-muted-foreground">
+            Changes here will update pricing across the entire website
+          </div>
         </div>
 
         <div className="grid gap-6">
@@ -244,46 +247,77 @@ export default function PricingCouponManagement() {
 
             if (!pricing) return null
 
+            // Calculate early bird status
+            const isEarlyBirdActive = pricing.is_early_bird_active && pricing.early_bird_end_date
+            const earlyBirdTimeLeft = isEarlyBirdActive 
+              ? Math.max(0, new Date(pricing.early_bird_end_date!).getTime() - new Date().getTime())
+              : 0
+            const isEarlyBirdValid = earlyBirdTimeLeft > 0
+
             return (
-              <AnimatedCard key={course.id}>
+              <AnimatedCard key={course.id} className="border-2 hover:border-primary/20 transition-colors">
                 <AnimatedCardHeader>
                   <div className="flex justify-between items-start">
-                    <AnimatedCardTitle className="flex items-center space-x-2">
-                      <span>{course.title}</span>
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                    </AnimatedCardTitle>
+                    <div className="space-y-2">
+                      <AnimatedCardTitle className="flex items-center space-x-3">
+                        <span className="text-xl">{course.title}</span>
+                        <div className="flex items-center space-x-2">
+                          {isEarlyBirdActive && isEarlyBirdValid && (
+                            <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full font-medium">
+                              🔥 Early Bird Active
+                            </span>
+                          )}
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      </AnimatedCardTitle>
+                      
+                      {/* Pricing Preview */}
+                      <div className="flex items-center space-x-6 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-muted-foreground">USD:</span>
+                          {isEarlyBirdActive && isEarlyBirdValid ? (
+                            <span className="font-bold text-green-600">${pricing.usd_early_bird}</span>
+                          ) : (
+                            <span className="font-bold">${pricing.usd_regular}</span>
+                          )}
+                          <span className="text-muted-foreground line-through">${pricing.usd_mrp}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-muted-foreground">INR:</span>
+                          {isEarlyBirdActive && isEarlyBirdValid ? (
+                            <span className="font-bold text-green-600">₹{pricing.inr_early_bird}</span>
+                          ) : (
+                            <span className="font-bold">₹{pricing.inr_regular}</span>
+                          )}
+                          <span className="text-muted-foreground line-through">₹{pricing.inr_mrp}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setEditingPricing(isEditing ? null : pricing)}
+                      className="flex items-center gap-2"
                     >
                       <Edit className="w-4 h-4" />
                       {isEditing ? 'Cancel' : 'Edit Pricing'}
                     </Button>
                   </div>
                 </AnimatedCardHeader>
+                
                 <AnimatedCardContent>
                   {isEditing ? (
-                    <div className="space-y-6">
-                      {/* Early Bird Settings */}
-                      <div className="border rounded-lg p-4">
-                        <h4 className="font-semibold mb-4 flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          Early Bird Settings
+                    <div className="space-y-8">
+                      {/* Early Bird Settings - More Prominent */}
+                      <div className="border-2 border-orange-200 dark:border-orange-800 rounded-lg p-6 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
+                        <h4 className="font-bold mb-4 flex items-center gap-2 text-lg">
+                          <Clock className="w-5 h-5 text-orange-600" />
+                          Early Bird Pricing Settings
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Early Bird End Date</label>
-                            <Input
-                              type="datetime-local"
-                              value={editingPricing.early_bird_end_date || ''}
-                              onChange={(e) => setEditingPricing({
-                                ...editingPricing,
-                                early_bird_end_date: e.target.value
-                              })}
-                            />
-                          </div>
-                          <div className="flex items-center space-x-2 pt-6">
+                        
+                        <div className="space-y-4">
+                          <div className="flex items-center space-x-3">
                             <input
                               type="checkbox"
                               id={`early_bird_${course.id}`}
@@ -292,138 +326,263 @@ export default function PricingCouponManagement() {
                                 ...editingPricing,
                                 is_early_bird_active: e.target.checked
                               })}
+                              className="w-4 h-4"
                             />
-                            <label htmlFor={`early_bird_${course.id}`} className="text-sm font-medium">
+                            <label htmlFor={`early_bird_${course.id}`} className="font-semibold text-base">
                               Enable Early Bird Pricing
                             </label>
                           </div>
+                          
+                          {editingPricing.is_early_bird_active && (
+                            <div className="mt-4 p-4 bg-white dark:bg-gray-900 rounded-lg border">
+                              <label className="block text-sm font-medium mb-2">
+                                Early Bird End Date & Time
+                              </label>
+                              <Input
+                                type="datetime-local"
+                                value={editingPricing.early_bird_end_date || ''}
+                                onChange={(e) => setEditingPricing({
+                                  ...editingPricing,
+                                  early_bird_end_date: e.target.value
+                                })}
+                                className="w-full"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                After this date, regular pricing will be applied automatically
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
 
                       {/* USD Pricing */}
-                      <div className="border rounded-lg p-4">
-                        <h4 className="font-semibold mb-4">USD Pricing ($)</h4>
-                        <div className="grid grid-cols-3 gap-4">
+                      <div className="border rounded-lg p-6 bg-blue-50 dark:bg-blue-950">
+                        <h4 className="font-bold mb-4 text-lg text-blue-700 dark:text-blue-300">
+                          USD Pricing ($)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Early Bird</label>
+                            <label className="text-sm font-medium text-green-700 dark:text-green-300">
+                              Early Bird Price ($)
+                            </label>
                             <Input
                               type="number"
+                              min="1"
                               value={editingPricing.usd_early_bird}
                               onChange={(e) => setEditingPricing({
                                 ...editingPricing,
-                                usd_early_bird: parseInt(e.target.value)
+                                usd_early_bird: parseInt(e.target.value) || 0
                               })}
+                              className="border-green-300 focus:border-green-500"
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Regular</label>
+                            <label className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                              Regular Price ($)
+                            </label>
                             <Input
                               type="number"
+                              min="1"
                               value={editingPricing.usd_regular}
                               onChange={(e) => setEditingPricing({
                                 ...editingPricing,
-                                usd_regular: parseInt(e.target.value)
+                                usd_regular: parseInt(e.target.value) || 0
                               })}
+                              className="border-blue-300 focus:border-blue-500"
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">MRP</label>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              MRP - Market Price ($)
+                            </label>
                             <Input
                               type="number"
+                              min="1"
                               value={editingPricing.usd_mrp}
                               onChange={(e) => setEditingPricing({
                                 ...editingPricing,
-                                usd_mrp: parseInt(e.target.value)
+                                usd_mrp: parseInt(e.target.value) || 0
                               })}
+                              className="border-gray-300 focus:border-gray-500"
                             />
                           </div>
+                        </div>
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          Savings: Early Bird saves ${editingPricing.usd_mrp - editingPricing.usd_early_bird} | 
+                          Regular saves ${editingPricing.usd_mrp - editingPricing.usd_regular}
                         </div>
                       </div>
 
                       {/* INR Pricing */}
-                      <div className="border rounded-lg p-4">
-                        <h4 className="font-semibold mb-4">INR Pricing (₹)</h4>
-                        <div className="grid grid-cols-3 gap-4">
+                      <div className="border rounded-lg p-6 bg-orange-50 dark:bg-orange-950">
+                        <h4 className="font-bold mb-4 text-lg text-orange-700 dark:text-orange-300">
+                          INR Pricing (₹)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Early Bird</label>
+                            <label className="text-sm font-medium text-green-700 dark:text-green-300">
+                              Early Bird Price (₹)
+                            </label>
                             <Input
                               type="number"
+                              min="1"
                               value={editingPricing.inr_early_bird}
                               onChange={(e) => setEditingPricing({
                                 ...editingPricing,
-                                inr_early_bird: parseInt(e.target.value)
+                                inr_early_bird: parseInt(e.target.value) || 0
                               })}
+                              className="border-green-300 focus:border-green-500"
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Regular</label>
+                            <label className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                              Regular Price (₹)
+                            </label>
                             <Input
                               type="number"
+                              min="1"
                               value={editingPricing.inr_regular}
                               onChange={(e) => setEditingPricing({
                                 ...editingPricing,
-                                inr_regular: parseInt(e.target.value)
+                                inr_regular: parseInt(e.target.value) || 0
                               })}
+                              className="border-orange-300 focus:border-orange-500"
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">MRP</label>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              MRP - Market Price (₹)
+                            </label>
                             <Input
                               type="number"
+                              min="1"
                               value={editingPricing.inr_mrp}
                               onChange={(e) => setEditingPricing({
                                 ...editingPricing,
-                                inr_mrp: parseInt(e.target.value)
+                                inr_mrp: parseInt(e.target.value) || 0
                               })}
+                              className="border-gray-300 focus:border-gray-500"
                             />
                           </div>
                         </div>
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          Savings: Early Bird saves ₹{editingPricing.inr_mrp - editingPricing.inr_early_bird} | 
+                          Regular saves ₹{editingPricing.inr_mrp - editingPricing.inr_regular}
+                        </div>
                       </div>
 
-                      <Button onClick={updateCoursePricing} disabled={saving}>
-                        {saving ? 'Saving...' : 'Save Pricing'}
-                      </Button>
+                      <div className="flex justify-end space-x-3 pt-4 border-t">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setEditingPricing(null)}
+                          disabled={saving}
+                        >
+                          Cancel Changes
+                        </Button>
+                        <Button 
+                          onClick={updateCoursePricing} 
+                          disabled={saving}
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        >
+                          {saving ? 'Saving Prices...' : '💰 Save & Update Website'}
+                        </Button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {/* Early Bird Status */}
-                      <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          <span className="font-medium">Early Bird Status:</span>
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            pricing.is_early_bird_active 
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                          }`}>
-                            {pricing.is_early_bird_active ? 'Active' : 'Inactive'}
-                          </span>
+                    <div className="space-y-6">
+                      {/* Early Bird Status Display */}
+                      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-blue-600" />
+                          <div>
+                            <span className="font-semibold">Early Bird Status:</span>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                isEarlyBirdActive && isEarlyBirdValid
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                              }`}>
+                                {isEarlyBirdActive && isEarlyBirdValid ? '🔥 ACTIVE' : '⏰ INACTIVE'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                         {pricing.early_bird_end_date && (
-                          <span className="text-sm text-muted-foreground">
-                            Ends: {new Date(pricing.early_bird_end_date).toLocaleDateString()}
-                          </span>
+                          <div className="text-right">
+                            <div className="text-sm font-medium">
+                              {isEarlyBirdValid ? 'Ends:' : 'Ended:'}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(pricing.early_bird_end_date).toLocaleString()}
+                            </div>
+                            {isEarlyBirdValid && (
+                              <div className="text-xs text-orange-600 font-medium">
+                                {Math.ceil(earlyBirdTimeLeft / (1000 * 60 * 60 * 24))} days left
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
 
-                      {/* Pricing Display */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <h4 className="font-semibold">USD Pricing</h4>
-                          <div className="text-sm space-y-1">
-                            <div>Early Bird: <span className="font-medium">${pricing.usd_early_bird}</span></div>
-                            <div>Regular: <span className="font-medium">${pricing.usd_regular}</span></div>
-                            <div>MRP: <span className="font-medium line-through text-muted-foreground">${pricing.usd_mrp}</span></div>
+                      {/* Current Website Pricing Display */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                            💵 USD Pricing (International)
+                          </h4>
+                          <div className="space-y-2 bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm">Current Price:</span>
+                              <span className="font-bold text-lg text-blue-600">
+                                ${isEarlyBirdActive && isEarlyBirdValid ? pricing.usd_early_bird : pricing.usd_regular}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>Early Bird:</span>
+                              <span>${pricing.usd_early_bird}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>Regular:</span>
+                              <span>${pricing.usd_regular}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>MRP:</span>
+                              <span className="line-through">${pricing.usd_mrp}</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <h4 className="font-semibold">INR Pricing</h4>
-                          <div className="text-sm space-y-1">
-                            <div>Early Bird: <span className="font-medium">₹{pricing.inr_early_bird}</span></div>
-                            <div>Regular: <span className="font-medium">₹{pricing.inr_regular}</span></div>
-                            <div>MRP: <span className="font-medium line-through text-muted-foreground">₹{pricing.inr_mrp}</span></div>
+                        
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-orange-700 dark:text-orange-300 flex items-center gap-2">
+                            🇮🇳 INR Pricing (India)
+                          </h4>
+                          <div className="space-y-2 bg-orange-50 dark:bg-orange-950 p-4 rounded-lg">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm">Current Price:</span>
+                              <span className="font-bold text-lg text-orange-600">
+                                ₹{isEarlyBirdActive && isEarlyBirdValid ? pricing.inr_early_bird : pricing.inr_regular}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>Early Bird:</span>
+                              <span>₹{pricing.inr_early_bird}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>Regular:</span>
+                              <span>₹{pricing.inr_regular}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>MRP:</span>
+                              <span className="line-through">₹{pricing.inr_mrp}</span>
+                            </div>
                           </div>
                         </div>
+                      </div>
+                      
+                      <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+                        <p className="text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
+                          ✅ <strong>Live on Website:</strong> These prices are currently active on your website
+                        </p>
                       </div>
                     </div>
                   )}

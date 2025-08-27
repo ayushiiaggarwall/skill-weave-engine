@@ -10,6 +10,8 @@ interface CoursePricing {
   usd_mrp: number
   usd_regular: number
   usd_early_bird: number
+  early_bird_end_date: string | null
+  is_early_bird_active: boolean
   created_at: string
   updated_at: string
 }
@@ -62,7 +64,10 @@ export function useCoursePricing(courseId?: string) {
         .single()
 
       if (error) throw error
-      setCoursePricing(data)
+      setCoursePricing({
+        ...data,
+        is_early_bird_active: data.is_early_bird_active ?? false
+      })
     } catch (error) {
       console.error('Error fetching course pricing:', error)
       // Fallback to default pricing if none found
@@ -75,6 +80,8 @@ export function useCoursePricing(courseId?: string) {
         usd_mrp: 199,
         usd_regular: 149,
         usd_early_bird: 129,
+        early_bird_end_date: null,
+        is_early_bird_active: false,
         created_at: '',
         updated_at: ''
       })
@@ -155,8 +162,26 @@ export function useCoursePricing(courseId?: string) {
     }
   }, [coursePricing, pricing.currency])
 
-  // For now, we'll use regular pricing until early bird functionality is re-implemented per course
-  const currentPrice = pricing.regular
+  // Calculate early bird status and current pricing
+  const calculateCurrentPricing = () => {
+    if (!coursePricing) return { currentPrice: pricing.regular, isEarlyBird: false, timeLeft: 0 }
+    
+    let isEarlyBird = false
+    let timeLeft = 0
+    
+    if (coursePricing.is_early_bird_active && coursePricing.early_bird_end_date) {
+      const endTime = new Date(coursePricing.early_bird_end_date).getTime()
+      const now = new Date().getTime()
+      isEarlyBird = now < endTime
+      timeLeft = Math.max(0, Math.floor((endTime - now) / 1000))
+    }
+    
+    const currentPrice = isEarlyBird ? pricing.earlyBird : pricing.regular
+    
+    return { currentPrice, isEarlyBird, timeLeft }
+  }
+  
+  const { currentPrice, isEarlyBird, timeLeft } = calculateCurrentPricing()
 
   const formatTime = (seconds: number) => {
     const days = Math.floor(seconds / 86400)
@@ -177,8 +202,8 @@ export function useCoursePricing(courseId?: string) {
     course,
     currentPrice,
     loading,
-    isEarlyBird: false, // Will be implemented later per course
-    timeLeft: 0, // Will be implemented later per course
+    isEarlyBird,
+    timeLeft,
     formatTime
   }
 }

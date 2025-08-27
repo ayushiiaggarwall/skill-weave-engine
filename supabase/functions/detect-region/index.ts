@@ -13,12 +13,16 @@ serve(async (req) => {
 
   try {
     // Get the client's IP address from headers
-    const clientIP = req.headers.get('x-forwarded-for') || 
-                     req.headers.get('x-real-ip') || 
-                     req.headers.get('cf-connecting-ip') ||
-                     'unknown'
+    const rawIP = req.headers.get('x-forwarded-for') || 
+                  req.headers.get('x-real-ip') || 
+                  req.headers.get('cf-connecting-ip') ||
+                  'unknown'
 
-    console.log('Client IP detected:', clientIP)
+    // Extract the first IP from comma-separated list
+    const clientIP = rawIP.split(',')[0].trim()
+
+    console.log('Raw IP header:', rawIP)
+    console.log('Extracted client IP:', clientIP)
 
     let region = 'intl' // Default to international
     let countryCode = 'unknown'
@@ -39,12 +43,16 @@ serve(async (req) => {
     } catch (error) {
       console.error('Failed to detect country from IP:', error)
       // Fallback: check if IP starts with common Indian IP ranges
-      if (clientIP.startsWith('103.') || 
-          clientIP.startsWith('117.') || 
-          clientIP.startsWith('182.') ||
-          clientIP.startsWith('49.')) {
+      const ipParts = clientIP.split('.')
+      const firstOctet = parseInt(ipParts[0] || '0')
+      
+      // Common Indian IP ranges (simplified check)
+      if (firstOctet === 183 || firstOctet === 117 || firstOctet === 182 || 
+          firstOctet === 49 || firstOctet === 103 || firstOctet === 157 ||
+          (firstOctet >= 115 && firstOctet <= 125)) {
         region = 'in'
-        countryCode = 'IN (estimated)'
+        countryCode = 'IN (estimated from IP range)'
+        console.log('Detected Indian IP range, setting region to IN')
       }
     }
 

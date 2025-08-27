@@ -32,7 +32,7 @@ interface Coupon {
   code: string
   type: 'percent' | 'flat'
   value: number
-  active: boolean
+  active: boolean | null
   created_at: string
 }
 
@@ -69,8 +69,15 @@ export default function PricingCouponManagement() {
       if (couponsRes.error) throw couponsRes.error
 
       setCourses(coursesRes.data || [])
-      setCoursePricing(pricingRes.data || [])
-      setCoupons(couponsRes.data || [])
+      setCoursePricing((pricingRes.data || []).map(pricing => ({
+        ...pricing,
+        early_bird_end_date: pricing.early_bird_end_date || null,
+        is_early_bird_active: pricing.is_early_bird_active || false
+      })))
+      setCoupons((couponsRes.data || []).map(coupon => ({
+        ...coupon,
+        active: coupon.active ?? true
+      })))
     } catch (error) {
       console.error('Error fetching data:', error)
       toast({
@@ -164,7 +171,7 @@ export default function PricingCouponManagement() {
     }
   }
 
-  const toggleCouponStatus = async (code: string, active: boolean) => {
+  const toggleCouponStatus = async (code: string, active: boolean | null) => {
     try {
       const { error } = await supabase
         .from('coupons')
@@ -212,10 +219,6 @@ export default function PricingCouponManagement() {
         variant: "destructive"
       })
     }
-  }
-
-  const getCourseById = (courseId: string) => {
-    return courses.find(c => c.id === courseId)
   }
 
   const getPricingByCourse = (courseId: string) => {

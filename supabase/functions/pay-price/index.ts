@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface PriceRequest {
   email: string;
+  courseId?: string;
   regionOverride?: 'in' | 'intl';
   earlyOverride?: boolean;
   coupon?: string;
@@ -46,9 +47,9 @@ serve(async (req) => {
     );
 
     const body: PriceRequest = await req.json();
-    const { email, regionOverride, earlyOverride, coupon, pricingType = 'regular' } = body;
+    const { email, courseId, regionOverride, earlyOverride, coupon, pricingType = 'regular' } = body;
 
-    logStep("Request received", { email, regionOverride, earlyOverride, coupon, pricingType });
+    logStep("Request received", { email, courseId, regionOverride, earlyOverride, coupon, pricingType });
 
     // Determine region
     let region: 'in' | 'intl' = 'intl';
@@ -72,31 +73,79 @@ serve(async (req) => {
 
     logStep("Region determined", { region });
 
-    // Get pricing settings from database
-    const { data: pricingSettings, error: pricingError } = await supabaseClient
-      .from('pricing_settings')
-      .select('*')
-      .single();
+    // Get course and pricing from database
+    let courseData = null;
+    let coursePricing = null;
 
-    if (pricingError) {
-      throw new Error(`Failed to fetch pricing settings: ${pricingError.message}`);
+    if (courseId) {
+      const { data: course, error: courseError } = await supabaseClient
+        .from('courses')
+        .select('id, title, is_active')
+        .eq('id', courseId)
+        .eq('is_active', true)
+        .single();
+
+      if (courseError || !course) {
+        throw new Error(`Course not found or inactive: ${courseError?.message}`);
+      }
+      
+      courseData = course;
+
+      const { data: pricing, error: pricingError } = await supabaseClient
+        .from('course_pricing')
+        .select('*')
+        .eq('course_id', courseId)
+        .single();
+
+      if (pricingError || !pricing) {
+        throw new Error(`Course pricing not found: ${pricingError?.message}`);
+      }
+      
+      coursePricing = pricing;
+    } else {
+      // Get the first active course if no courseId provided
+      const { data: course, error: courseError } = await supabaseClient
+        .from('courses')
+        .select('id, title, is_active')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (courseError || !course) {
+        throw new Error(`No active course found: ${courseError?.message}`);
+      }
+      
+      courseData = course;
+
+      const { data: pricing, error: pricingError } = await supabaseClient
+        .from('course_pricing')
+        .select('*')
+        .eq('course_id', course.id)
+        .single();
+
+      if (pricingError || !pricing) {
+        throw new Error(`Course pricing not found: ${pricingError?.message}`);
+      }
+      
+      coursePricing = pricing;
     }
 
-    logStep("Pricing settings fetched", pricingSettings);
+    logStep("Course and pricing fetched", { courseData, coursePricing });
 
     // Determine if early bird is active
     let isEarlyBird = false;
     if (earlyOverride !== undefined) {
       isEarlyBird = earlyOverride;
-    } else if (pricingSettings.is_early_bird_active && pricingSettings.early_bird_end_time) {
-      const endTime = new Date(pricingSettings.early_bird_end_time).getTime();
+    } else if (coursePricing.is_early_bird_active && coursePricing.early_bird_end_date) {
+      const endTime = new Date(coursePricing.early_bird_end_date).getTime();
       const now = new Date().getTime();
       isEarlyBird = now < endTime;
     }
 
     logStep("Early bird status determined", { isEarlyBird });
 
-    // Get base price
+    // Get base price from course pricing
     let amount: number;
     let currency: 'INR' | 'USD';
     let symbol: string;
@@ -104,19 +153,11 @@ serve(async (req) => {
     if (region === 'in') {
       currency = 'INR';
       symbol = '₹';
-      if (pricingType === 'combo') {
-        amount = isEarlyBird ? pricingSettings.inr_combo_early_bird * 100 : pricingSettings.inr_combo_regular * 100;
-      } else {
-        amount = isEarlyBird ? pricingSettings.inr_early_bird * 100 : pricingSettings.inr_regular * 100;
-      }
+      amount = isEarlyBird ? coursePricing.inr_early_bird * 100 : coursePricing.inr_regular * 100;
     } else {
       currency = 'USD';
       symbol = '$';
-      if (pricingType === 'combo') {
-        amount = isEarlyBird ? pricingSettings.usd_combo_early_bird * 100 : pricingSettings.usd_combo_regular * 100;
-      } else {
-        amount = isEarlyBird ? pricingSettings.usd_early_bird * 100 : pricingSettings.usd_regular * 100;
-      }
+      amount = isEarlyBird ? coursePricing.usd_early_bird * 100 : coursePricing.usd_regular * 100;
     }
 
     logStep("Base price calculated", { amount, currency, isEarlyBird });

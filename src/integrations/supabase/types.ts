@@ -196,10 +196,12 @@ export type Database = {
         Row: {
           course_id: string
           created_at: string
+          early_bird_end_date: string | null
           id: string
           inr_early_bird: number
           inr_mrp: number
           inr_regular: number
+          is_early_bird_active: boolean | null
           updated_at: string
           usd_early_bird: number
           usd_mrp: number
@@ -208,10 +210,12 @@ export type Database = {
         Insert: {
           course_id: string
           created_at?: string
+          early_bird_end_date?: string | null
           id?: string
           inr_early_bird: number
           inr_mrp: number
           inr_regular: number
+          is_early_bird_active?: boolean | null
           updated_at?: string
           usd_early_bird: number
           usd_mrp: number
@@ -220,10 +224,12 @@ export type Database = {
         Update: {
           course_id?: string
           created_at?: string
+          early_bird_end_date?: string | null
           id?: string
           inr_early_bird?: number
           inr_mrp?: number
           inr_regular?: number
+          is_early_bird_active?: boolean | null
           updated_at?: string
           usd_early_bird?: number
           usd_mrp?: number

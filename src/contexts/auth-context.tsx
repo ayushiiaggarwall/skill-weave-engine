@@ -19,7 +19,7 @@ interface AuthContextType {
   session: Session | null
   profile: Profile | null
   loading: boolean
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>
+  signUp: (email: string, password: string, fullName: string, referralSource?: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
   signInWithGoogle: () => Promise<{ error: any }>
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, referralSource?: string) => {
     const redirectUrl = `${window.location.origin}/`
     
     const { error } = await supabase.auth.signUp({
@@ -132,7 +132,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           name: fullName,
-          full_name: fullName
+          full_name: fullName,
+          referral_source: referralSource
         }
       }
     })

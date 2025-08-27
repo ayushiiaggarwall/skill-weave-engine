@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/auth-context'
 import { ThemeProvider } from './contexts/theme-context'
 import { ToastProvider } from './components/ui/toast-provider'
 import { CursorGlow } from './components/ui/cursor-glow'
+import { useReferralTracking } from './hooks/use-referral-tracking'
 import { Header } from './components/landing/header'
 import { HeroSectionAnime } from './components/landing/hero-section-anime'
 import { SyllabusSection } from './components/landing/syllabus-section'
@@ -30,6 +31,9 @@ import { ProfilePage } from './components/profile/profile-page'
 import { PayPalTestPage } from './components/testing/paypal-test-page'
 
 function HomePage() {
+  // Track referral sources from URL parameters
+  useReferralTracking()
+  
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden">
       {/* Global background effects */}

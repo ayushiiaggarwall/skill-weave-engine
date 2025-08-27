@@ -366,6 +366,7 @@ export type Database = {
           id: string
           name: string
           note: string | null
+          referral_source: string | null
           source: string | null
         }
         Insert: {
@@ -374,6 +375,7 @@ export type Database = {
           id?: string
           name: string
           note?: string | null
+          referral_source?: string | null
           source?: string | null
         }
         Update: {
@@ -382,6 +384,7 @@ export type Database = {
           id?: string
           name?: string
           note?: string | null
+          referral_source?: string | null
           source?: string | null
         }
         Relationships: []
@@ -487,6 +490,7 @@ export type Database = {
           id: string
           name: string
           profile_picture_url: string | null
+          referral_source: string | null
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
         }
@@ -498,6 +502,7 @@ export type Database = {
           id: string
           name: string
           profile_picture_url?: string | null
+          referral_source?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
@@ -509,6 +514,7 @@ export type Database = {
           id?: string
           name?: string
           profile_picture_url?: string | null
+          referral_source?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
@@ -631,6 +637,15 @@ export type Database = {
       app_role: "student" | "admin"
       coupon_type: "percent" | "flat"
       payment_status: "pending" | "paid" | "failed"
+      referral_source_type:
+        | "linkedin_post"
+        | "linkedin_profile"
+        | "instagram"
+        | "facebook"
+        | "snapchat"
+        | "whatsapp"
+        | "direct"
+        | "other"
       submission_status: "submitted" | "reviewed" | "needs_changes"
     }
     CompositeTypes: {
@@ -762,6 +777,16 @@ export const Constants = {
       app_role: ["student", "admin"],
       coupon_type: ["percent", "flat"],
       payment_status: ["pending", "paid", "failed"],
+      referral_source_type: [
+        "linkedin_post",
+        "linkedin_profile",
+        "instagram",
+        "facebook",
+        "snapchat",
+        "whatsapp",
+        "direct",
+        "other",
+      ],
       submission_status: ["submitted", "reviewed", "needs_changes"],
     },
   },

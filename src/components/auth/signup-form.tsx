@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
+import { useReferralTracking } from "@/hooks/use-referral-tracking"
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
 
 export function SignupForm() {
@@ -12,6 +13,7 @@ export function SignupForm() {
   const [searchParams] = useSearchParams()
   const isEnrollment = searchParams.get('enroll') === 'true'
   const { signUp, signInWithGoogle, user } = useAuth()
+  const { getReferralSource } = useReferralTracking()
   
   // Redirect authenticated users away from signup page
   useEffect(() => {
@@ -63,7 +65,8 @@ export function SignupForm() {
     }
 
     try {
-      const { error } = await signUp(formData.email, formData.password, formData.fullName)
+      const referralSource = getReferralSource()
+      const { error } = await signUp(formData.email, formData.password, formData.fullName, referralSource || undefined)
 
       if (error) {
         // Check if the error is due to hook timeout (422 error)

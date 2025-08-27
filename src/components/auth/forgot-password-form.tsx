@@ -5,13 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, CheckCircle2 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
-import { useToast } from "@/hooks/use-toast"
+import { useToastContext } from "@/components/ui/toast-provider"
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const { toast } = useToast()
+  const { toast } = useToastContext()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,18 +31,19 @@ export function ForgotPasswordForm() {
           variant: "destructive",
         })
       } else {
-      setIsSubmitted(true)
-      toast({
-        title: "Reset Link Sent",
-        description: "Check your inbox for the password reset link.",
-      })
-      setTimeout(() => navigate('/login'), 1800)
+        setIsSubmitted(true)
+        toast({
+          title: "Reset Link Sent Successfully",
+          description: "Please check your email inbox for the password reset link. Redirecting to login...",
+          variant: "success",
+        })
+        setTimeout(() => navigate('/login'), 2500)
       }
     } catch (error: any) {
       console.error("Unexpected error:", error)
       toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Failed to Send Reset Email",
+        description: "There was an issue sending the reset email. Please try again or contact support if the problem persists.",
         variant: "destructive",
       })
     } finally {

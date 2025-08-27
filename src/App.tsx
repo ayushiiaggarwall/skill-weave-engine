@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/auth-context'
 import { ThemeProvider } from './contexts/theme-context'
+import { ToastProvider } from './components/ui/toast-provider'
 import { CursorGlow } from './components/ui/cursor-glow'
 import { Header } from './components/landing/header'
 import { HeroSectionAnime } from './components/landing/hero-section-anime'
@@ -57,8 +58,9 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Router>
-          <CursorGlow />
+        <ToastProvider>
+          <Router>
+            <CursorGlow />
           <Routes>
             <Route path="/" element={
               <AuthRedirect>
@@ -98,8 +100,9 @@ function App() {
             <Route path="/test/paypal" element={<PayPalTestPage />} />
           </Routes>
         </Router>
-      </ThemeProvider>
-    </AuthProvider>
+      </ToastProvider>
+    </ThemeProvider>
+  </AuthProvider>
   )
 }
 

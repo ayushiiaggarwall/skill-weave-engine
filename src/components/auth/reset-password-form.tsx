@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Eye, EyeOff, CheckCircle } from "lucide-react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
-import { useToast } from "@/hooks/use-toast"
+import { useToastContext } from "@/components/ui/toast-provider"
 
 export function ResetPasswordForm() {
   const [password, setPassword] = useState("")
@@ -16,7 +16,7 @@ export function ResetPasswordForm() {
   const [isSuccess, setIsSuccess] = useState(false)
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { toast } = useToast()
+  const { toast } = useToastContext()
 
   useEffect(() => {
     const handleAuthFromUrl = async () => {
@@ -100,8 +100,9 @@ export function ResetPasswordForm() {
       } else {
         setIsSuccess(true)
         toast({
-          title: "Password Updated",
-          description: "Your password has been successfully updated.",
+          title: "Password Updated Successfully",
+          description: "Your password has been successfully updated. Redirecting to dashboard...",
+          variant: "success",
         })
         
         // Redirect to dashboard after a short delay

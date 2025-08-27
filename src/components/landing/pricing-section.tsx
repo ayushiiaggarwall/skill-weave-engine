@@ -1,36 +1,140 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { animate, stagger } from "animejs"
 import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { SectionBadge } from "@/components/ui/section-badge"
-import { Sparkles, Clock } from "lucide-react"
+import { Sparkles, Clock, Settings } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { usePricing } from "@/hooks/use-pricing"
 import { useAuth } from "@/contexts/auth-context"
+import { supabase } from "@/integrations/supabase/client"
+import { useAdminRole } from "@/hooks/use-admin-role"
+
+interface CoursePricing {
+  inr_regular: number
+  inr_early_bird: number
+  inr_mrp: number
+  usd_regular: number
+  usd_early_bird: number
+  usd_mrp: number
+  is_early_bird_active: boolean | null
+  early_bird_end_date: string | null
+}
+
+interface CourseWithPricing {
+  id: string
+  title: string
+  is_active: boolean
+  course_pricing: CoursePricing[]
+}
 
 export function PricingSection() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { isAdmin } = useAdminRole()
   const featuresRef = useRef<HTMLDivElement>(null)
   const sparklesRef = useRef<HTMLDivElement>(null)
-  const { pricing, isEarlyBird, timeLeft, formatTime } = usePricing()
-
-  // Calculate combo pricing based on region  
-  const comboEarlyPrice = pricing.currency === 'INR' ? '₹9,999' : '$199'
-  const comboRegularPrice = pricing.currency === 'INR' ? '₹14,999' : '$2,949'
-  const comboMrpPrice = pricing.currency === 'INR' ? '₹24,998' : '$799'
   
-  const regularEarlyPrice = `${pricing.symbol}${pricing.earlyBird.toLocaleString()}`
-  const regularRegularPrice = `${pricing.symbol}${pricing.regular.toLocaleString()}`
-  const regularMrpPrice = `${pricing.symbol}${pricing.mrp.toLocaleString()}`
-  
-  const currentRegularPrice = isEarlyBird ? regularEarlyPrice : regularRegularPrice
+  const [courses, setCourses] = useState<CourseWithPricing[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isEarlyBirdEnabled, setIsEarlyBirdEnabled] = useState(false)
+  const [userRegion, setUserRegion] = useState<'INR' | 'USD'>('INR')
 
-  const handleEnrollClick = (pricingType: 'regular' | 'combo') => {
+  // Fetch courses and pricing data
+  useEffect(() => {
+    fetchCoursesData()
+    detectUserRegion()
+  }, [])
+
+  const detectUserRegion = () => {
+    // Detect user region based on timezone or other factors
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    setUserRegion(timezone.includes('Asia/Kolkata') || timezone.includes('Asia/Calcutta') ? 'INR' : 'USD')
+  }
+
+  const fetchCoursesData = async () => {
+    try {
+      // First fetch courses
+      const { data: coursesData, error: coursesError } = await supabase
+        .from('courses')
+        .select('id, title, is_active')
+        .eq('is_active', true)
+
+      if (coursesError) throw coursesError
+
+      // Then fetch pricing for each course
+      const coursesWithPricing: CourseWithPricing[] = []
+      
+      for (const course of coursesData || []) {
+        const { data: pricingData, error: pricingError } = await supabase
+          .from('course_pricing')
+          .select('*')
+          .eq('course_id', course.id)
+
+        if (!pricingError && pricingData && pricingData.length > 0) {
+          coursesWithPricing.push({
+            ...course,
+            course_pricing: pricingData
+          })
+        }
+      }
+
+      setCourses(coursesWithPricing)
+      setIsEarlyBirdEnabled(coursesWithPricing.some(c => 
+        Boolean(c.course_pricing[0]?.is_early_bird_active)
+      ))
+    } catch (error) {
+      console.error('Error fetching courses:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const toggleEarlyBird = async () => {
+    if (!isAdmin) return
+    
+    const newStatus = !isEarlyBirdEnabled
+    setIsEarlyBirdEnabled(newStatus)
+    
+    try {
+      // Update all active courses' early bird status
+      for (const course of courses) {
+        await supabase
+          .from('course_pricing')
+          .update({ is_early_bird_active: newStatus })
+          .eq('course_id', course.id)
+      }
+      
+      await fetchCoursesData()
+    } catch (error) {
+      console.error('Error updating early bird status:', error)
+      setIsEarlyBirdEnabled(!newStatus) // Revert on error
+    }
+  }
+
+  const getPrice = (course: CourseWithPricing) => {
+    const pricing = course.course_pricing[0]
+    if (!pricing) return { current: 0, mrp: 0, symbol: '₹', isEarlyBird: false }
+    
+    const isRegionalINR = userRegion === 'INR'
+    
+    const regular = isRegionalINR ? pricing.inr_regular : pricing.usd_regular
+    const earlyBird = isRegionalINR ? pricing.inr_early_bird : pricing.usd_early_bird
+    const mrp = isRegionalINR ? pricing.inr_mrp : pricing.usd_mrp
+    const symbol = isRegionalINR ? '₹' : '$'
+    
+    return {
+      current: isEarlyBirdEnabled ? earlyBird : regular,
+      mrp,
+      symbol,
+      isEarlyBird: isEarlyBirdEnabled
+    }
+  }
+
+  const handleEnrollClick = (courseId: string) => {
     if (!user) {
       navigate("/signup")
     } else {
-      navigate(`/pay?type=${pricingType}`)
+      navigate(`/pay?course=${courseId}`)
     }
   }
 
@@ -87,25 +191,7 @@ export function PricingSection() {
     "7 Days Money Back Guarantee"
   ]
 
-  const comboFeatures = [
-    "Everything in Complete Course Access",
-    "Direct Mentorship in Community — personal replies to queries, typically within 24 hours",
-    "Quick 1:1 Calls (10–15 mins) — scheduled within 24 hours if your issue can't be solved on text",
-    "Personal Feedback on Projects",
-    "Personal Guidance on Your Own Projects/Ideas",
-    "Extra Post-Course Support — one follow-up call within 30 days"
-  ]
 
-  const comparisonFeatures = [
-    { feature: "5 Weeks Live Classes", course: true, combo: true },
-    { feature: "Lifetime Recordings", course: true, combo: true },
-    { feature: "Weekly Projects", course: true, combo: true },
-    { feature: "Community Group", course: true, combo: true },
-    { feature: "Replies to Queries", course: "Group only", combo: "Personal replies within 24 hrs" },
-    { feature: "Quick 1:1 Calls", course: "—", combo: "Scheduled within 24 hrs" },
-    { feature: "Priority Project Feedback", course: "—", combo: true },
-    { feature: "Post-Course Follow-Up Call", course: "—", combo: true }
-  ]
 
   return (
     <section id="pricing" className="py-24 px-6 lg:px-8 bg-muted/30 relative overflow-hidden">
@@ -130,165 +216,95 @@ export function PricingSection() {
           </p>
         </div>
 
-        {/* Early Bird Timer */}
-        {isEarlyBird && (
+        {/* Admin Controls */}
+        {isAdmin && (
           <div className="flex justify-center mb-8">
-            <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg animate-pulse flex items-center space-x-2">
-              <Clock className="w-4 h-4" />
-              <span className="font-semibold">Early Bird Ends: {formatTime(timeLeft)}</span>
+            <div className="bg-card border rounded-lg p-4 flex items-center gap-4">
+              <Settings className="w-5 h-5 text-muted-foreground" />
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isEarlyBirdEnabled}
+                  onChange={toggleEarlyBird}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm font-medium">Enable Early Bird Pricing</span>
+              </label>
             </div>
           </div>
         )}
 
-        {/* Pricing Cards */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-16">
-          {/* Course Only Plan */}
-          <AnimatedCard 
-            delay={400}
-            animationType="scale"
-            className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative"
-          >
-            <AnimatedCardHeader className="text-center pb-6">
-              <AnimatedCardTitle className="text-2xl font-bold mb-4">
-                Complete Course Access
-              </AnimatedCardTitle>
-              <div className="space-y-2">
-                <div className="flex items-center justify-center space-x-2 mb-2">
-                  <span className="text-xl text-muted-foreground line-through">
-                    {regularMrpPrice}
-                  </span>
-                </div>
-                <div className="text-5xl font-bold text-gradient">
-                  {currentRegularPrice}
-                </div>
-                <p className="text-muted-foreground">
-                  {isEarlyBird ? "Early Bird Offer" : "Regular Price"} • One-time payment
-                </p>
-              </div>
-            </AnimatedCardHeader>
-            
-            <AnimatedCardContent className="space-y-6">
-              {/* Features */}
-              <div className="space-y-3">
-                {courseFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-start">
-                    <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
-                    <span className="text-foreground text-sm">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA Button */}
-              <AnimatedButton 
-                size="lg" 
-                animation="glow"
-                className="w-full py-4 text-lg font-semibold hover-glow"
-                onClick={() => handleEnrollClick('regular')}
-              >
-                Enroll Now — {currentRegularPrice}
-              </AnimatedButton>
-            </AnimatedCardContent>
-          </AnimatedCard>
-
-          {/* Combo Plan */}
-          <AnimatedCard 
-            delay={600}
-            animationType="scale"
-            className="glass-card-strong border-accent/50 shadow-xl hover-lift opacity-0 relative"
-          >
-            {/* Ribbon */}
-            <div className="absolute -top-3 -right-3 bg-accent text-accent-foreground px-4 py-1 rounded-full text-sm font-semibold shadow-lg transform rotate-12">
-              Best Value • Limited Seats
+        {/* Early Bird Timer */}
+        {isEarlyBirdEnabled && (
+          <div className="flex justify-center mb-8">
+            <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg animate-pulse flex items-center space-x-2">
+              <Clock className="w-4 h-4" />
+              <span className="font-semibold">Early Bird Pricing Active!</span>
             </div>
-
-            <AnimatedCardHeader className="text-center pb-6">
-              <AnimatedCardTitle className="text-2xl font-bold mb-4">
-                Course + 1:1 Mentorship Combo
-              </AnimatedCardTitle>
-              
-              <div className="space-y-2">
-                <div className="text-lg font-medium text-muted-foreground text-center">
-                  {comboEarlyPrice} + {comboRegularPrice} = {comboMrpPrice}
-                </div>
-                <div className="text-4xl font-bold text-gradient">
-                  You Pay Only {comboEarlyPrice}
-                </div>
-                <p className="text-muted-foreground">
-                  Save {pricing.currency === 'INR' ? '₹15,000+' : '$600+'} on the bundle • For limited time period
-                </p>
-              </div>
-            </AnimatedCardHeader>
-            
-            <AnimatedCardContent className="space-y-6">
-              {/* Features */}
-              <div className="space-y-3">
-                {comboFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-start">
-                    <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
-                    <span className="text-foreground text-sm">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA Button */}
-              <AnimatedButton 
-                size="lg" 
-                animation="glow"
-                className="w-full py-4 text-lg font-semibold hover-glow"
-                onClick={() => handleEnrollClick('combo')}
-              >
-                Enroll with 1:1 Mentorship — {comboEarlyPrice}
-              </AnimatedButton>
-            </AnimatedCardContent>
-          </AnimatedCard>
-        </div>
-
-        {/* Comparison Table */}
-        <div className="bg-card/50 rounded-2xl p-8 backdrop-blur-sm border">
-          <h3 className="text-2xl font-bold text-center mb-8 text-gradient">
-            Plan Comparison
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-4 px-4 font-semibold">Feature</th>
-                  <th className="text-center py-4 px-4 font-semibold">Course Only</th>
-                  <th className="text-center py-4 px-4 font-semibold">Course + Mentorship</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonFeatures.map((item, index) => (
-                  <tr key={index} className="border-b border-border/50 hover:bg-muted/20">
-                    <td className="py-4 px-4 text-sm">{item.feature}</td>
-                    <td className="text-center py-4 px-4 text-sm">
-                      {typeof item.course === 'boolean' ? (
-                        item.course ? (
-                          <span className="text-green-500">✅</span>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )
-                      ) : (
-                        <span className="text-muted-foreground">{item.course}</span>
-                      )}
-                    </td>
-                    <td className="text-center py-4 px-4 text-sm">
-                      {typeof item.combo === 'boolean' ? (
-                        item.combo ? (
-                          <span className="text-green-500">✅</span>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )
-                      ) : (
-                        <span className="text-accent font-medium">{item.combo}</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
-        </div>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="text-muted-foreground">Loading courses...</div>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-2 gap-8 mb-16">
+            {courses.map((course, index) => {
+              const pricing = getPrice(course)
+              return (
+                <AnimatedCard 
+                  key={course.id}
+                  delay={400 + (index * 200)}
+                  animationType="scale"
+                  className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative"
+                >
+                  <AnimatedCardHeader className="text-center pb-6">
+                    <AnimatedCardTitle className="text-2xl font-bold mb-4">
+                      {course.title}
+                    </AnimatedCardTitle>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center space-x-2 mb-2">
+                        <span className="text-xl text-muted-foreground line-through">
+                          {pricing.symbol}{pricing.mrp.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-5xl font-bold text-gradient">
+                        {pricing.symbol}{pricing.current.toLocaleString()}
+                      </div>
+                      <p className="text-muted-foreground">
+                        {pricing.isEarlyBird ? "Early Bird Offer" : "Regular Price"} • One-time payment
+                      </p>
+                    </div>
+                  </AnimatedCardHeader>
+                  
+                  <AnimatedCardContent className="space-y-6">
+                    {/* Features */}
+                    <div className="space-y-3">
+                      {courseFeatures.map((feature, featureIndex) => (
+                        <div key={featureIndex} className="flex items-start">
+                          <span className="text-green-500 mr-3 flex-shrink-0 mt-0.5">✅</span>
+                          <span className="text-foreground text-sm">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* CTA Button */}
+                    <AnimatedButton 
+                      size="lg" 
+                      animation="glow"
+                      className="w-full py-4 text-lg font-semibold hover-glow"
+                      onClick={() => handleEnrollClick(course.id)}
+                    >
+                      Enroll Now — {pricing.symbol}{pricing.current.toLocaleString()}
+                    </AnimatedButton>
+                  </AnimatedCardContent>
+                </AnimatedCard>
+              )
+            })}
+          </div>
+        )}
+
 
         {/* Course Info Bar */}
         <div className="mt-12 text-center">

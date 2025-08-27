@@ -104,19 +104,26 @@ export function EnhancedPaymentPage() {
         }
       })
 
-      if (error) throw error
+      if (error) {
+        // Handle coupon-specific errors
+        if (error.message && error.message.includes('Invalid coupon code')) {
+          toast({
+            title: "Invalid Coupon",
+            description: "The coupon code is not valid or has expired",
+            variant: "destructive"
+          })
+          setIsApplyingCoupon(false)
+          return
+        }
+        throw error
+      }
+      
       setPriceData(data)
       
       if (data.couponApplied) {
         toast({
           title: "Coupon Applied!",
           description: `${data.couponApplied.code} - ${data.couponApplied.type === 'percent' ? `${data.couponApplied.value}% off` : `${data.currency === 'INR' ? '₹' : '$'}${data.couponApplied.value / 100} off`}`,
-        })
-      } else {
-        toast({
-          title: "Invalid Coupon",
-          description: "The coupon code is not valid or has expired",
-          variant: "destructive"
         })
       }
     } catch (error) {

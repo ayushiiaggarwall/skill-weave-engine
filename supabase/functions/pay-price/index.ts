@@ -56,18 +56,32 @@ serve(async (req) => {
     if (regionOverride) {
       region = regionOverride;
     } else {
-      // Detect from headers and email domain
+      // Try to detect from headers first
       const cfCountry = req.headers.get('cf-ipcountry');
       const vercelCountry = req.headers.get('x-vercel-ip-country');
       const country = cfCountry || vercelCountry;
       
-      // Check for Indian email domains or country headers
-      const indianEmailDomains = ['gmail.com', 'yahoo.in', 'hotmail.in', 'rediffmail.com'];
-      const emailDomain = email.split('@')[1];
-      const hasIndianEmail = email.includes('india') || email.includes('delhi') || email.includes('mumbai') || email.includes('bangalore') || email.includes('chennai') || email.includes('hyderabad') || email.includes('pune') || email.includes('aggarwal') || email.includes('sharma') || email.includes('kumar') || email.includes('singh');
-      
-      if (country === 'IN' || hasIndianEmail) {
+      if (country === 'IN') {
         region = 'in';
+      } else {
+        // Fallback to external IP detection service (same as frontend)
+        try {
+          const ipResponse = await fetch('https://ipapi.co/json/');
+          const ipData = await ipResponse.json();
+          if (ipData.country_code === 'IN') {
+            region = 'in';
+          }
+        } catch (error) {
+          logStep("IP detection fallback failed", error);
+          // Check for Indian email domains as final fallback
+          const indianEmailDomains = ['gmail.com', 'yahoo.in', 'hotmail.in', 'rediffmail.com'];
+          const emailDomain = email.split('@')[1];
+          const hasIndianEmail = email.includes('india') || email.includes('delhi') || email.includes('mumbai') || email.includes('bangalore') || email.includes('chennai') || email.includes('hyderabad') || email.includes('pune') || email.includes('aggarwal') || email.includes('sharma') || email.includes('kumar') || email.includes('singh');
+          
+          if (hasIndianEmail) {
+            region = 'in';
+          }
+        }
       }
     }
 

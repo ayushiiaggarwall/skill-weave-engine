@@ -70,42 +70,57 @@ Deno.serve(async (req) => {
 
     let html: string
     let subject: string
+    let text: string | undefined
 
-    const appBaseUrl = Deno.env.get('APP_BASE_URL') || 'https://ayushiaggarwal.tech'
+    // Normalize base URL to always include https://
+    const appBaseUrlRaw = Deno.env.get('APP_BASE_URL') || 'https://ayushiaggarwal.tech'
+    const normalizeUrl = (url: string): string => {
+      if (!url) return ''
+      const trimmed = url.trim()
+      if (/^https?:\/\//i.test(trimmed)) return trimmed
+      return `https://${trimmed.replace(/^\/+/, '')}`
+    }
+    const appBaseUrl = normalizeUrl(appBaseUrlRaw)
 
     if (email_action_type === 'recovery') {
       // Password recovery email
       console.log('Rendering password reset email template...')
       console.log('App base URL:', appBaseUrl)
-      const redirectTo = `${appBaseUrl}/reset-password`
-      console.log('Redirect URL:', redirectTo)
+      const defaultRedirect = `${appBaseUrl}/reset-password`
+      const effectiveRedirect = redirect_to ? normalizeUrl(redirect_to) : defaultRedirect
+      console.log('Redirect URL:', effectiveRedirect)
+      const linkUrl = `${appBaseUrl}/auth/verify?token_hash=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(email_action_type)}&redirect_to=${encodeURIComponent(effectiveRedirect)}`
       html = await renderAsync(
         React.createElement(PasswordResetEmail, {
           app_base_url: appBaseUrl,
           token,
           token_hash,
-          redirect_to: redirect_to || redirectTo,
+          redirect_to: effectiveRedirect,
           email_action_type,
           user_email: user.email,
         })
       )
+      text = `Hi there,\n\nWe received a request to reset your password for your Tech With Ayushi Aggarwal account.\n\nOpen this link to set up a new password:\n${linkUrl}\n\nIf you didn't request this, you can safely ignore this email, your account will remain secure.\n\nFor your security, this link will expire in 1 hour.\n\nThanks,\nAyushi Aggarwal & Team`
       subject = 'Reset Your Password'
     } else {
       // Verification email (signup)
       console.log('Rendering verification email template...')
       console.log('App base URL:', appBaseUrl)
-      const redirectTo = `${appBaseUrl}/dashboard`
-      console.log('Redirect URL:', redirectTo)
+      const defaultRedirect = `${appBaseUrl}/dashboard`
+      const effectiveRedirect = redirect_to ? normalizeUrl(redirect_to) : defaultRedirect
+      console.log('Redirect URL:', effectiveRedirect)
+      const linkUrl = `${appBaseUrl}/auth/verify?token_hash=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(email_action_type)}&redirect_to=${encodeURIComponent(effectiveRedirect)}`
       html = await renderAsync(
         React.createElement(VerificationEmail, {
           app_base_url: appBaseUrl,
           token,
           token_hash,
-          redirect_to: redirect_to || redirectTo,
+          redirect_to: effectiveRedirect,
           email_action_type,
           user_email: user.email,
         })
       )
+      text = `Welcome! Please verify your email address.\n\nOpen this link to verify your email:\n${linkUrl}\n\nIf you didn't sign up, you can safely ignore this email.\n\nThanks,\nTech With Ayushi Aggarwal` 
       subject = 'Welcome! Please verify your email address'
     }
 
@@ -122,6 +137,7 @@ Deno.serve(async (req) => {
       to: [user.email],
       subject,
       html,
+      text,
     })
 
     if (error) {

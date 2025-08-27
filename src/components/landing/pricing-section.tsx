@@ -203,7 +203,7 @@ export function PricingSection() {
     
     if (courseTitle.toLowerCase().includes('pro') || courseTitle.toLowerCase().includes('mentorship')) {
       return [
-        "Everything in Complete Course Access",
+        "Everything in Essential Track",
         "Direct Mentorship in Community — personal replies to queries, typically within 24 hours",
         "Quick 1:1 Calls (10–15 mins) — scheduled within 24 hours if your issue can't be solved on text",
         "Personal Feedback on Projects",
@@ -272,7 +272,14 @@ export function PricingSection() {
           </div>
         ) : (
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
-            {courses.map((course, index) => {
+            {courses
+              .sort((a, b) => {
+                // Sort Essential Track first, then Pro Track
+                if (a.title.toLowerCase().includes('essential')) return -1;
+                if (b.title.toLowerCase().includes('essential')) return 1;
+                return 0;
+              })
+              .map((course, index) => {
               const pricing = getPrice(course)
               return (
                 <AnimatedCard 

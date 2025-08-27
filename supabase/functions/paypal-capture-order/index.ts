@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { Resend } from "npm:resend@4.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -148,6 +149,77 @@ const captureResponse = await fetch(`${baseUrl}/v2/checkout/orders/${orderId}/ca
         } else {
           logStep("Enrollment updated");
         }
+      }
+
+      // Send emails (welcome to user, notification to admin)
+      try {
+        const resend = new Resend(Deno.env.get("RESEND_API_KEY") || "")
+        const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'hello@ayushiaggarwal.tech'
+        const fromName = Deno.env.get('RESEND_FROM_NAME') || 'Tech With Ayushi Aggarwal'
+        const fromAddress = `${fromName} <${fromEmail}>`
+
+        const userEmail = enrollment.user_email as string
+        const currency = (enrollment.currency as string) || 'USD'
+        const amountMajor = typeof enrollment.amount === 'number' ? enrollment.amount / 100 : 0
+
+        // Fetch course details
+        let courseTitle = 'your course'
+        let startDate: string | null = null
+        let totalWeeks: number | null = null
+        if (enrollment.course_id) {
+          const { data: course } = await supabaseClient
+            .from('courses')
+            .select('title, start_date, total_weeks')
+            .eq('id', enrollment.course_id)
+            .single()
+          if (course) {
+            courseTitle = course.title
+            startDate = course.start_date
+            totalWeeks = course.total_weeks
+          }
+        }
+
+        const userHtml = `
+          <h2>Welcome to ${courseTitle}</h2>
+          <p>Your enrollment is confirmed. Here are your details:</p>
+          <ul>
+            <li><strong>Course:</strong> ${courseTitle}</li>
+            ${startDate ? `<li><strong>Start Date:</strong> ${startDate}</li>` : ''}
+            ${totalWeeks ? `<li><strong>Total Weeks:</strong> ${totalWeeks}</li>` : ''}
+            <li><strong>Amount Paid:</strong> ${currency.toUpperCase()} ${amountMajor.toLocaleString()}</li>
+            <li><strong>Gateway:</strong> PayPal</li>
+            <li><strong>Order ID:</strong> ${orderId}</li>
+          </ul>
+          <p>We're excited to have you onboard. You'll receive further instructions before the start date.</p>
+        `
+
+        const adminHtml = `
+          <h3>New Enrollment</h3>
+          <ul>
+            <li><strong>User:</strong> ${userEmail}</li>
+            <li><strong>Course:</strong> ${courseTitle}</li>
+            <li><strong>Amount:</strong> ${currency.toUpperCase()} ${amountMajor.toLocaleString()}</li>
+            <li><strong>Gateway:</strong> PayPal</li>
+            <li><strong>Order ID:</strong> ${orderId}</li>
+          </ul>
+        `
+
+        await resend.emails.send({
+          from: fromAddress,
+          to: [userEmail],
+          subject: `Enrollment confirmed: ${courseTitle}`,
+          html: userHtml
+        })
+        await resend.emails.send({
+          from: fromAddress,
+          to: ['ayushiaggarwaltech@gmail.com'],
+          subject: `New enrollment: ${courseTitle}`,
+          html: adminHtml
+        })
+
+        logStep('Enrollment emails sent')
+      } catch (emailErr) {
+        logStep('Email send failed', emailErr)
       }
     } else {
       logStep("No order found to update", { orderId });

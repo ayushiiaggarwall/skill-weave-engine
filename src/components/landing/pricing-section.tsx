@@ -41,7 +41,22 @@ export function PricingSection() {
   const [userRegion, setUserRegion] = useState<'INR' | 'USD'>('INR')
   
   // Get timer data from the first active course
-  const { timeLeft, formatTime } = useCoursePricing()
+  const { timeLeft, formatTime, isEarlyBird } = useCoursePricing()
+  
+  // State for real-time countdown
+  const [countdown, setCountdown] = useState(timeLeft)
+  
+  // Update countdown every second
+  useEffect(() => {
+    if (timeLeft > 0) {
+      setCountdown(timeLeft)
+      const interval = setInterval(() => {
+        setCountdown(prev => Math.max(0, prev - 1))
+      }, 1000)
+      
+      return () => clearInterval(interval)
+    }
+  }, [timeLeft])
 
   // Fetch courses and pricing data
   useEffect(() => {
@@ -266,18 +281,18 @@ export function PricingSection() {
         )}
 
         {/* Early Bird Timer */}
-        {isEarlyBirdEnabled && (
+        {(isEarlyBirdEnabled || isEarlyBird) && (
           <div className="flex flex-col items-center mb-8 space-y-3">
             <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg animate-pulse flex items-center space-x-2">
               <Clock className="w-4 h-4" />
               <span className="font-semibold">Early Bird Pricing Active!</span>
             </div>
-            {timeLeft > 0 && (
+            {countdown > 0 && (
               <div className="bg-card/80 backdrop-blur-sm border rounded-lg px-6 py-3 shadow-lg">
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-2">Time remaining for early bird offer:</p>
                   <div className="text-lg font-mono font-bold text-foreground">
-                    {formatTime(timeLeft)}
+                    {formatTime(countdown)}
                   </div>
                 </div>
               </div>

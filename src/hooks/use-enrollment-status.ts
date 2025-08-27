@@ -80,6 +80,10 @@ export function useEnrollmentStatus(): EnrollmentStatus {
         const paidOrder = orderEnrollments?.find(order => order.status === 'paid')
         const courseData = paidOrder?.courses
 
+        console.log('Has completed payment:', hasCompletedPayment)
+        console.log('Paid order:', paidOrder)
+        console.log('Course data:', courseData)
+
         setStatus({
           isEnrolled: hasCompletedPayment,
           hasActiveCourse: hasCompletedPayment,

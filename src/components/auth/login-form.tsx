@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,7 +11,18 @@ export function LoginForm() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const isEnrollment = searchParams.get('enroll') === 'true'
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn, signInWithGoogle, user } = useAuth()
+  
+  // Redirect authenticated users away from login page
+  useEffect(() => {
+    if (user) {
+      if (isEnrollment) {
+        navigate("/payment")
+      } else {
+        navigate("/learner")
+      }
+    }
+  }, [user, navigate, isEnrollment])
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)

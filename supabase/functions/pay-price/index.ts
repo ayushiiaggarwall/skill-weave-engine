@@ -26,6 +26,7 @@ interface PriceResponse {
     type: string;
     value: number;
   };
+  invalidCoupon?: boolean;
 }
 
 const logStep = (step: string, details?: any) => {
@@ -220,10 +221,22 @@ serve(async (req) => {
           data: couponData 
         });
         
-        // Return error for invalid coupon
-        return new Response(JSON.stringify({ error: "Invalid coupon code" }), {
+        // Return success response with invalid coupon flag instead of error
+        const displayAmount = currency === 'INR' ? amount / 100 : amount / 100;
+        const response: PriceResponse = {
+          region,
+          currency,
+          amount,
+          display: `${symbol}${displayAmount.toLocaleString()}`,
+          earlyBird: isEarlyBird,
+          invalidCoupon: true
+        };
+
+        logStep("Response prepared with invalid coupon", response);
+
+        return new Response(JSON.stringify(response), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
+          status: 200,
         });
       }
     }

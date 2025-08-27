@@ -106,22 +106,25 @@ export function EnhancedPaymentPage() {
 
       if (error) {
         console.error('Error applying coupon:', error)
-        // Handle coupon-specific errors - check for 400 status or invalid coupon message
-        if (error.message && (error.message.includes('Invalid coupon code') || error.message.includes('non-2xx status code'))) {
-          toast({
-            title: "Invalid Coupon",
-            description: "The coupon code is not valid or has expired",
-            variant: "destructive"
-          })
-          setIsApplyingCoupon(false)
-          return
-        }
-        throw error
+        toast({
+          title: "Error",
+          description: "Failed to apply coupon",
+          variant: "destructive"
+        })
+        setIsApplyingCoupon(false)
+        return
       }
       
       setPriceData(data)
       
-      if (data.couponApplied) {
+      // Check if coupon was invalid
+      if (data.invalidCoupon) {
+        toast({
+          title: "Invalid Coupon",
+          description: "The coupon code is not valid or has expired",
+          variant: "destructive"
+        })
+      } else if (data.couponApplied) {
         toast({
           title: "Coupon Applied!",
           description: `${data.couponApplied.code} - ${data.couponApplied.type === 'percent' ? `${data.couponApplied.value}% off` : `${data.currency === 'INR' ? '₹' : '$'}${data.couponApplied.value / 100} off`}`,

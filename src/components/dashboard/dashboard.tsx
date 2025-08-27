@@ -79,7 +79,7 @@ export function Dashboard() {
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold mb-2">Welcome to the Course!</h2>
               <p className="text-muted-foreground">
-                You're all set up and ready to start your no-code journey. 
+                You're all set up and ready to turn ideas into products with no-code. 
                 Your profile has been created and you can now access all course materials.
               </p>
             </CardContent>

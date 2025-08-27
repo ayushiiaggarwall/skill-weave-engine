@@ -127,7 +127,7 @@ export function ModernDashboard() {
               <p className="text-lg text-muted-foreground">
                 {enrollmentStatus.isEnrolled 
                   ? "Continue your learning journey" 
-                  : "Ready to start your no-code journey?"
+                  : "Ready to turn ideas into products with no-code?"
                 }
               </p>
             </motion.div>

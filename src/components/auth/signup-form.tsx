@@ -118,7 +118,7 @@ export function SignupForm() {
             Join the Course
           </motion.div>
           <p className="text-muted-foreground">
-            Start your no-code journey today
+            Build your first product - Start your no-code journey today
           </p>
         </div>
 

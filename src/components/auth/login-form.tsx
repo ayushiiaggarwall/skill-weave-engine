@@ -18,9 +18,9 @@ export function LoginForm() {
     if (user) {
       if (isEnrollment) {
         navigate("/payment")
-      } else {
-        navigate("/learner")
-      }
+        } else {
+          navigate("/dashboard")
+        }
     }
   }, [user, navigate, isEnrollment])
   const [email, setEmail] = useState("")

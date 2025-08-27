@@ -67,17 +67,9 @@ export function CoursePage() {
   }
 
   const formatContent = (content: string) => {
-    // First split by double newlines to get paragraphs
     return content.split('\n\n').map((paragraph, index) => (
       <p key={index} className="mb-4 last:mb-0">
-        {/* Add line breaks before dashes */}
-        {paragraph.split('-').map((part, partIndex) => (
-          partIndex === 0 ? part : (
-            <span key={partIndex}>
-              <br />- {part}
-            </span>
-          )
-        ))}
+        {paragraph}
       </p>
     ))
   }

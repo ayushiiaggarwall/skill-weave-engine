@@ -227,7 +227,7 @@ export function CoursePage() {
                           Mini Project
                         </h3>
                         <div className="glass-card bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/50 rounded-xl p-6">
-                          <p className="font-medium text-blue-800 dark:text-blue-100 text-lg">
+                          <p className="font-medium text-foreground text-lg">
                             {selectedWeek.mini_project}
                           </p>
                         </div>

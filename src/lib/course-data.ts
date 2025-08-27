@@ -1,8 +1,8 @@
 // Static course data for MVP
 export const courseData = {
   id: 'no-code-to-product',
-  title: 'From No-Code to Product',
-  description: 'Master the art of building profitable products without writing code. Join 200+ learners already on the waitlist.',
+  title: 'From Idea to Product',
+  description: 'Master the art of turning ideas into real products in just 5 weeks with our step-by-step Builder’s Program. Join 200+ learners already on the waitlist.',
   price: 299,
   currency: 'USD',
   image_url: '/course-image.jpg',

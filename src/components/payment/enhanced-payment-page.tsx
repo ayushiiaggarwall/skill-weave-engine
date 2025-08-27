@@ -144,7 +144,7 @@ export function EnhancedPaymentPage() {
         amount: priceData.amount,
         currency: 'INR',
         name: "Tech With Ayushi Aggarwal",
-        description: "5-Week No-Code to Product Course",
+        description: "5-Week Idea to Product Course",
         order_id: orderData.orderId,
         handler: async function (_response: any) {
           toast({
@@ -249,7 +249,7 @@ export function EnhancedPaymentPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Complete Your Enrollment</h1>
           <p className="text-muted-foreground">
-            Secure your spot in the 5-Week No-Code to Product Course
+            Secure your spot in the 5-Week Idea to Product Course
           </p>
         </div>
 
@@ -265,7 +265,7 @@ export function EnhancedPaymentPage() {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="font-semibold text-lg">
-                  {pricingType === 'combo' ? '5-Week Course + 1:1 Mentorship Combo' : '5-Week No-Code to Product Course'}
+                  {pricingType === 'combo' ? '5-Week Course + 1:1 Mentorship Combo' : '5-Week Idea to Product Course'}
                 </h3>
                 <p className="text-muted-foreground">
                   {pricingType === 'combo' 

@@ -92,7 +92,7 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { 
-              name: "5-Week No-Code to Product Course",
+              name: "5-Week Idea to Product Course",
               description: "Complete course with live classes, projects, and lifetime access"
             },
             unit_amount: priceData.amount,

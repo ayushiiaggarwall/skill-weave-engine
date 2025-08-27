@@ -206,7 +206,7 @@ export function ModernDashboard() {
                               <Play className="w-8 h-8 text-white" />
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-semibold text-lg">5-Week No-Code to Product Course</h3>
+                              <h3 className="font-semibold text-lg">5-Week Idea to Product Course</h3>
                               <p className="text-sm text-muted-foreground mb-2">
                                 Build real products without writing code
                               </p>

@@ -262,7 +262,7 @@ export function HeroSectionAnime() {
             {/* Main Heading */}
             <div className="space-y-6">
               <StaticText className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
-                From No-Code to Product
+                From Idea to Product
               </StaticText>
 
                <StaticText className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed">

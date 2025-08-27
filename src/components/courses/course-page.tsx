@@ -109,7 +109,7 @@ export function CoursePage() {
               Course Curriculum
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Master the art of building profitable products in just 48 hours with our comprehensive curriculum
+              Master the art of turning ideas into real products in just 5 weeks with our step-by-step Builder’s Program
             </p>
           </div>
 

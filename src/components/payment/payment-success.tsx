@@ -88,7 +88,7 @@ export function PaymentSuccess() {
                   Payment Successful! 🎉
                 </h1>
                 <p className="text-muted-foreground">
-                  Welcome to the 5-Week No-Code to Product Course!
+                  Welcome to the 5-Week Idea to Product Course!
                 </p>
               </>
             )}

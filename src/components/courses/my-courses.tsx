@@ -248,7 +248,7 @@ export function MyCourses() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold">Overall Progress</h3>
-                    <p className="text-muted-foreground">5-Week No-Code to Product Course</p>
+                    <p className="text-muted-foreground">5-Week Idea to Product Course</p>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold gradient-text">{overallProgress}%</div>

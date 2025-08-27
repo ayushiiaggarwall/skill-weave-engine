@@ -213,7 +213,7 @@ export function PricingSection() {
                 <div className="text-4xl font-bold text-gradient">
                   You Pay Only {comboEarlyPrice}
                 </div>
-                <p className="text-accent font-semibold">
+                <p className="text-muted-foreground">
                   Save {pricing.currency === 'INR' ? '₹15,000+' : '$600+'} on the bundle • For limited time period
                 </p>
               </div>

@@ -169,19 +169,11 @@ export function useCoursePricing(courseId?: string) {
     let isEarlyBird = false
     let timeLeft = 0
     
-    if (coursePricing.is_early_bird_active) {
-      if (coursePricing.early_bird_end_date) {
-        const endTime = new Date(coursePricing.early_bird_end_date).getTime()
-        const now = new Date().getTime()
-        isEarlyBird = now < endTime
-        timeLeft = Math.max(0, Math.floor((endTime - now) / 1000))
-      } else {
-        // If no end date is set, set early bird as active with a default 7-day countdown
-        isEarlyBird = true
-        const defaultEndTime = new Date()
-        defaultEndTime.setDate(defaultEndTime.getDate() + 7)
-        timeLeft = Math.max(0, Math.floor((defaultEndTime.getTime() - new Date().getTime()) / 1000))
-      }
+    if (coursePricing.is_early_bird_active && coursePricing.early_bird_end_date) {
+      const endTime = new Date(coursePricing.early_bird_end_date).getTime()
+      const now = new Date().getTime()
+      isEarlyBird = now < endTime
+      timeLeft = Math.max(0, Math.floor((endTime - now) / 1000))
     }
     
     const currentPrice = isEarlyBird ? pricing.earlyBird : pricing.regular

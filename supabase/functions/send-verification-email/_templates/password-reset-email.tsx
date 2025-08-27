@@ -39,7 +39,7 @@ export const PasswordResetEmail = ({
         </Text>
         <Section style={buttonContainer}>
           <Button
-            href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+            href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
             style={button}
           >
             Reset Password
@@ -49,10 +49,10 @@ export const PasswordResetEmail = ({
           Or, copy and paste this link into your browser:
         </Text>
         <Link
-          href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+          href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
           style={link}
         >
-          {`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+          {`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
         </Link>
         <Text style={disclaimer}>
           If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.

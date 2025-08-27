@@ -54,7 +54,7 @@ export const VerificationEmail = ({
         <Section style={buttonSection}>
           <Button
             style={button}
-            href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+            href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
           >
             Verify Email Address
           </Button>
@@ -66,7 +66,7 @@ export const VerificationEmail = ({
         
         <Section style={codeSection}>
           <Link
-            href={`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+            href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
             target="_blank"
             style={{
               color: '#1e293b',
@@ -75,7 +75,7 @@ export const VerificationEmail = ({
               fontSize: '14px',
             }}
           >
-            {`${app_base_url}/auth/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+            {`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
           </Link>
         </Section>
         

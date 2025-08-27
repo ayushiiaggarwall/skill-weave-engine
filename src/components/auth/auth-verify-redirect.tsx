@@ -5,18 +5,18 @@ import { useEffect } from 'react'
 export default function AuthVerifyRedirect() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const token = params.get('token') || params.get('token_hash') || ''
+    const token_hash = params.get('token_hash') || ''
     const type = params.get('type') || ''
     const redirect_to = params.get('redirect_to') || `${window.location.origin}/`
 
-    if (!token || !type) {
+    if (!token_hash || !type) {
       // If missing data, just go home
       window.location.replace('/')
       return
     }
 
     const supabaseUrl = 'https://xujaxssbncobmiwxbaxh.supabase.co'
-    const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(token)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`
+    const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`
 
     window.location.replace(verifyUrl)
   }, [])

@@ -19,6 +19,7 @@ interface PasswordResetEmailProps {
   token_hash: string
   token: string
   user_email: string
+  first_name?: string
 }
 
 export const PasswordResetEmail = ({
@@ -27,6 +28,7 @@ export const PasswordResetEmail = ({
   email_action_type,
   redirect_to,
   user_email,
+  first_name,
 }: PasswordResetEmailProps) => (
   <Html>
     <Head />
@@ -35,8 +37,12 @@ export const PasswordResetEmail = ({
       <Container style={container}>
         <Heading style={h1}>Reset Your Password</Heading>
         <Text style={text}>
-          Hi there! We received a request to reset the password for your account ({user_email}).
+          Hi {first_name ? first_name : 'there'},
         </Text>
+        <Text style={text}>
+          We received a request to reset your password for your Tech With Ayushi Aggarwal account.
+        </Text>
+        <Text style={text}>Click the button below to set up a new password:</Text>
         <Section style={buttonContainer}>
           <Button
             href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
@@ -45,9 +51,7 @@ export const PasswordResetEmail = ({
             Reset Password
           </Button>
         </Section>
-        <Text style={text}>
-          Or, copy and paste this link into your browser:
-        </Text>
+        <Text style={text}>Or, copy and paste this link into your browser:</Text>
         <Link
           href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
           style={link}
@@ -55,14 +59,12 @@ export const PasswordResetEmail = ({
           {`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
         </Link>
         <Text style={disclaimer}>
-          If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.
+          If you didn't request this, you can safely ignore this email, your account will remain secure.
         </Text>
-        <Text style={disclaimer}>
-          This link will expire in 1 hour for security reasons.
-        </Text>
+        <Text style={disclaimer}>For your security, this link will expire in 1 hour.</Text>
         <Text style={footer}>
-          Best regards,<br />
-          The Course Team
+          Thanks,<br />
+          Ayushi Aggarwal &amp; Team
         </Text>
       </Container>
     </Body>

@@ -3,6 +3,7 @@ import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { PasswordResetEmail } from './_templates/password-reset-email.tsx'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 const hookSecret = Deno.env.get('SEND_VERIFICATION_EMAIL_HOOK_SECRET') as string
@@ -60,6 +61,29 @@ Deno.serve(async (req) => {
       })
     }
 
+    console.log('Fetching first name from profile...')
+    let firstName = ''
+    try {
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        { auth: { persistSession: false } }
+      )
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('name')
+        .eq('email', user.email)
+        .single()
+      if (profile?.name) {
+        firstName = profile.name.split(' ')[0]
+      } else {
+        firstName = user.email.split('@')[0].split(/[._-]/)[0]
+      }
+    } catch (e) {
+      console.log('Profile lookup failed, falling back to email prefix')
+      firstName = user.email.split('@')[0].split(/[._-]/)[0]
+    }
+
     console.log('Rendering password reset email template...')
     const html = await renderAsync(
       React.createElement(PasswordResetEmail, {
@@ -69,6 +93,7 @@ Deno.serve(async (req) => {
         redirect_to,
         email_action_type,
         user_email: user.email,
+        first_name: firstName,
       })
     )
 

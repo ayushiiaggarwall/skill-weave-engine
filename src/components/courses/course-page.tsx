@@ -67,11 +67,19 @@ export function CoursePage() {
   }
 
   const formatContent = (content: string) => {
-    return content.split('\n\n').map((paragraph, index) => (
-      <p key={index} className="mb-4 last:mb-0">
-        {paragraph.replace(/ -> /g, '\n-> ')}
-      </p>
-    ))
+    return content.split('\n\n').map((paragraph, index) => {
+      const parts = paragraph.split(' -> ')
+      return (
+        <p key={index} className="mb-4 last:mb-0">
+          {parts.map((part, partIndex) => (
+            <span key={partIndex}>
+              {partIndex > 0 && <><br />→ </>}
+              {part}
+            </span>
+          ))}
+        </p>
+      )
+    })
   }
 
   if (loading) {

@@ -19,8 +19,13 @@ export function ForgotPasswordForm() {
     setIsLoading(true)
 
     try {
+      // Use the production domain instead of sandbox domain
+      const redirectDomain = window.location.hostname.includes('sandbox.lovable.dev') 
+        ? 'https://ayushiaggarwal.tech' 
+        : window.location.origin
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${redirectDomain}/reset-password`,
       })
 
       if (error) {

@@ -19,18 +19,47 @@ export function ResetPasswordForm() {
   const { toast } = useToast()
 
   useEffect(() => {
-    // Check if we have the required tokens from the URL
-    const accessToken = searchParams.get('access_token')
-    const refreshToken = searchParams.get('refresh_token')
-    
-    if (!accessToken || !refreshToken) {
+    const handleAuthFromUrl = async () => {
+      // If we already have a session, proceed
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) return
+
+      // Try query params first
+      let accessToken = searchParams.get('access_token') || undefined
+      let refreshToken = searchParams.get('refresh_token') || undefined
+
+      // If missing, check hash fragment (#access_token=...&refresh_token=...)
+      if (!accessToken || !refreshToken) {
+        const hash = window.location.hash.replace(/^#/, '')
+        const hashParams = new URLSearchParams(hash)
+        accessToken = accessToken || hashParams.get('access_token') || undefined
+        refreshToken = refreshToken || hashParams.get('refresh_token') || undefined
+      }
+
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        if (!error) {
+          // Clean sensitive tokens from the URL
+          const cleanUrl = window.location.pathname + window.location.search
+          window.history.replaceState({}, '', cleanUrl)
+          return
+        }
+        console.error('setSession error:', error)
+      }
+
       toast({
-        title: "Invalid Reset Link",
-        description: "This password reset link is invalid or has expired.",
-        variant: "destructive",
+        title: 'Invalid or expired link',
+        description: 'Please request a new password reset email.',
+        variant: 'destructive',
       })
       navigate('/forgot-password')
     }
+
+    // Fire and forget, no awaiting inside effect to avoid blocking
+    void handleAuthFromUrl()
   }, [searchParams, navigate, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {

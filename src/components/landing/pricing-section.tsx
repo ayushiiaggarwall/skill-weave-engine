@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { supabase } from "@/integrations/supabase/client"
 import { useAdminRole } from "@/hooks/use-admin-role"
+import { useCoursePricing } from "@/hooks/use-course-pricing"
 
 interface CoursePricing {
   inr_regular: number
@@ -38,6 +39,9 @@ export function PricingSection() {
   const [loading, setLoading] = useState(true)
   const [isEarlyBirdEnabled, setIsEarlyBirdEnabled] = useState(false)
   const [userRegion, setUserRegion] = useState<'INR' | 'USD'>('INR')
+  
+  // Get timer data from the first active course
+  const { timeLeft, formatTime } = useCoursePricing()
 
   // Fetch courses and pricing data
   useEffect(() => {
@@ -261,11 +265,21 @@ export function PricingSection() {
 
         {/* Early Bird Timer */}
         {isEarlyBirdEnabled && (
-          <div className="flex justify-center mb-8">
+          <div className="flex flex-col items-center mb-8 space-y-3">
             <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg animate-pulse flex items-center space-x-2">
               <Clock className="w-4 h-4" />
               <span className="font-semibold">Early Bird Pricing Active!</span>
             </div>
+            {timeLeft > 0 && (
+              <div className="bg-card/80 backdrop-blur-sm border rounded-lg px-6 py-3 shadow-lg">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-2">Time remaining for early bird offer:</p>
+                  <div className="text-lg font-mono font-bold text-foreground">
+                    {formatTime(timeLeft)}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

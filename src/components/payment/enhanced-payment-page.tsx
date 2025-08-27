@@ -32,16 +32,38 @@ export function EnhancedPaymentPage() {
   const { user } = useAuth()
   const { toast } = useToast()
   const [searchParams] = useSearchParams()
-  const pricingType = searchParams.get('type') || 'regular' // 'regular' or 'combo'
+  const courseId = searchParams.get('course') // Get course ID from URL
+  const pricingType = searchParams.get('type') || 'regular' // Fallback for old links
   const [isLoading, setIsLoading] = useState(false)
   const [priceData, setPriceData] = useState<PriceData | null>(null)
+  const [courseData, setCourseData] = useState<any>(null)
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   useEffect(() => {
-    if (user?.email) {
+    if (user?.email && (courseId || pricingType)) {
       fetchPricing()
+      if (courseId) {
+        fetchCourseData()
+      }
     }
-  }, [user, pricingType])
+  }, [user, courseId, pricingType])
+
+  const fetchCourseData = async () => {
+    if (!courseId) return
+
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .single()
+
+      if (error) throw error
+      setCourseData(data)
+    } catch (error) {
+      console.error('Error fetching course:', error)
+    }
+  }
 
   const fetchPricing = async () => {
     if (!user?.email) return
@@ -50,8 +72,9 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
+          courseId: courseId, // Pass the course ID
           coupon: couponCode || undefined,
-          pricingType: pricingType // Add pricing type to the request
+          pricingType: pricingType // Fallback for old links
         }
       })
 
@@ -75,6 +98,7 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
           email: user.email,
+          courseId: courseId,
           coupon: couponCode.trim(),
           pricingType: pricingType
         }
@@ -132,6 +156,7 @@ export function EnhancedPaymentPage() {
       const { data: orderData, error } = await supabase.functions.invoke('pay-create-order', {
         body: {
           email: user.email,
+          courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType
         }
@@ -193,6 +218,7 @@ export function EnhancedPaymentPage() {
       const { data, error } = await supabase.functions.invoke('paypal-create-order', {
         body: { 
           email: user.email,
+          courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType
         }
@@ -265,10 +291,10 @@ export function EnhancedPaymentPage() {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="font-semibold text-lg">
-                  {pricingType === 'combo' ? '5-Week Course + 1:1 Mentorship Combo' : '5-Week Idea to Product Course'}
+                  {courseData?.title || (pricingType === 'combo' ? '5-Week Course + 1:1 Mentorship Combo' : '5-Week Idea to Product Course')}
                 </h3>
                 <p className="text-muted-foreground">
-                  {pricingType === 'combo' 
+                  {courseData?.title?.toLowerCase().includes('mentorship') || pricingType === 'combo'
                     ? 'Complete course access with personal mentorship and 1:1 calls'
                     : 'Master Lovable, Supabase, Apify, n8n, and APIs to build and launch your product'
                   }
@@ -288,7 +314,7 @@ export function EnhancedPaymentPage() {
                   <CreditCard className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm">7-day money back guarantee</span>
                 </div>
-                {pricingType === 'combo' && (
+                {(courseData?.title?.toLowerCase().includes('mentorship') || pricingType === 'combo') && (
                   <>
                     <div className="flex items-center gap-2">
                       <CreditCard className="w-4 h-4 text-muted-foreground" />

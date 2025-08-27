@@ -43,6 +43,8 @@ export function useEnrollmentStatus(): EnrollmentStatus {
 
     const checkEnrollmentStatus = async () => {
       try {
+        console.log('Checking enrollment for user:', user.id, user.email)
+        
         // Check for completed order enrollments (primary method now)
         const { data: orderEnrollments, error: orderError } = await supabase
           .from('order_enrollments')
@@ -62,6 +64,9 @@ export function useEnrollmentStatus(): EnrollmentStatus {
             )
           `)
           .or(`user_id.eq.${user.id},user_email.eq.${user.email}`)
+
+        console.log('Order enrollments data:', orderEnrollments)
+        console.log('Order enrollments error:', orderError)
 
         if (orderError) {
           console.error('Error fetching order enrollments:', orderError)

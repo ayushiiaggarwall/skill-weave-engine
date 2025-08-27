@@ -12,6 +12,7 @@ interface Course {
   title: string
   objective: string
   total_weeks: number
+  plans: string[]
   deliverables: string[] | null
   mini_project: string | null
   start_date: string | null
@@ -48,6 +49,7 @@ export default function CourseManagement() {
     title: '',
     objective: '',
     total_weeks: 5,
+    plans: [] as string[],
     deliverables: [] as string[],
     mini_project: '',
     start_date: '',
@@ -79,6 +81,7 @@ export default function CourseManagement() {
       if (error) throw error
       setCourses((data || []).map(course => ({
         ...course,
+        plans: course.plans || [],
         deliverables: course.deliverables || [],
         total_weeks: course.total_weeks || 5
       })))
@@ -125,6 +128,7 @@ export default function CourseManagement() {
           title: newCourse.title,
           objective: newCourse.objective,
           total_weeks: newCourse.total_weeks,
+          plans: newCourse.plans,
           deliverables: newCourse.deliverables,
           mini_project: newCourse.mini_project || null,
           start_date: newCourse.start_date || null,
@@ -150,6 +154,7 @@ export default function CourseManagement() {
         title: '',
         objective: '',
         total_weeks: 5,
+        plans: [],
         deliverables: [],
         mini_project: '',
         start_date: '',
@@ -194,6 +199,7 @@ export default function CourseManagement() {
           title: editingCourse.title,
           objective: editingCourse.objective,
           total_weeks: editingCourse.total_weeks,
+          plans: editingCourse.plans,
           deliverables: editingCourse.deliverables,
           mini_project: editingCourse.mini_project,
           start_date: editingCourse.start_date,
@@ -365,7 +371,15 @@ export default function CourseManagement() {
                 onChange={(e) => setNewCourse({...newCourse, objective: e.target.value})}
               />
             </div>
-            
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Plans (comma-separated)</label>
+              <Input
+                placeholder="e.g., basic, premium, enterprise"
+                value={newCourse.plans.join(', ')}
+                onChange={(e) => setNewCourse({...newCourse, plans: e.target.value.split(',').map(p => p.trim()).filter(p => p)})}
+              />
+            </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Mini Project (Optional)</label>
@@ -528,15 +542,23 @@ export default function CourseManagement() {
                         onChange={(e) => setEditingCourse({...editingCourse, objective: e.target.value})}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Total Weeks</label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={editingCourse.total_weeks}
-                        onChange={(e) => setEditingCourse({...editingCourse, total_weeks: parseInt(e.target.value)})}
-                      />
-                    </div>
+                     <div className="space-y-2">
+                       <label className="text-sm font-medium">Total Weeks</label>
+                       <Input
+                         type="number"
+                         min="1"
+                         value={editingCourse.total_weeks}
+                         onChange={(e) => setEditingCourse({...editingCourse, total_weeks: parseInt(e.target.value)})}
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <label className="text-sm font-medium">Plans (comma-separated)</label>
+                       <Input
+                         placeholder="e.g., basic, premium, enterprise"
+                         value={editingCourse.plans.join(', ')}
+                         onChange={(e) => setEditingCourse({...editingCourse, plans: e.target.value.split(',').map(p => p.trim()).filter(p => p)})}
+                       />
+                     </div>
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -558,6 +580,9 @@ export default function CourseManagement() {
                   <div className="space-y-2">
                     <p><strong>Objective:</strong> {course.objective}</p>
                     <p><strong>Duration:</strong> {course.total_weeks} weeks</p>
+                    {course.plans.length > 0 && (
+                      <p><strong>Plans:</strong> {course.plans.join(', ')}</p>
+                    )}
                   </div>
                 )}
 

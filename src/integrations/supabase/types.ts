@@ -288,6 +288,7 @@ export type Database = {
           is_active: boolean
           mini_project: string | null
           objective: string
+          plans: string[]
           start_date: string | null
           title: string
           total_weeks: number | null
@@ -301,6 +302,7 @@ export type Database = {
           is_active?: boolean
           mini_project?: string | null
           objective: string
+          plans?: string[]
           start_date?: string | null
           title: string
           total_weeks?: number | null
@@ -314,6 +316,7 @@ export type Database = {
           is_active?: boolean
           mini_project?: string | null
           objective?: string
+          plans?: string[]
           start_date?: string | null
           title?: string
           total_weeks?: number | null

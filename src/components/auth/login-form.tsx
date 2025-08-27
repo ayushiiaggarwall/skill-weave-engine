@@ -154,11 +154,18 @@ export function LoginForm() {
 
               <Button
                 type="submit"
-                className="w-full button-3d hover-glow min-h-[44px] flex items-center justify-center"
+                className="w-full hover-glow min-h-[48px] py-3 px-6 text-base font-medium leading-none"
                 disabled={isLoading}
+                style={{ 
+                  lineHeight: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'visible'
+                }}
               >
                 {isLoading ? (
-                  "Signing in..."
+                  <span className="flex items-center">Signing in...</span>
                 ) : (
                   <span className="flex items-center">
                     Sign In

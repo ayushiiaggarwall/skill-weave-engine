@@ -11,7 +11,7 @@ import CertificatesManagement from './certificates-management'
 import CourseManagement from './course-management'
 import PricingCouponManagement from './pricing-coupon-management'
 import CourseWeeksManagement from './course-weeks-management'
-
+import { formatCurrency } from "@/lib/utils"
 interface UserProfile {
   id: string
   name: string
@@ -397,7 +397,7 @@ export function AdminDashboard() {
                         const paidOrder = user.order_enrollments?.find(e => e.status === 'paid')
                         const courseType = paidOrder?.course_type || 'N/A'
                         const courseTitle = paidOrder?.courses?.title || courseType
-                        const amountPaid = paidOrder ? `${paidOrder.currency === 'USD' ? '$' : '₹'}${paidOrder.amount}` : 'N/A'
+                        const amountPaid = paidOrder ? formatCurrency(paidOrder.amount / 100, paidOrder.currency) : 'N/A'
                         
                         return (
                           <tr key={user.id} className="border-b hover:bg-muted/50">

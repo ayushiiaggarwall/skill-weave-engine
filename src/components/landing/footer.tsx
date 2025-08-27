@@ -28,9 +28,6 @@ export function Footer() {
               <a href="#course" className="block text-muted-foreground hover:text-primary transition-colors">
                 Course Overview
               </a>
-              <a href="#syllabus" className="block text-muted-foreground hover:text-primary transition-colors">
-                Syllabus
-              </a>
               <a href="#pricing" className="block text-muted-foreground hover:text-primary transition-colors">
                 Pricing
               </a>

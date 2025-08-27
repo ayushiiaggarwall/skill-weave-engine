@@ -105,8 +105,9 @@ export function EnhancedPaymentPage() {
       })
 
       if (error) {
-        // Handle coupon-specific errors
-        if (error.message && error.message.includes('Invalid coupon code')) {
+        console.error('Error applying coupon:', error)
+        // Handle coupon-specific errors - check for 400 status or invalid coupon message
+        if (error.message && (error.message.includes('Invalid coupon code') || error.message.includes('non-2xx status code'))) {
           toast({
             title: "Invalid Coupon",
             description: "The coupon code is not valid or has expired",
@@ -126,13 +127,22 @@ export function EnhancedPaymentPage() {
           description: `${data.couponApplied.code} - ${data.couponApplied.type === 'percent' ? `${data.couponApplied.value}% off` : `${data.currency === 'INR' ? '₹' : '$'}${data.couponApplied.value / 100} off`}`,
         })
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error applying coupon:', error)
-      toast({
-        title: "Error",
-        description: "Failed to apply coupon",
-        variant: "destructive"
-      })
+      // Handle FunctionsHttpError for invalid coupons
+      if (error?.name === 'FunctionsHttpError' || (error?.message && error.message.includes('non-2xx status code'))) {
+        toast({
+          title: "Invalid Coupon",
+          description: "The coupon code is not valid or has expired",
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to apply coupon",
+          variant: "destructive"
+        })
+      }
     }
     setIsApplyingCoupon(false)
   }

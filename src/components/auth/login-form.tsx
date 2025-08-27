@@ -95,7 +95,7 @@ export function LoginForm() {
 
         <Card className="glass-card-strong border-primary/20">
           <CardHeader>
-            <CardTitle className="text-center text-2xl text-gradient">
+            <CardTitle className="text-center text-2xl text-gradient leading-relaxed pb-2">
               Sign In
             </CardTitle>
           </CardHeader>

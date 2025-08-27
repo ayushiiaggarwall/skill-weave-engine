@@ -18,6 +18,7 @@ interface Course {
 export function CoursePage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedWeek, setSelectedWeek] = useState<Course | null>(null)
+  const [courseTitle, setCourseTitle] = useState<string>('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,10 +27,10 @@ export function CoursePage() {
 
   const fetchCourses = async () => {
     try {
-      // First, get active courses to find the course ID
+      // First, get active courses to find the course ID and title
       const { data: coursesData, error: coursesError } = await supabase
         .from('courses')
-        .select('id')
+        .select('id, title')
         .eq('is_active', true)
         .limit(1)
 
@@ -41,6 +42,7 @@ export function CoursePage() {
       }
 
       const courseId = coursesData[0].id
+      setCourseTitle(coursesData[0].title)
 
       // Now get the course weeks for the active course
       const { data, error } = await supabase
@@ -119,7 +121,7 @@ export function CoursePage() {
               <div className="glass-card p-6 rounded-2xl border border-white/10">
                 <h2 className="text-xl font-semibold flex items-center gap-2 mb-6">
                   <BookOpen className="h-5 w-5 text-primary" />
-                  Course Weeks
+                  {courseTitle || 'Course Weeks'}
                 </h2>
                 
                 <div className="space-y-3">

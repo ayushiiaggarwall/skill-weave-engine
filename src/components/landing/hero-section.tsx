@@ -38,7 +38,7 @@ function FloatingElement({ children, delay = 0, duration = 6, className = "" }: 
 export function HeroSection() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { pricing, isEarlyBird } = usePricing()
+  const { pricing } = usePricing()
 
   const handleEnrollClick = (pricingType: 'regular' | 'combo') => {
     if (!user) {
@@ -51,7 +51,6 @@ export function HeroSection() {
 
   // Calculate combo pricing based on region
   const comboPrice = pricing.currency === 'INR' ? '₹9,999' : '$199'
-  const regularPrice = `${pricing.symbol}${isEarlyBird ? pricing.earlyBird.toLocaleString() : pricing.regular.toLocaleString()}`
   
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6 lg:px-8 overflow-hidden pt-32 pb-16 md:pb-24">
@@ -187,7 +186,7 @@ export function HeroSection() {
                 onClick={() => handleEnrollClick('regular')}
               >
                 <span className="relative z-10 flex items-center">
-                  Enroll Now - {regularPrice}
+                  Apply Now
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}

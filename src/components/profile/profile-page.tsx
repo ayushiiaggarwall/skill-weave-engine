@@ -13,8 +13,7 @@ import {
   Camera, 
   Key, 
   Eye, 
-  EyeOff, 
-  Smartphone,
+  EyeOff,
   Check,
   X
 } from "lucide-react"
@@ -52,9 +51,6 @@ export function ProfilePage() {
   })
   const [passwordDirty, setPasswordDirty] = useState(false)
   const [passwordSaving, setPasswordSaving] = useState(false)
-
-  // 2FA state
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
 
   // Load existing profile data
   useEffect(() => {
@@ -513,53 +509,6 @@ export function ProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Two-Factor Authentication */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Smartphone className="w-5 h-5" />
-                    Two-Factor Authentication
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Authenticator App</p>
-                      <p className="text-sm text-muted-foreground">
-                        Use an authenticator app to generate secure codes
-                      </p>
-                    </div>
-                    <Button
-                      variant={twoFactorEnabled ? "destructive" : "default"}
-                      onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                    >
-                      {twoFactorEnabled ? "Disable" : "Enable"}
-                    </Button>
-                  </div>
-
-                  {twoFactorEnabled && (
-                    <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
-                      <div className="text-center">
-                        <div className="w-32 h-32 mx-auto bg-background border rounded-lg flex items-center justify-center mb-4">
-                          <span className="text-xs text-muted-foreground">QR Code</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Scan this QR code with your authenticator app
-                        </p>
-                      </div>
-                      <div className="space-y-2 max-w-md">
-                        <label htmlFor="auth-code" className="text-sm font-medium">
-                          Enter verification code
-                        </label>
-                        <Input
-                          id="auth-code"
-                          placeholder="000000"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>

@@ -154,16 +154,16 @@ export function LoginForm() {
 
               <Button
                 type="submit"
-                className="w-full button-3d hover-glow"
+                className="w-full button-3d hover-glow min-h-[44px] flex items-center justify-center"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   "Signing in..."
                 ) : (
-                  <>
+                  <span className="flex items-center">
                     Sign In
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
+                  </span>
                 )}
               </Button>
             </form>

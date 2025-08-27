@@ -178,7 +178,7 @@ export function ContactUs() {
             >
               <Card className="glass-card">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-4">Get in Touch</h3>
+                  <h3 className="text-xl font-semibold mb-4 pt-4">Get in Touch</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">

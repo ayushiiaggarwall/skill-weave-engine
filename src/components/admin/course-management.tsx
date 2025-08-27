@@ -10,9 +10,8 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 interface Course {
   id: string
   title: string
-  content: string
   objective: string
-  week_number: number
+  total_weeks: number
   deliverables: string[] | null
   mini_project: string | null
   start_date: string | null
@@ -47,9 +46,8 @@ export default function CourseManagement() {
 
   const [newCourse, setNewCourse] = useState({
     title: '',
-    content: '',
     objective: '',
-    week_number: 1,
+    total_weeks: 5,
     deliverables: [] as string[],
     mini_project: '',
     start_date: '',
@@ -76,12 +74,13 @@ export default function CourseManagement() {
       const { data, error } = await supabase
         .from('courses')
         .select('*')
-        .order('week_number', { ascending: true })
+        .order('created_at', { ascending: false })
 
       if (error) throw error
       setCourses((data || []).map(course => ({
         ...course,
-        deliverables: course.deliverables || []
+        deliverables: course.deliverables || [],
+        total_weeks: course.total_weeks || 5
       })))
     } catch (error) {
       console.error('Error fetching courses:', error)
@@ -109,7 +108,7 @@ export default function CourseManagement() {
   }
 
   const createCourse = async () => {
-    if (!newCourse.title.trim() || !newCourse.content.trim() || !newCourse.objective.trim()) {
+    if (!newCourse.title.trim() || !newCourse.objective.trim()) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -124,9 +123,8 @@ export default function CourseManagement() {
         .from('courses')
         .insert([{
           title: newCourse.title,
-          content: newCourse.content,
           objective: newCourse.objective,
-          week_number: newCourse.week_number,
+          total_weeks: newCourse.total_weeks,
           deliverables: newCourse.deliverables,
           mini_project: newCourse.mini_project || null,
           start_date: newCourse.start_date || null,
@@ -150,9 +148,8 @@ export default function CourseManagement() {
 
       setNewCourse({
         title: '',
-        content: '',
         objective: '',
-        week_number: 1,
+        total_weeks: 5,
         deliverables: [],
         mini_project: '',
         start_date: '',
@@ -195,9 +192,8 @@ export default function CourseManagement() {
         .from('courses')
         .update({
           title: editingCourse.title,
-          content: editingCourse.content,
           objective: editingCourse.objective,
-          week_number: editingCourse.week_number,
+          total_weeks: editingCourse.total_weeks,
           deliverables: editingCourse.deliverables,
           mini_project: editingCourse.mini_project,
           start_date: editingCourse.start_date,
@@ -335,12 +331,12 @@ export default function CourseManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Week Number</label>
+                <label className="text-sm font-medium">Total Weeks</label>
                 <Input
                   type="number"
                   min="1"
-                  value={newCourse.week_number}
-                  onChange={(e) => setNewCourse({...newCourse, week_number: parseInt(e.target.value)})}
+                  value={newCourse.total_weeks}
+                  onChange={(e) => setNewCourse({...newCourse, total_weeks: parseInt(e.target.value)})}
                 />
               </div>
               <div className="space-y-2">
@@ -370,15 +366,6 @@ export default function CourseManagement() {
               />
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Course Content</label>
-              <Textarea
-                placeholder="Detailed course content"
-                value={newCourse.content}
-                onChange={(e) => setNewCourse({...newCourse, content: e.target.value})}
-                rows={6}
-              />
-            </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Mini Project (Optional)</label>
@@ -496,7 +483,7 @@ export default function CourseManagement() {
                         <XCircle className="w-5 h-5 text-gray-400" />
                       )}
                       <span className="text-sm text-muted-foreground">
-                        Week {course.week_number}
+                        {course.total_weeks} weeks
                       </span>
                     </div>
                   </div>
@@ -542,11 +529,12 @@ export default function CourseManagement() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Content</label>
-                      <Textarea
-                        value={editingCourse.content}
-                        onChange={(e) => setEditingCourse({...editingCourse, content: e.target.value})}
-                        rows={4}
+                      <label className="text-sm font-medium">Total Weeks</label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={editingCourse.total_weeks}
+                        onChange={(e) => setEditingCourse({...editingCourse, total_weeks: parseInt(e.target.value)})}
                       />
                     </div>
                     <div className="flex items-center space-x-2">
@@ -569,7 +557,7 @@ export default function CourseManagement() {
                 ) : (
                   <div className="space-y-2">
                     <p><strong>Objective:</strong> {course.objective}</p>
-                    <p><strong>Content:</strong> {course.content.substring(0, 200)}...</p>
+                    <p><strong>Duration:</strong> {course.total_weeks} weeks</p>
                   </div>
                 )}
 

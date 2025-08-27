@@ -281,7 +281,6 @@ export type Database = {
       }
       courses: {
         Row: {
-          content: string
           created_at: string
           deliverables: string[] | null
           end_date: string | null
@@ -291,11 +290,10 @@ export type Database = {
           objective: string
           start_date: string | null
           title: string
+          total_weeks: number | null
           updated_at: string
-          week_number: number
         }
         Insert: {
-          content: string
           created_at?: string
           deliverables?: string[] | null
           end_date?: string | null
@@ -305,11 +303,10 @@ export type Database = {
           objective: string
           start_date?: string | null
           title: string
+          total_weeks?: number | null
           updated_at?: string
-          week_number: number
         }
         Update: {
-          content?: string
           created_at?: string
           deliverables?: string[] | null
           end_date?: string | null
@@ -319,8 +316,8 @@ export type Database = {
           objective?: string
           start_date?: string | null
           title?: string
+          total_weeks?: number | null
           updated_at?: string
-          week_number?: number
         }
         Relationships: []
       }

@@ -301,7 +301,7 @@ export function SyllabusSection() {
                 
                 <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 hover:bg-card hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
                   {/* Logo image */}
-                  <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 mx-auto bg-black dark:bg-background/80 p-2">
+                  <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 mx-auto bg-black dark:bg-black p-2">
                     <img 
                       src={tool.logo} 
                       alt={`${tool.name} logo`} 

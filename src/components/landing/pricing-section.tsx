@@ -195,7 +195,7 @@ export function PricingSection() {
     
     return [
       "5 Weeks of Live Classes (Sat & Sun, 7:30–10 PM IST)",
-      "Final Week Q&A + Project Demos", 
+      "Final Week Q&A + Project Demos",
       "Step-by-Step Curriculum — from basics to launch",
       "Hands-On Projects every week",
       "Lifetime Access to Recordings & Materials",
@@ -294,8 +294,8 @@ export function PricingSection() {
                       </div>
                       <p className="text-muted-foreground">
                         {(course.title.toLowerCase().includes('pro') || course.title.toLowerCase().includes('mentorship')) 
-                          ? "Save ₹15,000+ on the bundle • For limited time period"
-                          : (pricing.isEarlyBird ? "Early Bird Offer" : "Regular Price") + " • One-time payment"
+                          ? "Bring your Idea to Life • Limited Seats Only"
+                          : "Bring your Idea to Life • Limited Seats Only"
                         }
                       </p>
                     </div>

@@ -36,58 +36,32 @@ interface CourseContent {
   created_at: string
 }
 
-const courseModules = [
-  {
-    week: 1,
-    title: "No-Code Fundamentals",
-    description: "Introduction to no-code tools and platforms",
-    duration: "8 hours",
-    status: "locked",
-    progress: 0,
-    topics: ["What is No-Code?", "Popular Platforms", "Basic Concepts", "First Project"]
-  },
-  {
-    week: 2,
-    title: "Database Design & Management",
-    description: "Learn to design and manage databases without code",
-    duration: "10 hours",
-    status: "locked",
-    progress: 0,
-    topics: ["Database Basics", "Airtable", "Relations", "Data Validation"]
-  },
-  {
-    week: 3,
-    title: "Building Web Applications",
-    description: "Create responsive web apps using no-code platforms",
-    duration: "12 hours",
-    status: "locked",
-    progress: 0,
-    topics: ["Webflow Basics", "Components", "Responsive Design", "Interactions"]
-  },
-  {
-    week: 4,
-    title: "Automation & Workflows",
-    description: "Automate processes and create efficient workflows",
-    duration: "10 hours",
-    status: "locked",
-    progress: 0,
-    topics: ["Zapier", "Workflow Design", "API Integrations", "Testing"]
-  },
-  {
-    week: 5,
-    title: "Product Launch & Beyond",
-    description: "Launch your product and scale it effectively",
-    duration: "8 hours",
-    status: "locked",
-    progress: 0,
-    topics: ["Product Launch", "User Feedback", "Analytics", "Scaling"]
-  }
-]
+interface CourseWeek {
+  id: string
+  title: string
+  week_number: number
+  objective: string
+  content: string
+  mini_project: string | null
+  deliverables: string[]
+  visible: boolean
+}
+
+interface Course {
+  id: string
+  title: string
+  objective: string
+  plans: string[]
+  total_weeks: number | null
+}
+
 
 export function MyCourses() {
   const { toast } = useToast()
   const enrollmentStatus = useEnrollmentStatus()
   const [courseContent, setCourseContent] = useState<CourseContent[]>([])
+  const [courseWeeks, setCourseWeeks] = useState<CourseWeek[]>([])
+  const [course, setCourse] = useState<Course | null>(null)
   const [contentLoading, setContentLoading] = useState(true)
   const [courseStartDate, setCourseStartDate] = useState<string | null>(null)
 
@@ -95,6 +69,7 @@ export function MyCourses() {
     if (enrollmentStatus.isEnrolled) {
       fetchCourseContent()
       fetchCourseDetails()
+      fetchCourseWeeks()
       setupRealtimeSubscription()
     }
   }, [enrollmentStatus.isEnrolled])
@@ -126,16 +101,39 @@ export function MyCourses() {
     try {
       const { data, error } = await supabase
         .from('courses')
-        .select('start_date')
+        .select('id, title, objective, plans, total_weeks, start_date')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single()
+        .maybeSingle()
 
       if (error) throw error
-      setCourseStartDate(data?.start_date || null)
+      if (data) {
+        setCourse(data)
+        setCourseStartDate(data.start_date || null)
+      }
     } catch (error) {
       console.error('Error fetching course details:', error)
+    }
+  }
+
+  const fetchCourseWeeks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('course_weeks')
+        .select('*')
+        .eq('visible', true)
+        .order('week_number', { ascending: true })
+
+      if (error) throw error
+      setCourseWeeks((data || []) as CourseWeek[])
+    } catch (error) {
+      console.error('Error fetching course weeks:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch course weeks",
+        variant: "destructive",
+      })
     }
   }
 
@@ -181,7 +179,7 @@ export function MyCourses() {
     }
   }
 
-  const overallProgress = Math.round(courseModules.reduce((acc, module) => acc + module.progress, 0) / courseModules.length)
+  const overallProgress = courseWeeks.length > 0 ? Math.round((courseWeeks.filter(w => w.week_number <= 1).length / courseWeeks.length) * 100) : 0
 
   if (enrollmentStatus.loading) {
     return (
@@ -267,7 +265,7 @@ export function MyCourses() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold">Overall Progress</h3>
-                    <p className="text-muted-foreground">5-Week Idea to Product Course</p>
+                    <p className="text-muted-foreground">{course?.title || "Loading course..."}</p>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold gradient-text">{overallProgress}%</div>
@@ -294,7 +292,7 @@ export function MyCourses() {
                       `Started ${new Date().toLocaleDateString()}`
                     )}
                   </span>
-                  <span>{courseModules.filter(m => m.status === 'completed').length}/{courseModules.length} modules completed</span>
+                  <span>{courseWeeks.filter(w => w.week_number <= 1).length}/{courseWeeks.length} weeks completed</span>
                 </div>
               </CardContent>
             </Card>
@@ -302,111 +300,147 @@ export function MyCourses() {
 
           {/* Course Modules */}
           <div className="space-y-6">
-            {courseModules.map((module, index) => (
-              <motion.div
-                key={module.week}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className={`transition-all duration-300 hover:shadow-lg pt-4 ${
-                  module.status === 'current' ? 'ring-2 ring-primary' : 
-                  module.status === 'locked' ? 'opacity-60' : ''
-                }`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-lg ${
-                          module.status === 'completed' ? 'bg-green-100 dark:bg-green-900' :
-                          module.status === 'current' ? 'bg-primary/10' : 'bg-muted'
-                        }`}>
-                          {module.status === 'completed' ? (
-                            <CheckCircle className="h-6 w-6 text-green-600" />
-                          ) : module.status === 'current' ? (
-                            <Play className="h-6 w-6 text-primary" />
-                          ) : (
-                            <BookOpen className="h-6 w-6 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline">Week {module.week}</Badge>
-                            <Badge variant={
-                              module.status === 'completed' ? 'default' :
-                              module.status === 'current' ? 'secondary' : 'outline'
-                            }>
-                              {module.status === 'completed' ? 'Completed' :
-                               module.status === 'current' ? 'In Progress' : 'Locked'}
-                            </Badge>
+            {courseWeeks.length === 0 ? (
+              <div className="text-center py-12">
+                <BookOpen className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">Loading course content...</p>
+              </div>
+            ) : (
+              courseWeeks.map((week, index) => {
+                // Determine week status - for now, just mark week 1 as current and others as locked
+                const status: 'completed' | 'current' | 'locked' = 
+                  week.week_number === 1 ? 'current' : 
+                  week.week_number < 1 ? 'completed' : 'locked'
+                const progress = week.week_number === 1 ? 25 : 0
+                
+                // Parse content into topics
+                const topics = week.content.split('\n')
+                  .filter(line => line.trim().startsWith('-') || line.trim().startsWith('->'))
+                  .map(line => line.replace(/^[->\s]+/, '').trim())
+                  .filter(topic => topic.length > 0)
+                
+                return (
+                  <motion.div
+                    key={week.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <Card className={`transition-all duration-300 hover:shadow-lg pt-4 ${
+                      status === 'current' ? 'ring-2 ring-primary' : 
+                      status === 'locked' ? 'opacity-60' : ''
+                    }`}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-lg ${
+                              status === 'completed' ? 'bg-green-100 dark:bg-green-900' :
+                              status === 'current' ? 'bg-primary/10' : 'bg-muted'
+                            }`}>
+                              {status === 'completed' ? (
+                                <CheckCircle className="h-6 w-6 text-green-600" />
+                              ) : status === 'current' ? (
+                                <Play className="h-6 w-6 text-primary" />
+                              ) : (
+                                <BookOpen className="h-6 w-6 text-muted-foreground" />
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline">Week {week.week_number}</Badge>
+                                <Badge variant={
+                                  status === 'completed' ? 'default' :
+                                  status === 'current' ? 'secondary' : 'outline'
+                                }>
+                                  {status === 'completed' ? 'Completed' :
+                                   status === 'current' ? 'In Progress' : 'Locked'}
+                                </Badge>
+                              </div>
+                              <CardTitle className="text-xl mb-2">{week.title}</CardTitle>
+                              <p className="text-muted-foreground">{week.objective}</p>
+                            </div>
                           </div>
-                          <CardTitle className="text-xl mb-2">{module.title}</CardTitle>
-                          <p className="text-muted-foreground">{module.description}</p>
+                          <div className="text-right">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                              <Clock className="h-4 w-4" />
+                              {week.week_number === 1 ? '10 hours' : `${8 + week.week_number}+ hours`}
+                            </div>
+                            {status !== 'locked' && (
+                              <Button size="sm" variant={status === 'current' ? 'default' : 'outline'}>
+                                {status === 'completed' ? 'Review' : 'Continue'}
+                                <ExternalLink className="h-4 w-4 ml-2" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Clock className="h-4 w-4" />
-                          {module.duration}
-                        </div>
-                        {module.status !== 'locked' && (
-                          <Button size="sm" variant={module.status === 'current' ? 'default' : 'outline'}>
-                            {module.status === 'completed' ? 'Review' : 'Continue'}
-                            <ExternalLink className="h-4 w-4 ml-2" />
-                          </Button>
+                      </CardHeader>
+                      <CardContent>
+                        {/* Progress Bar */}
+                        {status !== 'locked' && (
+                          <div className="mb-4">
+                            <div className="flex justify-between text-sm mb-2">
+                              <span>Progress</span>
+                              <span>{progress}%</span>
+                            </div>
+                            <Progress value={progress} className="h-2" />
+                          </div>
                         )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Progress Bar */}
-                    {module.status !== 'locked' && (
-                      <div className="mb-4">
-                        <div className="flex justify-between text-sm mb-2">
-                          <span>Progress</span>
-                          <span>{module.progress}%</span>
-                        </div>
-                        <Progress value={module.progress} className="h-2" />
-                      </div>
-                    )}
 
-                    {/* Topics */}
-                    <div>
-                      <h4 className="font-medium mb-3 flex items-center gap-2">
-                        <BookOpen className="h-4 w-4" />
-                        Topics Covered
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {module.topics.map((topic, topicIndex) => (
-                          <Badge 
-                            key={topicIndex} 
-                            variant="outline" 
-                            className={module.status === 'locked' ? 'opacity-50' : ''}
-                          >
-                            {topic}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                        {/* Topics */}
+                        <div>
+                          <h4 className="font-medium mb-3 flex items-center gap-2">
+                            <BookOpen className="h-4 w-4" />
+                            What You'll Learn
+                          </h4>
+                          <div className="space-y-2">
+                            {topics.slice(0, 4).map((topic, topicIndex) => (
+                              <div key={topicIndex} className="flex items-start gap-2">
+                                <span className="text-green-500 mt-1">•</span>
+                                <span className={`text-sm ${status === 'locked' ? 'opacity-50' : ''}`}>
+                                  {topic}
+                                </span>
+                              </div>
+                            ))}
+                            {topics.length > 4 && (
+                              <p className="text-xs text-muted-foreground">
+                                +{topics.length - 4} more topics
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                    {/* Additional Info for Current Module */}
-                    {module.status === 'current' && (
-                      <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-primary" />
-                          <span className="font-medium">Next Live Session:</span>
-                          <span>Tomorrow at 2:00 PM IST</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm mt-2">
-                          <Users className="h-4 w-4 text-primary" />
-                          <span className="font-medium">Study Group:</span>
-                          <span>Join your cohort discussion</span>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                        {/* Mini Project */}
+                        {week.mini_project && (
+                          <div className="mt-4 p-3 bg-accent/10 rounded-lg border">
+                            <h5 className="font-medium text-sm mb-1 flex items-center gap-2">
+                              <Clipboard className="h-4 w-4" />
+                              Week Project
+                            </h5>
+                            <p className="text-sm text-muted-foreground">{week.mini_project}</p>
+                          </div>
+                        )}
+
+                        {/* Additional Info for Current Module */}
+                        {status === 'current' && (
+                          <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Calendar className="h-4 w-4 text-primary" />
+                              <span className="font-medium">Next Live Session:</span>
+                              <span>Sat/Sun at 7:30 PM IST</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm mt-2">
+                              <Users className="h-4 w-4 text-primary" />
+                              <span className="font-medium">Study Group:</span>
+                              <span>Join your cohort discussion</span>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )
+              })
+            )}
           </div>
 
           {/* Dynamic Course Content */}
@@ -442,11 +476,11 @@ export function MyCourses() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {[1, 2, 3, 4, 5].map(week => {
-                        const weekContent = courseContent.filter(item => item.week_number === week)
+                      {courseWeeks.map(week => {
+                        const weekContent = courseContent.filter(item => item.week_number === week.week_number)
                         return (
-                          <div key={week} className="border rounded-lg p-4">
-                            <h4 className="font-semibold mb-3 text-lg">Week {week}</h4>
+                          <div key={week.id} className="border rounded-lg p-4">
+                            <h4 className="font-semibold mb-3 text-lg">Week {week.week_number} - {week.title}</h4>
                             {weekContent.length === 0 ? (
                               <p className="text-muted-foreground text-sm">No materials available for this week yet.</p>
                             ) : (

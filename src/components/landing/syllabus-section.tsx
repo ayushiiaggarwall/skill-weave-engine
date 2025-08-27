@@ -301,8 +301,7 @@ export function SyllabusSection() {
                     <span className="text-white font-bold text-xl">{tool.name.charAt(0)}</span>
                   </div>
                   
-                  <h4 className="font-semibold text-foreground mb-2">{tool.name}</h4>
-                  <p className="text-sm text-muted-foreground">{tool.tagline}</p>
+                  <h4 className="font-semibold text-foreground">{tool.name}</h4>
                 </div>
               </div>
             ))}

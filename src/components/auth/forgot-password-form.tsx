@@ -40,6 +40,7 @@ export function ForgotPasswordForm() {
             variant: "success",
           })
           setTimeout(() => navigate('/login'), 3000)
+          return // Prevent further execution
         } else {
           // All other errors - show red error message
           toast({
@@ -47,6 +48,7 @@ export function ForgotPasswordForm() {
             description: error.message || "There was an issue sending the reset email. Please try again.",
             variant: "destructive",
           })
+          return // Prevent further execution
         }
       } else {
         setIsSubmitted(true)

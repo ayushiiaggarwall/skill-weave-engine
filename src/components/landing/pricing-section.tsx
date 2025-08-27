@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { supabase } from "@/integrations/supabase/client"
 import { useCoursePricing } from "@/hooks/use-course-pricing"
+import { useRegionDetection } from "@/hooks/use-region-detection"
 
 interface CoursePricing {
   inr_regular: number
@@ -35,6 +36,9 @@ export function PricingSection() {
   
   const [courses, setCourses] = useState<CourseWithPricing[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Detect user's region for pricing
+  const { region } = useRegionDetection()
   
   // Get timer data from the first active course
   const { timeLeft, formatTime, isEarlyBird } = useCoursePricing()
@@ -98,11 +102,22 @@ export function PricingSection() {
     const coursePriceData = course.course_pricing[0]
     if (!coursePriceData) return { current: 0, mrp: 0, symbol: '₹', isEarlyBird: false }
     
-    // Always show INR pricing as default
-    const regular = coursePriceData.inr_regular
-    const mrp = coursePriceData.inr_mrp
-    const earlyBird = coursePriceData.inr_early_bird
-    const symbol = '₹'
+    // Use region detection to show appropriate pricing
+    let regular, mrp, earlyBird, symbol
+    
+    if (region === 'in') {
+      // Indian pricing
+      regular = coursePriceData.inr_regular
+      mrp = coursePriceData.inr_mrp
+      earlyBird = coursePriceData.inr_early_bird
+      symbol = '₹'
+    } else {
+      // International pricing (USD)
+      regular = coursePriceData.usd_regular
+      mrp = coursePriceData.usd_mrp
+      earlyBird = coursePriceData.usd_early_bird
+      symbol = '$'
+    }
     
     // Check if early bird is active and valid
     const isEarlyBird = coursePriceData.is_early_bird_active && 
@@ -287,7 +302,7 @@ export function PricingSection() {
                         {course.title.toLowerCase().includes('essential') 
                           ? "Bring your Idea to Life • Limited Seats Only"
                           : course.title.toLowerCase().includes('mentorship')
-                          ? "Save ₹15,000+ on the bundle • For limited time period"
+                          ? `Save ${pricing.symbol}${region === 'in' ? '15,000' : '150'}+ on the bundle • For limited time period`
                           : "Bring your Idea to Life • Limited Seats Only"
                         }
                       </p>

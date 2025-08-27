@@ -45,7 +45,7 @@ export function ContactUs() {
       if (data?.success) {
         toast({
           title: "Message Sent!",
-          description: data.message || "We'll get back to you soon."
+          description: "Your message has been sent, will get back to you in 24 hours."
         })
         setFormData({ name: '', email: '', subject: '', message: '' })
       } else {

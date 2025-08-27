@@ -76,7 +76,8 @@ export function ModernDashboard() {
       const { data, error } = await supabase
         .from('courses')
         .select('*')
-        .order('week_number', { ascending: true })
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
         .limit(5)
 
       if (error) throw error
@@ -373,12 +374,12 @@ export function ModernDashboard() {
                                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                                  <BookOpen className="w-4 h-4 text-white" />
                                </div>
-                               <div className="flex-1">
-                                 <h4 className="font-medium text-sm">{course.title}</h4>
-                                 <p className="text-xs text-muted-foreground">
-                                   Week {course.week_number}
-                                 </p>
-                               </div>
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-sm">{course.title}</h4>
+                                  <p className="text-xs text-muted-foreground">
+                                    {course.total_weeks ? `${course.total_weeks} weeks` : 'Active Course'}
+                                  </p>
+                                </div>
                              </div>
                            ))}
                          </div>

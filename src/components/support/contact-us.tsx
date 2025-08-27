@@ -42,22 +42,19 @@ export function ContactUs() {
         }
       })
 
-      console.log('Contact form response:', { data, error })
-
-      if (error) {
-        console.error('Supabase function error:', error)
-        throw error
-      }
-
-      // Show success message regardless of data.success for now
-      toast({
-        title: "Message Sent!",
-        description: "Your message has been sent, will get back to you in 24 hours."
-      })
-      setFormData({ name: '', email: '', subject: '', message: '' })
+      console.log('Contact form response data:', data)
+      console.log('Contact form response error:', error)
       
-      if (!data?.success) {
-        console.warn('Function returned but success=false:', data)
+      // Always show success message when no error occurs
+      if (!error) {
+        console.log('Showing success toast...')
+        toast({
+          title: "Message Sent!",
+          description: "Your message has been sent, will get back to you in 24 hours."
+        })
+        setFormData({ name: '', email: '', subject: '', message: '' })
+      } else {
+        throw error
       }
     } catch (error: any) {
       console.error('Contact form error:', error)

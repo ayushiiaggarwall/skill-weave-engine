@@ -217,6 +217,8 @@
   
   .button-3d:active {
     transform: translateY(-1px) rotateX(2deg);
+    /* Keep text visible and just slightly darker */
+    filter: brightness(0.9);
   }
   
   /* Interactive Hover Effects */

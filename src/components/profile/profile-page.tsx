@@ -18,12 +18,12 @@ import {
   X
 } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
-import { useToast } from "@/hooks/use-toast"
+import { useToastContext } from "@/components/ui/toast-provider"
 
 export function ProfilePage() {
   const { user, profile, refreshProfile } = useAuth()
   const { isEnrolled, courseName, paymentStatus } = useEnrollmentStatus()
-  const { toast } = useToast()
+  const { toast } = useToastContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Profile state
@@ -116,15 +116,7 @@ export function ProfilePage() {
   }
 
   const savePassword = async () => {
-    console.log('savePassword called')
-    console.log('Passwords:', { 
-      newLength: passwords.new.length, 
-      confirmLength: passwords.confirm.length,
-      match: passwords.new === passwords.confirm 
-    })
-    
     if (passwords.new !== passwords.confirm) {
-      console.log('Password mismatch, showing toast')
       toast({
         title: "Password mismatch",
         description: "New password and confirmation don't match.",
@@ -133,20 +125,14 @@ export function ProfilePage() {
       return
     }
 
-    console.log('Starting password update process')
     setPasswordSaving(true)
     try {
-      console.log('Calling supabase.auth.updateUser')
       const { error } = await supabase.auth.updateUser({
         password: passwords.new
       })
 
-      if (error) {
-        console.log('Supabase error:', error)
-        throw error
-      }
+      if (error) throw error
 
-      console.log('Password update successful, showing success toast')
       toast({
         title: "Password updated",
         description: "Your password has been updated successfully.",
@@ -155,14 +141,12 @@ export function ProfilePage() {
       setPasswordDirty(false)
     } catch (error) {
       console.error('Error updating password:', error)
-      console.log('Showing error toast')
       toast({
         title: "Error",
         description: "Failed to update password. Please try again.",
         variant: "destructive",
       })
     } finally {
-      console.log('Password update process completed')
       setPasswordSaving(false)
     }
   }

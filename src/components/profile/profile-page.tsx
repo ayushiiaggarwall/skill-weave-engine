@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast"
 
 export function ProfilePage() {
   const { user, profile, refreshProfile } = useAuth()
-  const { isEnrolled } = useEnrollmentStatus()
+  const { isEnrolled, courseName, paymentStatus } = useEnrollmentStatus()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -372,6 +372,22 @@ export function ProfilePage() {
                     </span>
                   </div>
                 </div>
+
+                {/* Enrolled Course */}
+                {isEnrolled && courseName && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Enrolled Course</label>
+                    <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{courseName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Payment Status: <span className="text-primary font-medium">{paymentStatus}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">

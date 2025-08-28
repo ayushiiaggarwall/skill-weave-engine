@@ -45,7 +45,7 @@ export const PasswordResetEmail = ({
         <Text style={text}>Click the button below to set up a new password:</Text>
         <Section style={buttonContainer}>
           <Button
-            href={`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+            href={`https://xujaxssbncobmiwxbaxh.supabase.co/auth/v1/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
             style={button}
           >
             Reset Password
@@ -53,7 +53,7 @@ export const PasswordResetEmail = ({
         </Section>
         <Text style={text}>Or, copy and paste this link into your browser:</Text>
         <Text style={code}>
-          {`${app_base_url}/auth/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
+          {`https://xujaxssbncobmiwxbaxh.supabase.co/auth/v1/verify?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(redirect_to)}`}
         </Text>
         <Text style={disclaimer}>
           If you didn't request this, you can safely ignore this email, your account will remain secure.

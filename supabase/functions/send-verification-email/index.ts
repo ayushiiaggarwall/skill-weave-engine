@@ -138,6 +138,10 @@ Deno.serve(async (req) => {
       subject,
       html,
       text,
+      reply_to: Deno.env.get('RESEND_REPLY_TO') || fromEmail,
+      tags: [
+        { name: 'category', value: email_action_type === 'recovery' ? 'password_reset' : 'verification' },
+      ],
     })
 
     if (error) {

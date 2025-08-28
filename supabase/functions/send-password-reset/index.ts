@@ -108,6 +108,10 @@ Deno.serve(async (req) => {
       subject: 'Reset Your Password',
       html,
       text: plainText,
+      reply_to: Deno.env.get('RESEND_REPLY_TO') || Deno.env.get('RESEND_FROM_EMAIL') || 'hello@ayushiaggarwal.tech',
+      tags: [
+        { name: 'category', value: 'password_reset' },
+      ],
     })
 
     if (error) {

@@ -12,29 +12,21 @@ const logStep = (step: string, details?: any) => {
 };
 
 const getPayPalAccessToken = async () => {
-  const clientId =
-    Deno.env.get("PAYPAL_CLIENT_ID") ||
-    Deno.env.get("PAYPAL_LIVE_CLIENT_ID") ||
-    Deno.env.get("PAYPAL_CLIENTID");
-  const clientSecret =
-    Deno.env.get("PAYPAL_CLIENT_SECRET") ||
-    Deno.env.get("PAYPAL_LIVE_CLIENT_SECRET") ||
-    Deno.env.get("PAYPAL_SECRET") ||
-    Deno.env.get("PAYPAL_CLIENTSECRET");
+  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
+  const clientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET");
+  
+  logStep("Reading PayPal credentials", {
+    hasClientId: !!clientId,
+    hasClientSecret: !!clientSecret,
+    clientIdValue: clientId ? `${clientId.substring(0, 8)}...` : 'null',
+    clientSecretValue: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'null'
+  });
   
   if (!clientId || !clientSecret) {
     logStep("Missing PayPal credentials", {
       hasClientId: !!clientId,
       hasClientSecret: !!clientSecret,
-      tried: [
-        "PAYPAL_CLIENT_ID",
-        "PAYPAL_LIVE_CLIENT_ID",
-        "PAYPAL_CLIENTID",
-        "PAYPAL_CLIENT_SECRET",
-        "PAYPAL_LIVE_CLIENT_SECRET",
-        "PAYPAL_SECRET",
-        "PAYPAL_CLIENTSECRET",
-      ],
+      availableEnvVars: Object.keys(Deno.env.toObject()).filter(key => key.includes('PAYPAL'))
     });
     throw new Error("PayPal credentials not configured");
   }

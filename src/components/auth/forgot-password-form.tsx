@@ -33,13 +33,11 @@ export function ForgotPasswordForm() {
         
         // Special handling for hook timeout - email was likely sent successfully
         if (error.message?.includes("Failed to reach hook within maximum time") || error.code === "hook_timeout") {
-          setIsSubmitted(true)
+          // Show explicit error toast as requested and do NOT redirect
           toast({
-            title: "Reset Link Sent Successfully",
-            description: "Please check your email inbox for the password reset link. The process took longer than expected but your email should arrive shortly.",
-            variant: "success",
+            title: "failed to send a mail, kindly retrigger the mail",
+            variant: "destructive",
           })
-          setTimeout(() => navigate('/login'), 3000)
           return // Prevent further execution
         } else {
           // All other errors - show red error message

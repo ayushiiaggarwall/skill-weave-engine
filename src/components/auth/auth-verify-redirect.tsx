@@ -9,19 +9,23 @@ export default function AuthVerifyRedirect() {
     
     const params = new URLSearchParams(window.location.search)
     const token_hash = params.get('token_hash') || ''
+    const token = params.get('token') || ''
     const type = params.get('type') || ''
     const redirect_to = params.get('redirect_to') || `${window.location.origin}/dashboard`
 
-    console.log('Extracted params:', { token_hash, type, redirect_to })
+    console.log('Extracted params:', { token_hash, token, type, redirect_to })
 
-    if (!token_hash || !type) {
+    if ((!token_hash && !token) || !type) {
       console.log('Missing required params, redirecting to home')
       window.location.replace('/')
       return
     }
 
     const supabaseUrl = 'https://xujaxssbncobmiwxbaxh.supabase.co'
-    const verifyUrl = `${supabaseUrl}/auth/v1/verify?token_hash=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`
+    const baseUrl = `${supabaseUrl}/auth/v1/verify?type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`
+    const verifyUrl = token_hash
+      ? `${baseUrl}&token_hash=${encodeURIComponent(token_hash)}`
+      : `${baseUrl}&token=${encodeURIComponent(token)}`
 
     console.log('Redirecting to Supabase verify URL:', verifyUrl)
     window.location.replace(verifyUrl)

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Header } from "@/components/landing/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToastContext } from "@/components/ui/toast-provider"
 import { useReferralTracking } from "@/hooks/use-referral-tracking"
+import { useAuth } from "@/contexts/auth-context"
 import { supabase } from "@/integrations/supabase/client"
 import { Mail, Phone, Send } from "lucide-react"
 
@@ -19,6 +20,17 @@ export function ContactUs() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToastContext()
   const { getReferralSource } = useReferralTracking()
+  const { user } = useAuth()
+
+  // Pre-fill email if user is signed in
+  useEffect(() => {
+    if (user?.email && !formData.email) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || ''
+      }))
+    }
+  }, [user?.email, formData.email])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target

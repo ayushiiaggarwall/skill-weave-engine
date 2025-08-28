@@ -16,7 +16,7 @@ export function Footer() {
           <div className="space-y-4">
             <TextLogo />
             <p className="text-muted-foreground">
-              Empowering entrepreneurs to build profitable products without code. 
+              Empowering creators to build and scale profitable products using no-code. 
               Join the no-code revolution today.
             </p>
           </div>

@@ -21,7 +21,7 @@ export default function AuthVerifyRedirect() {
     }
 
     const supabaseUrl = 'https://xujaxssbncobmiwxbaxh.supabase.co'
-    const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`
+    const verifyUrl = `${supabaseUrl}/auth/v1/verify?token_hash=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`
 
     console.log('Redirecting to Supabase verify URL:', verifyUrl)
     window.location.replace(verifyUrl)

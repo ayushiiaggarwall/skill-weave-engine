@@ -246,11 +246,15 @@ export function EnhancedPaymentPage() {
         throw new Error('No approval URL returned from PayPal');
       }
       window.location.href = data.approvalUrl;
-    } catch (error) {
+    } catch (error: any) {
       console.error('PayPal payment error:', error);
+      const msg = (error?.message || '').toString();
+      const restricted = msg.includes('PAYPAL_ACCOUNT_RESTRICTED') || msg.includes('PAYEE_ACCOUNT_RESTRICTED') || msg.toLowerCase().includes('restricted');
       toast({
-        title: "Payment Error",
-        description: "Failed to initialize payment. Please try again.",
+        title: restricted ? "PayPal temporarily unavailable" : "Payment Error",
+        description: restricted
+          ? "Our PayPal merchant account is currently restricted. Please try again later or contact support."
+          : "Failed to initialize payment. Please try again.",
         variant: "destructive"
       });
     } finally {

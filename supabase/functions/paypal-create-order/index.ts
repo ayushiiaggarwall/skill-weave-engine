@@ -168,8 +168,26 @@ const paypalEnv = Deno.env.get("PAYPAL_ENV") || Deno.env.get("PAYPAL_CLIENT_ENV"
     });
 
     if (!orderResponse.ok) {
-      const errorData = await orderResponse.text();
-      throw new Error(`PayPal order creation failed: ${errorData}`);
+      const errorText = await orderResponse.text();
+      let errorJson: any = null;
+      try { errorJson = JSON.parse(errorText); } catch { /* ignore JSON parse */ }
+
+      const isRestricted = !!(errorJson?.name === "UNPROCESSABLE_ENTITY" &&
+        Array.isArray(errorJson?.details) &&
+        errorJson.details.some((d: any) => d?.issue === "PAYEE_ACCOUNT_RESTRICTED"));
+
+      if (isRestricted) {
+        logStep("PayPal account restricted", { debug_id: errorJson?.debug_id });
+        return new Response(JSON.stringify({
+          error: "PAYPAL_ACCOUNT_RESTRICTED",
+          message: "PayPal merchant account is restricted. Please contact support.",
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 503,
+        });
+      }
+
+      throw new Error(`PayPal order creation failed: ${errorText}`);
     }
 
     const order = await orderResponse.json();

@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { createHmac } from "https://deno.land/std@0.190.0/crypto/mod.ts";
+
 import { Resend } from "npm:resend@4.0.0";
 
 const corsHeaders = {
@@ -13,10 +13,20 @@ const logStep = (step: string, details?: any) => {
   console.log(`[RAZORPAY-WEBHOOK] ${step}${detailsStr}`);
 };
 
+const enc = new TextEncoder();
 const verifySignature = async (body: string, signature: string, secret: string): Promise<boolean> => {
   try {
-    const expectedSignature = await createHmac("sha256", secret).update(body).digest("hex");
-    return expectedSignature === signature;
+    const key = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const sig = await crypto.subtle.sign("HMAC", key, enc.encode(body));
+    const bytes = new Uint8Array(sig);
+    const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+    return hex === signature;
   } catch (error) {
     logStep("Signature verification error", error);
     return false;
@@ -46,7 +56,7 @@ serve(async (req) => {
     });
 
     // Verify signature if webhook secret is configured
-    const webhookSecret = Deno.env.get("RZP_WEBHOOK_SECRET");
+    const webhookSecret = Deno.env.get("RAZORPAY_WEBHOOK_SECRET") || Deno.env.get("RZP_WEBHOOK_SECRET");
     if (webhookSecret && signature) {
       const isValid = await verifySignature(body, signature, webhookSecret);
       if (!isValid) {

@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { createHmac } from "https://deno.land/std@0.190.0/crypto/mod.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,10 +12,20 @@ const log = (stage: string, obj?: unknown) => {
   console.log(`[RZP-WEBHOOK] ${stage}${details}`);
 };
 
+const enc = new TextEncoder();
 const verifySignature = async (raw: string, signature: string, secret: string) => {
   try {
-    const digest = await createHmac("sha256", secret).update(raw).digest("hex");
-    return digest === signature;
+    const key = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const sig = await crypto.subtle.sign("HMAC", key, enc.encode(raw));
+    const bytes = new Uint8Array(sig);
+    const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+    return hex === signature;
   } catch (e) {
     log("sig-verify-error", { message: (e as Error).message });
     return false;

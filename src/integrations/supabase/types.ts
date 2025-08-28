@@ -436,6 +436,8 @@ export type Database = {
           gateway: string
           id: string
           order_id: string
+          paid_at: string | null
+          payment_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
           user_email: string
@@ -451,6 +453,8 @@ export type Database = {
           gateway: string
           id?: string
           order_id: string
+          paid_at?: string | null
+          payment_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_email: string
@@ -466,6 +470,8 @@ export type Database = {
           gateway?: string
           id?: string
           order_id?: string
+          paid_at?: string | null
+          payment_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_email?: string
@@ -480,6 +486,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payment_events: {
+        Row: {
+          event_id: string
+          received_at: string
+        }
+        Insert: {
+          event_id: string
+          received_at?: string
+        }
+        Update: {
+          event_id?: string
+          received_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

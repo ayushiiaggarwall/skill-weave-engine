@@ -4,13 +4,14 @@ import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitl
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { Users, Bell, Trash2, Upload, Award, BookOpen, DollarSign, Calendar, BarChart3 } from "lucide-react"
+import { Users, Bell, Trash2, Upload, Award, BookOpen, DollarSign, Calendar, BarChart3, Heart } from "lucide-react"
 import { Header } from "@/components/landing/header"
 import ContentManagement from './content-management'
 import CertificatesManagement from './certificates-management'
 import CourseManagement from './course-management'
 import PricingCouponManagement from './pricing-coupon-management'
 import CourseWeeksManagement from './course-weeks-management'
+import { InternationalInterestManagement } from './international-interest-management'
 import { formatCurrency } from "@/lib/utils"
 interface UserProfile {
   id: string
@@ -332,6 +333,14 @@ export function AdminDashboard() {
               Pricing & Coupons
             </Button>
             <Button
+              variant={activeTab === 'interests' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('interests')}
+              className="flex items-center gap-2"
+            >
+              <Heart className="h-4 w-4" />
+              International Interests
+            </Button>
+            <Button
               variant={activeTab === 'announcements' ? 'default' : 'outline'}
               onClick={() => setActiveTab('announcements')}
               className="flex items-center gap-2"
@@ -371,6 +380,9 @@ export function AdminDashboard() {
           )}
           {activeTab === 'pricing' && (
             <PricingCouponManagement />
+          )}
+          {activeTab === 'interests' && (
+            <InternationalInterestManagement />
           )}
 
           {activeTab === 'announcements' && (

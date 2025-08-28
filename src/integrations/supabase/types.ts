@@ -359,6 +359,39 @@ export type Database = {
           },
         ]
       }
+      international_interest: {
+        Row: {
+          course_id: string | null
+          course_type: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          course_type?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          course_type?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string

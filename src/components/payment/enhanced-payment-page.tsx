@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
-import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe } from "lucide-react"
+import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe, Heart } from "lucide-react"
 import { useSearchParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
+import { Textarea } from "@/components/ui/textarea"
 
 interface PriceData {
   region: 'in' | 'intl'
@@ -40,6 +41,10 @@ export function EnhancedPaymentPage() {
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [invalidCouponError, setInvalidCouponError] = useState(false)
+  const [interestName, setInterestName] = useState("")
+  const [interestMessage, setInterestMessage] = useState("")
+  const [isSubmittingInterest, setIsSubmittingInterest] = useState(false)
+  const [interestSubmitted, setInterestSubmitted] = useState(false)
   useEffect(() => {
     if (user?.email && (courseId || pricingType)) {
       fetchPricing()
@@ -145,6 +150,40 @@ export function EnhancedPaymentPage() {
     setIsApplyingCoupon(false)
   }
 
+  const handleInterestSubmission = async () => {
+    if (!user?.email || !interestName.trim()) return
+
+    setIsSubmittingInterest(true)
+    try {
+      const { error } = await supabase
+        .from('international_interest')
+        .insert({
+          user_id: user.id,
+          email: user.email,
+          name: interestName.trim(),
+          course_id: courseId,
+          course_type: pricingType,
+          message: interestMessage.trim() || undefined
+        })
+
+      if (error) throw error
+
+      setInterestSubmitted(true)
+      toast({
+        title: "Interest Registered!",
+        description: "We'll notify you when international payments are available.",
+      })
+    } catch (error) {
+      console.error('Error submitting interest:', error)
+      toast({
+        title: "Error",
+        description: "Failed to register interest. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmittingInterest(false)
+    }
+  }
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -223,44 +262,6 @@ export function EnhancedPaymentPage() {
     }
   }
 
-  // PayPal payment handler
-  const handlePayPalPayment = async () => {
-    if (!user || !priceData) return;
-    
-    try {
-      setIsLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('paypal-create-order', {
-        body: { 
-          email: user.email,
-          courseId: courseId,
-          coupon: priceData.couponApplied?.code,
-          pricingType: pricingType
-        }
-      });
-
-      if (error) throw error;
-      
-      // Redirect to PayPal approval URL (avoid popup blockers)
-      if (!data?.approvalUrl) {
-        throw new Error('No approval URL returned from PayPal');
-      }
-      window.location.href = data.approvalUrl;
-    } catch (error: any) {
-      console.error('PayPal payment error:', error);
-      const msg = (error?.message || '').toString();
-      const restricted = msg.includes('PAYPAL_ACCOUNT_RESTRICTED') || msg.includes('PAYEE_ACCOUNT_RESTRICTED') || msg.toLowerCase().includes('restricted');
-      toast({
-        title: restricted ? "PayPal temporarily unavailable" : "Payment Error",
-        description: restricted
-          ? "Our PayPal merchant account is currently restricted. Please try again later or contact support."
-          : "Failed to initialize payment. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (!user) {
     return (
@@ -418,34 +419,108 @@ export function EnhancedPaymentPage() {
                 </p>
               </div>
 
-              {/* Payment Button */}
-              <Button
-                onClick={priceData.region === 'in' ? handleRazorpayPayment : handlePayPalPayment}
-                disabled={isLoading}
-                className="w-full"
-                size="lg"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Pay {priceData.display} - Enroll Now via {priceData.region === 'in' ? 'Razorpay' : 'PayPal'}
-                  </>
-                )}
-              </Button>
+              {/* Payment Button - India */}
+              {priceData.region === 'in' ? (
+                <>
+                  <Button
+                    onClick={handleRazorpayPayment}
+                    disabled={isLoading}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Pay {priceData.display} - Enroll Now via Razorpay
+                      </>
+                    )}
+                  </Button>
 
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                  <Shield className="w-3 h-3" />
-                  <span>
-                    Secured by {priceData.region === 'in' ? 'Razorpay' : 'PayPal'}
-                  </span>
-                </div>
-              </div>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <Shield className="w-3 h-3" />
+                      <span>Secured by Razorpay</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* International Payment Coming Soon */}
+                  <div className="space-y-4">
+                    <Button
+                      disabled
+                      className="w-full"
+                      size="lg"
+                      variant="secondary"
+                    >
+                      <Clock className="mr-2 h-4 w-4" />
+                      International Payments - Coming Soon
+                    </Button>
+
+                    {!interestSubmitted ? (
+                      <>
+                        <div className="text-center text-sm text-muted-foreground">
+                          Want to be notified when available?
+                        </div>
+                        
+                        <div className="space-y-3 p-4 border rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Heart className="w-4 h-4 text-primary" />
+                            <span className="text-sm font-medium">I'm interested!</span>
+                          </div>
+                          
+                          <Input
+                            value={interestName}
+                            onChange={(e) => setInterestName(e.target.value)}
+                            placeholder="Your name"
+                            className="w-full"
+                          />
+                          
+                          <Textarea
+                            value={interestMessage}
+                            onChange={(e) => setInterestMessage(e.target.value)}
+                            placeholder="Tell us about your interest (optional)"
+                            className="w-full resize-none"
+                            rows={3}
+                          />
+                          
+                          <Button
+                            onClick={handleInterestSubmission}
+                            disabled={isSubmittingInterest || !interestName.trim()}
+                            className="w-full"
+                            size="sm"
+                          >
+                            {isSubmittingInterest ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Submitting...
+                              </>
+                            ) : (
+                              <>
+                                <Heart className="mr-2 h-4 w-4" />
+                                Register Interest
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center p-4 border rounded-lg bg-muted/50">
+                        <Heart className="w-8 h-8 text-primary mx-auto mb-2" />
+                        <p className="text-sm font-medium text-primary">Thank you for your interest!</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          We'll notify you as soon as international payments are available.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

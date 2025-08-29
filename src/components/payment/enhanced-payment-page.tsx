@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
 import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe, Heart } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSearchParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { Textarea } from "@/components/ui/textarea"
@@ -45,6 +46,7 @@ export function EnhancedPaymentPage() {
   const [interestMessage, setInterestMessage] = useState("")
   const [isSubmittingInterest, setIsSubmittingInterest] = useState(false)
   const [interestSubmitted, setInterestSubmitted] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState("")
   useEffect(() => {
     if (user?.email && (courseId || pricingType)) {
       fetchPricing()
@@ -151,27 +153,39 @@ export function EnhancedPaymentPage() {
   }
 
   const handleInterestSubmission = async () => {
-    if (!user?.email || !interestName.trim()) return
+    if (!user?.email || !interestName.trim() || !selectedCourse) return
 
     setIsSubmittingInterest(true)
     try {
-      const { error } = await supabase
+      // Insert interest record
+      const { error: insertError } = await supabase
         .from('international_interest')
         .insert({
           user_id: user.id,
           email: user.email,
           name: interestName.trim(),
           course_id: courseId,
-          course_type: pricingType,
+          course_type: selectedCourse,
           message: interestMessage.trim() || undefined
         })
 
-      if (error) throw error
+      if (insertError) throw insertError
+
+      // Send confirmation email
+      const { error: emailError } = await supabase.functions.invoke('send-interest-confirmation', {
+        body: {
+          name: interestName.trim(),
+          email: user.email,
+          course: selectedCourse
+        }
+      })
+
+      if (emailError) console.error('Email error:', emailError)
 
       setInterestSubmitted(true)
       toast({
         title: "Interest Registered!",
-        description: "We'll notify you when international payments are available.",
+        description: "Thank you! We've sent you a confirmation email and will get back to you soon.",
       })
     } catch (error) {
       console.error('Error submitting interest:', error)
@@ -185,37 +199,6 @@ export function EnhancedPaymentPage() {
     }
   }
 
-  const handleStripePayment = async () => {
-    if (!user?.email || !priceData) return
-
-    setIsLoading(true)
-    try {
-      // Create Stripe checkout session
-      const { data: sessionData, error } = await supabase.functions.invoke('pay-create-session', {
-        body: {
-          email: user.email,
-          courseId: courseId,
-          coupon: priceData.couponApplied?.code,
-          pricingType: pricingType
-        }
-      })
-
-      if (error) throw error
-
-      // Redirect to Stripe Checkout
-      window.open(sessionData.url, '_blank')
-
-    } catch (error) {
-      console.error('Stripe payment error:', error)
-      toast({
-        title: "Payment Error",
-        description: "Failed to initiate payment. Please try again.",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -480,35 +463,19 @@ export function EnhancedPaymentPage() {
                     </div>
                   </div>
                 </>
-               ) : (
+) : (
                 <>
-                  {/* International Payment via Stripe */}
+                  {/* International Payment Coming Soon */}
                   <div className="space-y-4">
                     <Button
-                      onClick={handleStripePayment}
-                      disabled={isLoading}
+                      disabled
                       className="w-full"
                       size="lg"
+                      variant="secondary"
                     >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="mr-2 h-4 w-4" />
-                          Pay {priceData.display} - Enroll Now via Stripe
-                        </>
-                      )}
+                      <Clock className="mr-2 h-4 w-4" />
+                      International Payments - Coming Soon
                     </Button>
-
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                        <Shield className="w-3 h-3" />
-                        <span>Secured by Stripe</span>
-                      </div>
-                    </div>
 
                     {!interestSubmitted ? (
                       <>
@@ -528,6 +495,16 @@ export function EnhancedPaymentPage() {
                             placeholder="Your name"
                             className="w-full"
                           />
+
+                          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select course you're interested in" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="course">5-Week Idea to Product Course</SelectItem>
+                              <SelectItem value="combo">Course + 1:1 Mentorship Combo</SelectItem>
+                            </SelectContent>
+                          </Select>
                           
                           <Textarea
                             value={interestMessage}
@@ -539,7 +516,7 @@ export function EnhancedPaymentPage() {
                           
                           <Button
                             onClick={handleInterestSubmission}
-                            disabled={isSubmittingInterest || !interestName.trim()}
+                            disabled={isSubmittingInterest || !interestName.trim() || !selectedCourse}
                             className="w-full"
                             size="sm"
                           >
@@ -562,7 +539,7 @@ export function EnhancedPaymentPage() {
                         <Heart className="w-8 h-8 text-primary mx-auto mb-2" />
                         <p className="text-sm font-medium text-primary">Thank you for your interest!</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          We'll notify you as soon as international payments are available.
+                          We've sent you a confirmation email and will get back to you soon.
                         </p>
                       </div>
                     )}

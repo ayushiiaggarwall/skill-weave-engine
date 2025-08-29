@@ -14,60 +14,78 @@ export function ForgotPasswordForm() {
   const { toast } = useToastContext()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+   const handleSubmit = async (e: React.FormEvent) => {
+     e.preventDefault()
+     setIsLoading(true)
 
-    try {
-      // Use the production domain instead of sandbox domain
-      const redirectDomain = window.location.hostname.includes('sandbox.lovable.dev') 
-        ? 'https://ayushiaggarwal.tech' 
-        : window.location.origin
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${redirectDomain}/reset-password`,
-      })
+     try {
+       // First, check if the email exists in our auth database
+       const { data: check, error: checkErr } = await supabase.functions.invoke('check-email', {
+         body: { email }
+       })
 
-      if (error) {
-        console.error("Password reset error:", error)
-        
-        // Special handling for hook timeout - email sending failed
-        if (error.message?.includes("Failed to reach hook within maximum time") || error.code === "hook_timeout") {
-          toast({
-            title: "Failed to send a mail",
-            description: "Kindly retrigger the mail to reset your password. In case you have received a mail, kindly ignore it - the mail has an invalid link.",
-            variant: "destructive",
-          })
-          return // Prevent further execution and don't redirect
-        } else {
-          // All other errors - show red error message
-          toast({
-            title: "Failed to Send Reset Email",
-            description: error.message || "There was an issue sending the reset email. Please try again.",
-            variant: "destructive",
-          })
-          return // Prevent further execution
-        }
-      } else {
-        setIsSubmitted(true)
-        toast({
-          title: "Reset Link Sent Successfully",
-          description: "Please check your email inbox for the password reset link. Redirecting to login...",
-          variant: "success",
-        })
-        setTimeout(() => navigate('/login'), 2500)
-      }
-    } catch (error: any) {
-      console.error("Unexpected error:", error)
-      toast({
-        title: "Failed to Send Reset Email",
-        description: "There was an issue sending the reset email. Please try again or contact support if the problem persists.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+       if (checkErr) {
+         console.warn('Email check failed, proceeding cautiously:', checkErr)
+       }
+
+       if (check && !check.exists) {
+         toast({
+           title: "Email Not Found",
+           description: "We couldn't find this email. Kindly sign up to create an account.",
+           variant: "destructive",
+         })
+         return
+       }
+
+       // Use the production domain instead of sandbox domain
+       const redirectDomain = window.location.hostname.includes('sandbox.lovable.dev') 
+         ? 'https://ayushiaggarwal.tech' 
+         : window.location.origin
+       
+       const { error } = await supabase.auth.resetPasswordForEmail(email, {
+         redirectTo: `${redirectDomain}/reset-password`,
+       })
+
+       if (error) {
+         console.error("Password reset error:", error)
+         
+         // Special handling for hook timeout - email sending failed
+         if (error.message?.includes("Failed to reach hook within maximum time") || error.code === "hook_timeout") {
+           toast({
+             title: "Failed to send a mail",
+             description: "Kindly retrigger the mail to reset your password. In case you have received a mail, kindly ignore it - the mail has an invalid link.",
+             variant: "destructive",
+           })
+           return // Prevent further execution and don't redirect
+         } else {
+           // All other errors - show red error message
+           toast({
+             title: "Failed to Send Reset Email",
+             description: error.message || "There was an issue sending the reset email. Please try again.",
+             variant: "destructive",
+           })
+           return // Prevent further execution
+         }
+       } else {
+         setIsSubmitted(true)
+         toast({
+           title: "Reset Link Sent Successfully",
+           description: "Please check your email inbox for the password reset link. Redirecting to login...",
+           variant: "success",
+         })
+         setTimeout(() => navigate('/login'), 2500)
+       }
+     } catch (error: any) {
+       console.error("Unexpected error:", error)
+       toast({
+         title: "Failed to Send Reset Email",
+         description: "There was an issue sending the reset email. Please try again or contact support if the problem persists.",
+         variant: "destructive",
+       })
+     } finally {
+       setIsLoading(false)
+     }
+   }
 
 
   return (

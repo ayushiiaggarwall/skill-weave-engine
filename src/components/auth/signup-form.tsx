@@ -53,72 +53,103 @@ export function SignupForm() {
     return true
   }
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-    setSuccess("")
+   const handleSignup = async (e: React.FormEvent) => {
+     e.preventDefault()
+     setIsLoading(true)
+     setError("")
+     setSuccess("")
 
-    if (!validateForm()) {
-      setIsLoading(false)
-      return
-    }
+     if (!validateForm()) {
+       setIsLoading(false)
+       return
+     }
 
-    try {
-      const referralSource = getReferralSource()
-      console.log('Signup attempt with referral source:', referralSource)
-      const { error } = await signUp(formData.email, formData.password, formData.fullName, referralSource || undefined)
+     try {
+       // 1) Check if email already exists and whether it's verified
+       const { supabase } = await import("@/integrations/supabase/client")
+       const { data: check, error: checkErr } = await supabase.functions.invoke('check-email', {
+         body: { email: formData.email }
+       })
 
-      if (error) {
-        // Check if the error is due to hook timeout (422 error)
-        if (error.message.includes('422') || error.message.includes('hook') || error.message.includes('timeout')) {
-          // Hook timed out but email is likely sent successfully
-          setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account. (Note: Verification email is on its way)")
-          // Redirect user to continue their journey
-          setTimeout(() => {
-            if (isEnrollment) {
-              navigate('/payment')
-            } else {
-              navigate('/login')
-            }
-          }, 3000)
-        } else if (error.message.includes('already registered')) {
-          setError("An account with this email already exists. Please sign in instead.")
-        } else {
-          setError(error.message)
-        }
-      } else {
-        setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account.")
-        // Redirect after a delay
-        setTimeout(() => {
-          if (isEnrollment) {
-            navigate('/payment')
-          } else {
-            navigate('/login')
-          }
-        }, 3000)
-      }
-    } catch (err) {
-      // Handle network or other unexpected errors
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      
-      // If it's a hook timeout error, treat it as success
-      if (errorMessage.includes('422') || errorMessage.includes('hook') || errorMessage.includes('timeout')) {
-        setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account. (Note: Verification email is on its way)")
-        setTimeout(() => {
-          if (isEnrollment) {
-            navigate('/payment')
-          } else {
-            navigate('/login')
-          }
-        }, 3000)
-      } else {
-        setError("An unexpected error occurred")
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
+       if (!checkErr && check) {
+         if (check.exists && check.verified) {
+           setError("This email is already registered. Please sign in or use Forgot Password.")
+           return
+         }
+         if (check.exists && !check.verified) {
+           // Resend verification email and inform user
+           const redirectDomain = window.location.hostname.includes('sandbox.lovable.dev') 
+             ? 'https://ayushiaggarwal.tech' 
+             : window.location.origin
+           const { error: resendError } = await supabase.auth.resend({
+             type: 'signup',
+             email: formData.email,
+             options: { emailRedirectTo: `${redirectDomain}/` }
+           })
+           if (!resendError) {
+             setSuccess("You're already registered but not verified. We've resent the verification email. Please check your inbox.")
+           } else {
+             setError(resendError.message || 'Failed to resend verification email. Please try again.')
+           }
+           return
+         }
+       }
+
+       // 2) Proceed with normal signup (new email)
+       const referralSource = getReferralSource()
+       console.log('Signup attempt with referral source:', referralSource)
+       const { error } = await signUp(formData.email, formData.password, formData.fullName, referralSource || undefined)
+
+       if (error) {
+         // Check if the error is due to hook timeout (422 error)
+         if (error.message.includes('422') || error.message.includes('hook') || error.message.includes('timeout')) {
+           // Hook timed out but email is likely sent successfully
+           setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account. (Note: Verification email is on its way)")
+           // Redirect user to continue their journey
+           setTimeout(() => {
+             if (isEnrollment) {
+               navigate('/payment')
+             } else {
+               navigate('/login')
+             }
+           }, 3000)
+         } else if (error.message.includes('already registered')) {
+           setError("This email is already registered. Please sign in or use Forgot Password.")
+         } else {
+           setError(error.message)
+         }
+       } else {
+         setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account.")
+         // Redirect after a delay
+         setTimeout(() => {
+           if (isEnrollment) {
+             navigate('/payment')
+           } else {
+             navigate('/login')
+           }
+         }, 3000)
+       }
+     } catch (err) {
+       // Handle network or other unexpected errors
+       const errorMessage = err instanceof Error ? err.message : String(err)
+       
+       // If it's a hook timeout error, treat it as success
+       if (errorMessage.includes('422') || errorMessage.includes('hook') || errorMessage.includes('timeout')) {
+         setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account. (Note: Verification email is on its way)")
+         setTimeout(() => {
+           if (isEnrollment) {
+             navigate('/payment')
+           } else {
+             navigate('/login')
+           }
+         }, 3000)
+       } else {
+         setError("An unexpected error occurred")
+       }
+     } finally {
+       setIsLoading(false)
+     }
+   }
 
   const handleGoogleSignup = async () => {
     try {

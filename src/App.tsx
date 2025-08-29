@@ -81,7 +81,12 @@ function AppContent() {
                 <SignupForm />
               </div>
             } />
-            <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+            <Route path="/forgot-password" element={
+              <div className="min-h-screen bg-background">
+                <Header />
+                <ForgotPasswordForm />
+              </div>
+            } />
             <Route path="/auth/verify" element={<AuthVerifyRedirect />} />
             <Route path="/reset-password" element={<ResetPasswordForm />} />
             <Route path="/payment" element={<PaymentPage />} />

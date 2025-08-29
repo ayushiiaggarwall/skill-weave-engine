@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
+import { supabase } from "@/integrations/supabase/client"
 
 export function LoginForm() {
   const navigate = useNavigate()
@@ -39,7 +40,24 @@ export function LoginForm() {
 
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          setError("Invalid email or password. Please check your credentials and try again.")
+          // Check if email exists to provide better guidance
+          try {
+            const { data: checkResult } = await supabase.functions.invoke('check-email', {
+              body: { email }
+            })
+            
+            if (checkResult?.exists) {
+              if (!checkResult.verified) {
+                setError("This email is registered but not verified. Please check your email and click the verification link before signing in.")
+              } else {
+                setError("Incorrect password. If you don't remember your password, click on 'Forgot your password?' to reset it.")
+              }
+            } else {
+              setError("This email is not registered. Please sign up first or check if you entered the correct email address.")
+            }
+          } catch {
+            setError("Invalid email or password. Please check your credentials and try again.")
+          }
         } else if (error.message.includes('Email not confirmed')) {
           setError("Please check your email and click the confirmation link before signing in.")
         } else {

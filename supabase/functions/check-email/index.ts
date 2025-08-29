@@ -42,18 +42,21 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    const { data, error } = await supabase.auth.admin.getUserByEmail(email);
+    const { data, error } = await supabase.auth.admin.listUsers({
+      filter: `email.eq.${email}`
+    });
 
-    if (error && error.message && !data?.user) {
-      // If user not found, return exists: false
+    if (error) {
+      console.error("Error checking user:", error);
       return new Response(
-        JSON.stringify({ exists: false, verified: false }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ error: "Failed to check user" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const exists = !!data?.user;
-    const verified = exists ? !!data!.user!.email_confirmed_at : false;
+    const user = data?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+    const exists = !!user;
+    const verified = exists ? !!user.email_confirmed_at : false;
 
     return new Response(
       JSON.stringify({ exists, verified }),

@@ -66,6 +66,7 @@ export function SignupForm() {
 
     try {
       const referralSource = getReferralSource()
+      console.log('Signup attempt with referral source:', referralSource)
       const { error } = await signUp(formData.email, formData.password, formData.fullName, referralSource || undefined)
 
       if (error) {

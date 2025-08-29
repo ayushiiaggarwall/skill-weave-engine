@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Referral Tracking</title>
+</head>
+<body>
+    <h1>Test Referral Tracking</h1>
+    <p>Click these links to test different referral sources:</p>
+    
+    <ul>
+        <li><a href="/?source=linkedin_post" target="_blank">LinkedIn Post (?source=linkedin_post)</a></li>
+        <li><a href="/?source=instagram" target="_blank">Instagram (?source=instagram)</a></li>
+        <li><a href="/?source=facebook" target="_blank">Facebook (?source=facebook)</a></li>
+        <li><a href="/?source=whatsapp" target="_blank">WhatsApp (?source=whatsapp)</a></li>
+        <li><a href="/signup?source=linkedin_profile" target="_blank">Direct to Signup with LinkedIn Profile</a></li>
+    </ul>
+
+    <script>
+        // Test current page
+        const urlParams = new URLSearchParams(window.location.search);
+        const source = urlParams.get('source');
+        
+        if (source) {
+            console.log('Detected referral source:', source);
+            
+            // Check if it's stored in sessionStorage
+            const stored = sessionStorage.getItem('referral_source');
+            console.log('Stored in sessionStorage:', stored);
+        } else {
+            console.log('No referral source in URL');
+        }
+        
+        console.log('All URL params:', Object.fromEntries(urlParams.entries()));
+    </script>
+</body>
+</html>

@@ -125,6 +125,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, fullName: string, referralSource?: string) => {
     const redirectUrl = `${window.location.origin}/`
     
+    console.log('SignUp called with referral source:', referralSource)
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -137,6 +139,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     })
+    
+    console.log('SignUp completed, error:', error)
     
     return { error }
   }

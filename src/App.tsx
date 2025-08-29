@@ -31,9 +31,6 @@ import { ProfilePage } from './components/profile/profile-page'
 import { PayPalTestPage } from './components/testing/paypal-test-page'
 
 function HomePage() {
-  // Track referral sources from URL parameters
-  useReferralTracking()
-  
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden">
       {/* Global background effects */}
@@ -59,13 +56,13 @@ function HomePage() {
   )
 }
 
-function App() {
+function AppContent() {
+  // Track referral sources from URL parameters globally
+  useReferralTracking()
+  
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <ToastProvider>
-          <Router>
-            <CursorGlow />
+    <>
+      <CursorGlow />
           <Routes>
             <Route path="/" element={
               <AuthRedirect>
@@ -105,10 +102,21 @@ function App() {
             } />
             <Route path="/test/paypal" element={<PayPalTestPage />} />
           </Routes>
-        </Router>
-      </ToastProvider>
-    </ThemeProvider>
-  </AuthProvider>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </ToastProvider>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }
 

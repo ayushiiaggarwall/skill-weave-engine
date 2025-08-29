@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 // import { supabase } from '@/integrations/supabase/client' // Temporarily disabled
 
 export function useRegionDetection() {
-  const [region, setRegion] = useState<'in' | 'intl'>('intl') // Default to international
-  const [loading, setLoading] = useState(true)
+  const [region, setRegion] = useState<'in' | 'intl'>('intl') // Force international for testing
+  const [loading, setLoading] = useState(false) // No loading needed for override
 
   useEffect(() => {
     const detectRegion = async () => {

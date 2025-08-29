@@ -72,12 +72,22 @@ export function MyCourses() {
 
   const fetchCourseContent = async () => {
     try {
-      const { data, error } = await supabase
+      // Use the course ID from enrollment status if available
+      const courseId = enrollmentStatus.courseData?.id
+      
+      let query = supabase
         .from('course_content')
         .select('*')
         .eq('is_visible', true)
         .order('week_number', { ascending: true })
         .order('created_at', { ascending: true })
+
+      // Filter by course ID if we have one
+      if (courseId) {
+        query = query.eq('course_id', courseId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       setCourseContent((data || []) as CourseContent[])
@@ -95,6 +105,20 @@ export function MyCourses() {
 
   const fetchCourseDetails = async () => {
     try {
+      // Use the course data from enrollment status if available
+      if (enrollmentStatus.courseData) {
+        setCourse({
+          id: enrollmentStatus.courseData.id,
+          title: enrollmentStatus.courseData.title,
+          objective: enrollmentStatus.courseData.objective,
+          plans: enrollmentStatus.courseData.plans,
+          total_weeks: enrollmentStatus.courseData.total_weeks
+        })
+        setCourseStartDate(enrollmentStatus.courseData.start_date || null)
+        return
+      }
+
+      // Fallback to fetching latest active course
       const { data, error } = await supabase
         .from('courses')
         .select('id, title, objective, plans, total_weeks, start_date')
@@ -115,11 +139,21 @@ export function MyCourses() {
 
   const fetchCourseWeeks = async () => {
     try {
-      const { data, error } = await supabase
+      // Use the course ID from enrollment status if available
+      const courseId = enrollmentStatus.courseData?.id
+      
+      let query = supabase
         .from('course_weeks')
         .select('*')
         .eq('visible', true)
         .order('week_number', { ascending: true })
+
+      // Filter by course ID if we have one
+      if (courseId) {
+        query = query.eq('course_id', courseId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       

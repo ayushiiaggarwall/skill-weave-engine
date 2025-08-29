@@ -203,9 +203,15 @@ export function EnhancedPaymentPage() {
 
       setInterestSubmitted(true)
       toast({
-        title: "Interest Registered!",
-        description: "Thank you! We've sent you a confirmation email and will get back to you soon.",
+        title: "Thank you for your interest!",
+        description: "We've sent you a confirmation email and will get back to you soon. Redirecting you to dashboard in 3 seconds...",
       })
+
+      // Redirect to dashboard after 3 seconds
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 3000)
+
     } catch (error) {
       console.error('Error submitting interest:', error)
       toast({

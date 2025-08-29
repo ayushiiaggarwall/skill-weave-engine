@@ -48,8 +48,6 @@ export function EnhancedPaymentPage() {
   const [interestSubmitted, setInterestSubmitted] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState("")
   
-  // Region override for testing
-  const [regionOverride, setRegionOverride] = useState<'auto' | 'in' | 'intl'>('auto')
 
   useEffect(() => {
     if (user?.email && (courseId || pricingType)) {
@@ -58,14 +56,8 @@ export function EnhancedPaymentPage() {
         fetchCourseData()
       }
     }
-  }, [user, courseId, pricingType, regionOverride])
+  }, [user, courseId, pricingType])
 
-  const getEffectiveRegion = () => {
-    if (regionOverride !== 'auto') {
-      return regionOverride
-    }
-    return priceData?.region || 'intl'
-  }
 
   const fetchCourseData = async () => {
     if (!courseId) return
@@ -93,18 +85,11 @@ export function EnhancedPaymentPage() {
           email: user.email,
           courseId: courseId, // Pass the course ID
           coupon: couponCode || undefined,
-          pricingType: pricingType, // Fallback for old links
-          regionOverride: regionOverride !== 'auto' ? regionOverride : undefined // Override region for testing
+          pricingType: pricingType // Fallback for old links
         }
       })
 
       if (error) throw error
-      
-      // Apply region override if set
-      if (regionOverride !== 'auto') {
-        data.region = regionOverride
-        data.currency = regionOverride === 'in' ? 'INR' : 'USD'
-      }
       
       setPriceData(data)
     } catch (error) {
@@ -396,29 +381,14 @@ export function EnhancedPaymentPage() {
               <CardTitle>Payment Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Region Override for Testing */}
-              <div className="space-y-2 p-3 bg-muted rounded-lg">
-                <label className="text-sm font-medium">Testing: Override Region Detection</label>
-                <Select value={regionOverride} onValueChange={(value: 'auto' | 'in' | 'intl') => setRegionOverride(value)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="auto">Auto-detect from IP</SelectItem>
-                    <SelectItem value="in">Force India (INR)</SelectItem>
-                    <SelectItem value="intl">Force International (USD)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Region Detection */}
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                <Badge variant={getEffectiveRegion() === 'in' ? 'default' : 'secondary'}>
-                  {getEffectiveRegion() === 'in' ? 'India (INR)' : 'International (USD)'}
+                <Badge variant={priceData.region === 'in' ? 'default' : 'secondary'}>
+                  {priceData.region === 'in' ? 'India (INR)' : 'International (USD)'}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  {regionOverride === 'auto' ? 'Auto-detected' : 'Override active'}
+                  Auto-detected from IP
                 </span>
               </div>
 
@@ -477,7 +447,7 @@ export function EnhancedPaymentPage() {
               </div>
 
               {/* Payment Button - India */}
-              {getEffectiveRegion() === 'in' ? (
+              {priceData.region === 'in' ? (
                 <>
                   <Button
                     onClick={handleRazorpayPayment}

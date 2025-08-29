@@ -1,20 +1,13 @@
 import { useState, useEffect } from 'react'
-// import { supabase } from '@/integrations/supabase/client' // Temporarily disabled
+import { supabase } from '@/integrations/supabase/client'
 
 export function useRegionDetection() {
-  const [region, setRegion] = useState<'in' | 'intl'>('intl') // Force international for testing
-  const [loading, setLoading] = useState(false) // No loading needed for override
+  const [region, setRegion] = useState<'in' | 'intl'>('intl')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const detectRegion = async () => {
       try {
-        // TEMPORARY OVERRIDE: Force international region for testing
-        console.log('TEMPORARY OVERRIDE: Forcing international region for testing')
-        setRegion('intl')
-        return
-        
-        // Original detection code (temporarily disabled)
-        /*
         console.log('Detecting region via backend function...')
         
         // Call our backend function for region detection
@@ -31,7 +24,6 @@ export function useRegionDetection() {
           console.log('Setting region to intl, country code:', data?.country_code)
           setRegion('intl')
         }
-        */
       } catch (error) {
         console.error('Failed to detect region via backend:', error)
         // Default to international if detection fails

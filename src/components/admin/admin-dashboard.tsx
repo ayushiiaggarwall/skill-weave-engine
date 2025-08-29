@@ -20,6 +20,7 @@ interface UserProfile {
   role: string
   created_at: string
   referral_source?: string | null
+  email_verified?: boolean
   enrollments?: {
     payment_status: string
     course_id: string | null
@@ -163,6 +164,25 @@ export function AdminDashboard() {
 
       if (orderError) throw orderError
 
+      // Get verification status for all users
+      const userIds = profilesData?.map(profile => profile.id) || []
+      let verificationStatus: Record<string, boolean> = {}
+      
+      if (userIds.length > 0) {
+        try {
+          const response = await supabase.functions.invoke('get-user-verification-status', {
+            body: { userIds }
+          })
+          
+          if (response.data?.verificationStatus) {
+            verificationStatus = response.data.verificationStatus
+          }
+        } catch (verificationError) {
+          console.error('Error fetching verification status:', verificationError)
+          // Continue without verification status
+        }
+      }
+
       // Combine the data
       const usersWithEnrollments = profilesData?.map(profile => {
         const userOrderEnrollments = orderEnrollments?.filter(order => 
@@ -171,6 +191,7 @@ export function AdminDashboard() {
         
         return {
           ...profile,
+          email_verified: verificationStatus[profile.id] || false,
           order_enrollments: userOrderEnrollments
         }
       }) || []
@@ -551,10 +572,11 @@ export function AdminDashboard() {
               <AnimatedCardContent>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
-                    <thead>
+                     <thead>
                        <tr className="border-b">
                          <th className="text-left p-2">Name</th>
                          <th className="text-left p-2">Email</th>
+                         <th className="text-left p-2">Verified</th>
                          <th className="text-left p-2">Role</th>
                          <th className="text-left p-2">Source</th>
                          <th className="text-left p-2">Enrollment Status</th>
@@ -583,19 +605,28 @@ export function AdminDashboard() {
                         const courseTitle = paidOrder?.courses?.title || courseType
                         const amountPaid = paidOrder ? formatCurrency(paidOrder.amount / 100, paidOrder.currency) : 'N/A'
                         
-                        return (
-                          <tr key={user.id} className="border-b hover:bg-muted/50">
-                            <td className="p-2">{user.name}</td>
-                            <td className="p-2">{user.email}</td>
-                            <td className="p-2">
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                user.role === 'admin' 
-                                  ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                              }`}>
-                                {user.role}
-                              </span>
+                         return (
+                           <tr key={user.id} className="border-b hover:bg-muted/50">
+                             <td className="p-2">{user.name}</td>
+                             <td className="p-2">{user.email}</td>
+                             <td className="p-2">
+                               <span className={`px-2 py-1 rounded text-xs ${
+                                 user.email_verified 
+                                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                   : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                               }`}>
+                                 {user.email_verified ? 'Verified' : 'Unverified'}
+                               </span>
                              </td>
+                             <td className="p-2">
+                               <span className={`px-2 py-1 rounded text-xs ${
+                                 user.role === 'admin' 
+                                   ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                   : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                               }`}>
+                                 {user.role}
+                               </span>
+                              </td>
                              <td className="p-2">
                                <span className={`px-2 py-1 rounded text-xs ${
                                  user.referral_source 

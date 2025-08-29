@@ -8,6 +8,13 @@ export function useRegionDetection() {
   useEffect(() => {
     const detectRegion = async () => {
       try {
+        // TEMPORARY: Force international region for testing on payment pages
+        if (window.location.pathname.includes('/pay')) {
+          console.log('OVERRIDE: Forcing international region for payment page testing')
+          setRegion('intl')
+          return
+        }
+        
         console.log('Detecting region via backend function...')
         
         // Call our backend function for region detection

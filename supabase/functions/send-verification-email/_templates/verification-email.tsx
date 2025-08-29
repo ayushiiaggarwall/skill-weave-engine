@@ -168,6 +168,7 @@ const smallText = {
 const buttonSection = {
   textAlign: 'center' as const,
   margin: '32px 0',
+  width: '100%',
 }
 
 const button = {
@@ -178,7 +179,7 @@ const button = {
   fontWeight: 'bold',
   textDecoration: 'none',
   textAlign: 'center' as const,
-  display: 'block',
+  display: 'inline-block',
   margin: '0 auto',
   padding: '14px 32px',
   maxWidth: '200px',

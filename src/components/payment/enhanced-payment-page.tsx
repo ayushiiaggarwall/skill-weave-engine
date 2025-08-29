@@ -185,6 +185,38 @@ export function EnhancedPaymentPage() {
     }
   }
 
+  const handleStripePayment = async () => {
+    if (!user?.email || !priceData) return
+
+    setIsLoading(true)
+    try {
+      // Create Stripe checkout session
+      const { data: sessionData, error } = await supabase.functions.invoke('pay-create-session', {
+        body: {
+          email: user.email,
+          courseId: courseId,
+          coupon: priceData.couponApplied?.code,
+          pricingType: pricingType
+        }
+      })
+
+      if (error) throw error
+
+      // Redirect to Stripe Checkout
+      window.open(sessionData.url, '_blank')
+
+    } catch (error) {
+      console.error('Stripe payment error:', error)
+      toast({
+        title: "Payment Error",
+        description: "Failed to initiate payment. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script')
@@ -448,19 +480,35 @@ export function EnhancedPaymentPage() {
                     </div>
                   </div>
                 </>
-              ) : (
+               ) : (
                 <>
-                  {/* International Payment Coming Soon */}
+                  {/* International Payment via Stripe */}
                   <div className="space-y-4">
                     <Button
-                      disabled
+                      onClick={handleStripePayment}
+                      disabled={isLoading}
                       className="w-full"
                       size="lg"
-                      variant="secondary"
                     >
-                      <Clock className="mr-2 h-4 w-4" />
-                      International Payments - Coming Soon
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          Pay {priceData.display} - Enroll Now via Stripe
+                        </>
+                      )}
                     </Button>
+
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                        <Shield className="w-3 h-3" />
+                        <span>Secured by Stripe</span>
+                      </div>
+                    </div>
 
                     {!interestSubmitted ? (
                       <>

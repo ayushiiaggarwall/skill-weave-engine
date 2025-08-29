@@ -63,6 +63,7 @@ export function AdminDashboard() {
   const [referralStats, setReferralStats] = useState<ReferralStats[]>([])
   const [leadStats, setLeadStats] = useState<LeadStats[]>([])
   const [loading, setLoading] = useState(true)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -285,6 +286,42 @@ export function AdminDashboard() {
         description: "Failed to delete announcement",
         variant: "destructive"
       })
+    }
+  }
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete user "${userName}"? This action cannot be undone and will remove all associated data including enrollments, orders, and certificates.`
+    )
+    
+    if (!confirmed) return
+    
+    setDeletingUserId(userId)
+    
+    try {
+      // Delete user profile (this will cascade delete due to foreign key constraints)
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId)
+
+      if (error) throw error
+
+      // Remove user from local state
+      setUsers(users.filter(user => user.id !== userId))
+      toast({
+        title: "Success",
+        description: "User deleted successfully"
+      })
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete user. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setDeletingUserId(null)
     }
   }
 
@@ -583,6 +620,7 @@ export function AdminDashboard() {
                          <th className="text-left p-2">Course Type</th>
                          <th className="text-left p-2">Amount Paid</th>
                          <th className="text-left p-2">Joined</th>
+                         <th className="text-left p-2">Actions</th>
                        </tr>
                     </thead>
                     <tbody>
@@ -627,43 +665,53 @@ export function AdminDashboard() {
                                  {user.role}
                                </span>
                               </td>
+                              <td className="p-2">
+                                <span className={`px-2 py-1 rounded text-xs ${
+                                  user.referral_source 
+                                    ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                                }`}>
+                                  {user.referral_source ? user.referral_source.replace('_', ' ') : 'Direct'}
+                                </span>
+                              </td>
+                              <td className="p-2">
+                                <span className={`px-2 py-1 rounded text-xs ${
+                                  isEnrolled
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                                }`}>
+                                  {isEnrolled ? 'Enrolled' : 'Not Enrolled'}
+                                </span>
+                             </td>
                              <td className="p-2">
-                               <span className={`px-2 py-1 rounded text-xs ${
-                                 user.referral_source 
-                                   ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-                                   : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                               {paidOrder ? (
+                                  <span className="text-sm font-medium">
+                                    {courseTitle}
+                                  </span>
+                               ) : (
+                                 <span className="text-sm text-muted-foreground">-</span>
+                               )}
+                             </td>
+                             <td className="p-2">
+                               <span className={`text-sm font-medium ${
+                                 paidOrder ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
                                }`}>
-                                 {user.referral_source ? user.referral_source.replace('_', ' ') : 'Direct'}
+                                 {amountPaid}
                                </span>
                              </td>
                              <td className="p-2">
-                               <span className={`px-2 py-1 rounded text-xs ${
-                                 isEnrolled
-                                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                   : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                               }`}>
-                                 {isEnrolled ? 'Enrolled' : 'Not Enrolled'}
-                               </span>
-                            </td>
-                            <td className="p-2">
-                              {paidOrder ? (
-                                 <span className="text-sm font-medium">
-                                   {courseTitle}
-                                 </span>
-                              ) : (
-                                <span className="text-sm text-muted-foreground">-</span>
-                              )}
-                            </td>
-                            <td className="p-2">
-                              <span className={`text-sm font-medium ${
-                                paidOrder ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
-                              }`}>
-                                {amountPaid}
-                              </span>
-                            </td>
-                            <td className="p-2">
-                              {new Date(user.created_at).toLocaleDateString()}
-                            </td>
+                               {new Date(user.created_at).toLocaleDateString()}
+                             </td>
+                             <td className="p-2">
+                               <button
+                                 onClick={() => handleDeleteUser(user.id, user.name)}
+                                 className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                 disabled={user.role === 'admin' || deletingUserId === user.id}
+                                 title={user.role === 'admin' ? 'Cannot delete admin users' : `Delete ${user.name}`}
+                               >
+                                 {deletingUserId === user.id ? '⏳ Deleting...' : user.role === 'admin' ? '🔒' : '🗑️ Delete'}
+                               </button>
+                             </td>
                           </tr>
                         )
                       })}

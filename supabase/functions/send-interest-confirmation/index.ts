@@ -31,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
       : '5-Week Idea to Product Course';
 
     const emailResponse = await resend.emails.send({
-      from: Deno.env.get("RESEND_FROM_EMAIL") || "Tech With Ayushi <onboarding@resend.dev>",
+      from: `${Deno.env.get("RESEND_FROM_NAME") || "Tech With Ayushi Aggarwal"} <${Deno.env.get("RESEND_FROM_EMAIL") || "hello@ayushiaggarwal.tech"}>`,
       to: [email],
       subject: "We've received your interest in our course!",
       html: `
@@ -73,6 +73,17 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse.error) {
+      console.error("Resend send error:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     console.log("Interest confirmation email sent successfully:", emailResponse);
 

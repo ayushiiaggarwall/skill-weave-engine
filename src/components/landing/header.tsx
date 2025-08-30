@@ -3,11 +3,12 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { UserProfileDropdown } from "@/components/ui/user-profile-dropdown"
 import { TextLogo } from "@/components/ui/text-logo"
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { useAdminRole } from "@/hooks/use-admin-role"
 import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
+import { Menu, X } from "lucide-react"
 
 export function Header() {
   const auth = useAuth()
@@ -15,6 +16,7 @@ export function Header() {
   const { isAdmin, loading: adminLoading } = useAdminRole()
   const enrollmentStatus = useEnrollmentStatus()
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -130,8 +132,8 @@ export function Header() {
             )}
           </nav>
 
-          {/* CTA Buttons */}
-          <div className="flex items-center space-x-4">
+          {/* Desktop CTA Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             {loading ? (
               <div className="w-20 h-8 animate-pulse bg-muted/50 rounded"></div>
@@ -148,7 +150,179 @@ export function Header() {
               </>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden border-t border-white/20 mt-4 pt-4"
+            >
+              {/* Mobile Navigation */}
+              <nav className="flex flex-col space-y-4">
+                <button 
+                  onClick={() => {
+                    navigate(user ? '/dashboard' : '/')
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                    (location.pathname === '/' || location.pathname === '/dashboard') 
+                      ? 'bg-primary/20 text-primary' 
+                      : 'text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {user ? 'Dashboard' : 'Home'}
+                </button>
+
+                {/* Conditional Navigation: Course vs My Courses */}
+                {user && enrollmentStatus.isEnrolled ? (
+                  <button 
+                    onClick={() => {
+                      navigate('/my-courses')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/my-courses' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    My Courses
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      navigate('/courses')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/courses' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    Course
+                  </button>
+                )}
+
+                {/* Conditional Navigation: Pricing vs Learner */}
+                {user && enrollmentStatus.isEnrolled ? (
+                  <button 
+                    onClick={() => {
+                      navigate('/learner')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/learner' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    Learner
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      navigate('/pricing')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/pricing' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    Pricing
+                  </button>
+                )}
+
+                {user && !adminLoading && isAdmin && (
+                  <button 
+                    onClick={() => {
+                      navigate('/admin')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/admin' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    Admin
+                  </button>
+                )}
+
+                {/* Mobile Auth Buttons */}
+                <div className="pt-4 border-t border-white/20">
+                  {loading ? (
+                    <div className="w-full h-10 animate-pulse bg-muted/50 rounded"></div>
+                  ) : user ? (
+                    <div className="space-y-2">
+                      <button 
+                        onClick={() => {
+                          navigate('/profile')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="w-full text-left px-4 py-2 rounded-lg transition-colors font-medium text-foreground hover:bg-muted/50"
+                      >
+                        Profile Settings
+                      </button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => {
+                          auth.signOut()
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full"
+                        onClick={() => {
+                          navigate("/login")
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        Sign In
+                      </Button>
+                      <Button 
+                        className="w-full button-3d hover-glow"
+                        onClick={() => {
+                          navigate("/signup")
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        Get Started
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.header>
   )

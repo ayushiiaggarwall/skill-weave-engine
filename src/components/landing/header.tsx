@@ -286,7 +286,7 @@ export function Header() {
                       </button>
                       <Button 
                         variant="outline" 
-                        className="w-full"
+                        className="w-full bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600"
                         onClick={() => {
                           auth.signOut()
                           setIsMobileMenuOpen(false)

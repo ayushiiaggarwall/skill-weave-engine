@@ -173,7 +173,7 @@ export function Header() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden border-t border-white/20 mt-4 pt-4"
+              className="md:hidden border-t border-white/20 mt-4 pt-4 bg-background/95 backdrop-blur-xl rounded-lg"
             >
               {/* Mobile Navigation */}
               <nav className="flex flex-col space-y-4">

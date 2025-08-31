@@ -110,6 +110,8 @@ serve(async (req) => {
     const clientId = (Deno.env.get("PAYPAL_CLIENT_ID") || "").trim();
     const clientSecret = (Deno.env.get("PAYPAL_CLIENT_SECRET") || "").trim();
 
+    logStep("PayPal secrets presence", { paypalEnv, hasClientId: !!clientId, hasClientSecret: !!clientSecret });
+
     if (!clientId || !clientSecret) {
       logStep("PayPal secrets missing");
       return new Response(JSON.stringify({ error: "Server not configured for PayPal" }), {

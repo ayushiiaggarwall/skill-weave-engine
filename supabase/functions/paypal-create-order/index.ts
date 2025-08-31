@@ -12,26 +12,25 @@ const logStep = (step: string, details?: any) => {
 };
 
 const getPayPalAccessToken = async () => {
-  const allEnv = Deno.env.toObject();
   const getEnv = (k: string) => {
-    const v = allEnv[k];
-    if (typeof v !== 'string') return undefined;
-    const trimmed = v.trim();
-    return trimmed.length ? trimmed : undefined;
+    const v = Deno.env.get(k);
+    if (!v) return undefined;
+    const t = v.trim();
+    return t.length ? t : undefined;
   };
 
   // Determine environment first
   const paypalEnv = getEnv("PAYPAL_ENV") || getEnv("PAYPAL_CLIENT_ENV") || "sandbox"; // 'live' or 'sandbox'
 
-  // Try multiple keys for robustness
+  // Support multiple key names (live/sandbox variants)
   const candidatesId = [
     "PAYPAL_CLIENT_ID",
     paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_ID" : "PAYPAL_SANDBOX_CLIENT_ID",
-  ].filter(Boolean) as string[];
+  ];
   const candidatesSecret = [
     "PAYPAL_CLIENT_SECRET",
     paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_SECRET" : "PAYPAL_SANDBOX_CLIENT_SECRET",
-  ].filter(Boolean) as string[];
+  ];
 
   let clientId: string | undefined;
   let clientSecret: string | undefined;
@@ -53,7 +52,6 @@ const getPayPalAccessToken = async () => {
     hasClientSecret: !!clientSecret,
     usedIdKey,
     usedSecretKey,
-    availableEnvVars: Object.keys(allEnv).filter(key => key.includes('PAYPAL'))
   });
 
   if (!clientId || !clientSecret) {

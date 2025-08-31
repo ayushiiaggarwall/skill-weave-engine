@@ -108,7 +108,7 @@ serve(async (req) => {
       });
       if (!intlErr && intlPrice?.currency === 'USD') {
         effectivePrice = intlPrice;
-        logStep("Using international pricing for PayPal", { currency: effectivePrice.currency, amount: effectivePrice.amount });
+        logStep("Using international pricing for PayPal", { currency: effectivePrice.currency, amount: effectivePrice.amount, couponApplied: effectivePrice.couponApplied });
       } else {
         logStep("Failed to get international pricing, proceeding with original", { error: intlErr?.message });
       }
@@ -207,8 +207,8 @@ const paypalEnv = Deno.env.get("PAYPAL_ENV") || Deno.env.get("PAYPAL_CLIENT_ENV"
         user_email: user.email,
         order_id: order.id,
         gateway: 'paypal',
-        amount: priceData.amount,
-        currency: priceData.currency,
+        amount: effectivePrice.amount, // Use the effective price (which includes coupon discount)
+        currency: effectivePrice.currency,
         status: 'pending',
         coupon_code: coupon
       });

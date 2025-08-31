@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { UserProfileDropdown } from '@/components/ui/user-profile-dropdown'
 import { useAuth } from '@/contexts/auth-context'
 import { useEnrollmentStatus } from '@/hooks/use-enrollment-status'
-import { Menu, X, BookOpen, Users, GraduationCap, Phone, DollarSign, User } from 'lucide-react'
+import { Menu, X, BookOpen, GraduationCap, Phone, DollarSign, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function Header() {

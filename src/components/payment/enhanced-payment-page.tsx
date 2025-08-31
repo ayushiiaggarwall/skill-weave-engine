@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
-import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe, Settings } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe } from "lucide-react"
 import { useSearchParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 
@@ -41,8 +40,6 @@ export function EnhancedPaymentPage() {
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [invalidCouponError, setInvalidCouponError] = useState(false)
-  const [regionOverride, setRegionOverride] = useState<'auto' | 'in' | 'intl'>('auto')
-  const [showTestPanel, setShowTestPanel] = useState(false)
   
 
   useEffect(() => {
@@ -52,7 +49,7 @@ export function EnhancedPaymentPage() {
         fetchCourseData()
       }
     }
-  }, [user, courseId, pricingType, regionOverride])
+  }, [user, courseId, pricingType])
 
 
   const fetchCourseData = async () => {
@@ -81,22 +78,11 @@ export function EnhancedPaymentPage() {
           email: user.email,
           courseId: courseId, // Pass the course ID
           coupon: couponCode || undefined,
-          pricingType: pricingType, // Fallback for old links
-          regionOverride: regionOverride !== 'auto' ? regionOverride : undefined // Override region for testing
+          pricingType: pricingType // Fallback for old links
         }
       })
 
       if (error) throw error
-      
-      // If region override is active, modify the returned data
-      if (regionOverride !== 'auto') {
-        data.region = regionOverride
-        if (regionOverride === 'in') {
-          data.currency = 'INR'
-        } else {
-          data.currency = 'USD'
-        }
-      }
       
       setPriceData(data)
     } catch (error) {
@@ -306,50 +292,6 @@ export function EnhancedPaymentPage() {
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Testing Panel */}
-        <Card className="mb-6 border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-orange-800 dark:text-orange-200">
-                <Settings className="w-5 h-5" />
-                Payment Testing Panel
-              </CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowTestPanel(!showTestPanel)}
-                className="border-orange-300 text-orange-700 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-300"
-              >
-                {showTestPanel ? 'Hide' : 'Show'} Panel
-              </Button>
-            </div>
-          </CardHeader>
-          {showTestPanel && (
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-orange-800 dark:text-orange-200">
-                  Override Region for Testing:
-                </label>
-                <Select value={regionOverride} onValueChange={(value: 'auto' | 'in' | 'intl') => setRegionOverride(value)}>
-                  <SelectTrigger className="w-full border-orange-300 dark:border-orange-700">
-                    <SelectValue placeholder="Select region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="auto">Auto-detect (Default)</SelectItem>
-                    <SelectItem value="in">🇮🇳 India (INR) - Razorpay</SelectItem>
-                    <SelectItem value="intl">🌍 International (USD) - PayPal</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="text-xs text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 p-3 rounded">
-                <strong>Testing Guide:</strong>
-                <br />• Select "India" to test Razorpay payments (INR pricing)
-                <br />• Select "International" to test PayPal payments (USD pricing)
-                <br />• This override only affects the payment gateway selection for testing
-              </div>
-            </CardContent>
-          )}
-        </Card>
 
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Complete Your Enrollment</h1>
@@ -421,15 +363,9 @@ export function EnhancedPaymentPage() {
                 <Badge variant={priceData.region === 'in' ? 'default' : 'secondary'}>
                   {priceData.region === 'in' ? 'India (INR)' : 'International (USD)'}
                 </Badge>
-                {regionOverride !== 'auto' ? (
-                  <Badge variant="outline" className="text-orange-600 border-orange-300">
-                    Testing Override
-                  </Badge>
-                ) : (
-                  <span className="text-xs text-muted-foreground">
-                    Auto-detected from IP
-                  </span>
-                )}
+                <span className="text-xs text-muted-foreground">
+                  Auto-detected from IP
+                </span>
               </div>
 
               {/* Early Bird Badge */}

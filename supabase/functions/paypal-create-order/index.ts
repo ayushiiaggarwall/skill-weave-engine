@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
 };
 
 const logStep = (step: string, details?: any) => {
@@ -11,26 +12,7 @@ const logStep = (step: string, details?: any) => {
   console.log(`[PAYPAL-CREATE-ORDER] ${step}${detailsStr}`);
 };
 
-const getPayPalAccessToken = async () => {
-  const trim = (v?: string | null) => (v ? v.trim() : "");
-  const clientId = trim(Deno.env.get("PAYPAL_CLIENT_ID"));
-  const clientSecret = trim(Deno.env.get("PAYPAL_CLIENT_SECRET"));
-  const paypalEnv = trim(Deno.env.get("PAYPAL_ENV")) || trim(Deno.env.get("PAYPAL_CLIENT_ENV")) || "sandbox";
-
-  logStep("Reading PayPal credentials (fresh each call)", {
-    paypalEnv,
-    hasClientId: !!clientId,
-    hasClientSecret: !!clientSecret
-  });
-
-  if (!clientId || !clientSecret) {
-    throw new Error(`PayPal credentials not configured (env=${paypalEnv}). Missing PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET`);
-  }
-
-  const baseUrl = paypalEnv === "live"
-    ? "https://api-m.paypal.com"
-    : "https://api-m.sandbox.paypal.com";
-
+const getPayPalAccessToken = async (baseUrl: string, clientId: string, clientSecret: string) => {
   const auth = btoa(`${clientId}:${clientSecret}`);
 
   const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
@@ -58,6 +40,14 @@ serve(async (req) => {
 
   try {
     logStep("Function started");
+
+    const { pathname } = new URL(req.url);
+    if (req.method === "GET" && pathname.endsWith("/health")) {
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -111,12 +101,25 @@ serve(async (req) => {
     const amount = (effectivePrice.amount / 100).toFixed(2);
     const currency = (effectivePrice.currency || 'USD').toUpperCase();
     
-    // Get PayPal access token
-    const accessToken = await getPayPalAccessToken();
-const paypalEnv = Deno.env.get("PAYPAL_ENV") || Deno.env.get("PAYPAL_CLIENT_ENV") || "sandbox"; // 'live' or 'sandbox'
-    const baseUrl = paypalEnv === "live" 
-      ? "https://api-m.paypal.com" 
+    // Read PayPal secrets per-invocation
+    const paypalEnv = (Deno.env.get("PAYPAL_ENV") || Deno.env.get("PAYPAL_CLIENT_ENV") || "sandbox").trim();
+    const baseUrl = paypalEnv === "live"
+      ? "https://api-m.paypal.com"
       : "https://api-m.sandbox.paypal.com";
+
+    const clientId = (Deno.env.get("PAYPAL_CLIENT_ID") || "").trim();
+    const clientSecret = (Deno.env.get("PAYPAL_CLIENT_SECRET") || "").trim();
+
+    if (!clientId || !clientSecret) {
+      logStep("PayPal secrets missing");
+      return new Response(JSON.stringify({ error: "Server not configured for PayPal" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
+
+    // Get PayPal access token
+    const accessToken = await getPayPalAccessToken(baseUrl, clientId, clientSecret);
     logStep("PayPal access token obtained", { paypalEnv });
     // Create PayPal order
     const normalizeBaseUrl = (url: string) => {
@@ -171,16 +174,17 @@ const paypalEnv = Deno.env.get("PAYPAL_ENV") || Deno.env.get("PAYPAL_CLIENT_ENV"
 
       if (isRestricted) {
         logStep("PayPal account restricted", { debug_id: errorJson?.debug_id });
-        return new Response(JSON.stringify({
-          error: "PAYPAL_ACCOUNT_RESTRICTED",
-          message: "PayPal merchant account is restricted. Please contact support.",
-        }), {
+        return new Response(JSON.stringify({ error: "PayPal order create failed" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 503,
         });
       }
 
-      throw new Error(`PayPal order creation failed: ${errorText}`);
+      logStep("PayPal order creation failed", { status: orderResponse.status, error: errorText });
+      return new Response(JSON.stringify({ error: "PayPal order create failed" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 502,
+      });
     }
 
     const order = await orderResponse.json();

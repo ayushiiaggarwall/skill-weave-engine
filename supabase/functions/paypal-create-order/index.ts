@@ -11,6 +11,8 @@ const logStep = (step: string, details?: any) => {
   console.log(`[PAYPAL-CREATE-ORDER] ${step}${detailsStr}`);
 };
 
+let __paypalCredsCache: { clientId: string; clientSecret: string; baseUrl: string; env: string } | null = null;
+
 const getPayPalAccessToken = async () => {
   const getEnv = (k: string) => {
     const v = Deno.env.get(k);
@@ -33,40 +35,57 @@ const getPayPalAccessToken = async () => {
   // Determine environment first
   const paypalEnv = getEnv("PAYPAL_ENV") || getEnv("PAYPAL_CLIENT_ENV") || "sandbox"; // 'live' or 'sandbox'
 
-  // Support multiple key names (live/sandbox variants)
-  const candidatesId = [
-    "PAYPAL_CLIENT_ID",
-    paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_ID" : "PAYPAL_SANDBOX_CLIENT_ID",
-  ];
-  const candidatesSecret = [
-    "PAYPAL_CLIENT_SECRET",
-    paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_SECRET" : "PAYPAL_SANDBOX_CLIENT_SECRET",
-  ];
+  let clientId: string | undefined;
+  let clientSecret: string | undefined;
+  let baseUrl: string;
 
-  const allEnvKeys = Object.keys(Deno.env.toObject()).filter(k => k.toUpperCase().includes("PAYPAL"));
+  if (__paypalCredsCache && __paypalCredsCache.env === paypalEnv) {
+    clientId = __paypalCredsCache.clientId;
+    clientSecret = __paypalCredsCache.clientSecret;
+    baseUrl = __paypalCredsCache.baseUrl;
+    logStep("Using cached PayPal credentials", { paypalEnv });
+  } else {
+    // Support multiple key names (live/sandbox variants)
+    const candidatesId = [
+      "PAYPAL_CLIENT_ID",
+      paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_ID" : "PAYPAL_SANDBOX_CLIENT_ID",
+    ];
+    const candidatesSecret = [
+      "PAYPAL_CLIENT_SECRET",
+      paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_SECRET" : "PAYPAL_SANDBOX_CLIENT_SECRET",
+    ];
 
-  const { key: usedIdKey, value: clientId } = readSecret(candidatesId);
-  const { key: usedSecretKey, value: clientSecret } = readSecret(candidatesSecret);
+    const allEnvKeys = Object.keys(Deno.env.toObject()).filter(k => k.toUpperCase().includes("PAYPAL"));
 
-  logStep("Reading PayPal credentials", {
-    paypalEnv,
-    hasClientId: !!clientId,
-    hasClientSecret: !!clientSecret,
-    usedIdKey,
-    usedSecretKey,
-    availableKeys: allEnvKeys, // names only, values not logged
-  });
+    const { key: usedIdKey, value: foundId } = readSecret(candidatesId);
+    const { key: usedSecretKey, value: foundSecret } = readSecret(candidatesSecret);
+    clientId = foundId;
+    clientSecret = foundSecret;
 
-  if (!clientId || !clientSecret) {
-    throw new Error(
-      `PayPal credentials not configured (env=${paypalEnv}). Available PAYPAL keys: ${JSON.stringify(allEnvKeys)}`
-    );
+    logStep("Reading PayPal credentials", {
+      paypalEnv,
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      usedIdKey,
+      usedSecretKey,
+      availableKeys: allEnvKeys, // names only, values not logged
+    });
+
+    if (!clientId || !clientSecret) {
+      throw new Error(
+        `PayPal credentials not configured (env=${paypalEnv}). Available PAYPAL keys: ${JSON.stringify(allEnvKeys)}`
+      );
+    }
+
+    baseUrl = paypalEnv === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
+
+    // Cache for subsequent invocations in the same isolate
+    __paypalCredsCache = { clientId, clientSecret, baseUrl, env: paypalEnv };
   }
 
   const auth = btoa(`${clientId}:${clientSecret}`);
-  const baseUrl = paypalEnv === "live"
-    ? "https://api-m.paypal.com"
-    : "https://api-m.sandbox.paypal.com";
 
   const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
     method: "POST",

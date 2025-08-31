@@ -133,12 +133,12 @@ export function AdminDashboard() {
 
   const fetchUsers = async () => {
     try {
-      // Get profiles with basic enrollments (no course join since foreign key doesn't exist)
+      // Get profiles with basic enrollments (specify the foreign key relationship)
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select(`
           *,
-          enrollments (
+          enrollments!fk_enrollments_user (
             payment_status,
             course_id
           )

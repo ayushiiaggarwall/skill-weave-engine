@@ -45,7 +45,7 @@ export function useEnrollmentStatus(): EnrollmentStatus {
       try {
         console.log('Checking enrollment for user:', user.id, user.email)
         
-        // Check for completed order enrollments - only by user_id
+        // Check for completed order enrollments - by user_id OR user_email
         const { data: orderEnrollments, error: orderError } = await supabase
           .from('order_enrollments')
           .select(`
@@ -62,7 +62,7 @@ export function useEnrollmentStatus(): EnrollmentStatus {
               plans
             )
           `)
-          .eq('user_id', user.id)
+          .or(`user_id.eq.${user.id},user_email.eq.${user.email}`)
           .eq('status', 'paid')
 
         console.log('Order enrollments data:', orderEnrollments)
@@ -78,11 +78,26 @@ export function useEnrollmentStatus(): EnrollmentStatus {
         ) || false
 
         const paidOrder = orderEnrollments?.find(order => order.status === 'paid')
-        const courseData = paidOrder?.courses
+        let courseData = paidOrder?.courses
+
+        // If course_id is null, fetch the active course as fallback
+        if (hasCompletedPayment && !courseData) {
+          console.log('Course data is null, fetching active course as fallback')
+          const { data: activeCourse } = await supabase
+            .from('courses')
+            .select('id, title, objective, start_date, end_date, total_weeks, plans')
+            .eq('is_active', true)
+            .single()
+          
+          if (activeCourse) {
+            courseData = activeCourse
+            console.log('Using active course as fallback:', courseData)
+          }
+        }
 
         console.log('Has completed payment:', hasCompletedPayment)
         console.log('Paid order:', paidOrder)
-        console.log('Course data:', courseData)
+        console.log('Final course data:', courseData)
 
         setStatus({
           isEnrolled: hasCompletedPayment,

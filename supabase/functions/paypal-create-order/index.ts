@@ -12,34 +12,59 @@ const logStep = (step: string, details?: any) => {
 };
 
 const getPayPalAccessToken = async () => {
-  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
-  const clientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET");
-  
+  const allEnv = Deno.env.toObject();
+  const getEnv = (k: string) => {
+    const v = allEnv[k];
+    if (typeof v !== 'string') return undefined;
+    const trimmed = v.trim();
+    return trimmed.length ? trimmed : undefined;
+  };
+
+  // Determine environment first
+  const paypalEnv = getEnv("PAYPAL_ENV") || getEnv("PAYPAL_CLIENT_ENV") || "sandbox"; // 'live' or 'sandbox'
+
+  // Try multiple keys for robustness
+  const candidatesId = [
+    "PAYPAL_CLIENT_ID",
+    paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_ID" : "PAYPAL_SANDBOX_CLIENT_ID",
+  ].filter(Boolean) as string[];
+  const candidatesSecret = [
+    "PAYPAL_CLIENT_SECRET",
+    paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_SECRET" : "PAYPAL_SANDBOX_CLIENT_SECRET",
+  ].filter(Boolean) as string[];
+
+  let clientId: string | undefined;
+  let clientSecret: string | undefined;
+  let usedIdKey = "";
+  let usedSecretKey = "";
+
+  for (const k of candidatesId) {
+    const v = getEnv(k);
+    if (v) { clientId = v; usedIdKey = k; break; }
+  }
+  for (const k of candidatesSecret) {
+    const v = getEnv(k);
+    if (v) { clientSecret = v; usedSecretKey = k; break; }
+  }
+
   logStep("Reading PayPal credentials", {
+    paypalEnv,
     hasClientId: !!clientId,
     hasClientSecret: !!clientSecret,
-    clientIdValue: clientId ? `${clientId.substring(0, 8)}...` : 'null',
-    clientSecretValue: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'null'
+    usedIdKey,
+    usedSecretKey,
+    availableEnvVars: Object.keys(allEnv).filter(key => key.includes('PAYPAL'))
   });
-  
+
   if (!clientId || !clientSecret) {
-    logStep("Missing PayPal credentials", {
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-      availableEnvVars: Object.keys(Deno.env.toObject()).filter(key => key.includes('PAYPAL'))
-    });
     throw new Error("PayPal credentials not configured");
   }
 
   const auth = btoa(`${clientId}:${clientSecret}`);
-  const paypalEnv =
-    Deno.env.get("PAYPAL_ENV") ||
-    Deno.env.get("PAYPAL_CLIENT_ENV") ||
-    "sandbox"; // 'live' or 'sandbox'
   const baseUrl = paypalEnv === "live" 
     ? "https://api-m.paypal.com" 
     : "https://api-m.sandbox.paypal.com";
-  
+
   const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
     method: "POST",
     headers: {

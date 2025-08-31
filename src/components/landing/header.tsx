@@ -1,175 +1,329 @@
-
-import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { UserProfileDropdown } from '@/components/ui/user-profile-dropdown'
-import { useAuth } from '@/contexts/auth-context'
-import { useEnrollmentStatus } from '@/hooks/use-enrollment-status'
-import { Menu, X, BookOpen, GraduationCap, Phone, DollarSign, User } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { UserProfileDropdown } from "@/components/ui/user-profile-dropdown"
+import { TextLogo } from "@/components/ui/text-logo"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useAuth } from "@/contexts/auth-context"
+import { useAdminRole } from "@/hooks/use-admin-role"
+import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
+import { Menu, X } from "lucide-react"
 
 export function Header() {
-  const { user, loading } = useAuth()
+  const auth = useAuth()
+  const { user, loading } = auth
+  const { isAdmin, loading: adminLoading } = useAdminRole()
   const enrollmentStatus = useEnrollmentStatus()
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
-
-  const handleNavigation = (path: string) => {
-    navigate(path)
-    setIsMenuOpen(false)
-  }
-
-  const isActive = (path: string) => location.pathname === path
-
-  // Navigation items for enrolled users only
-  const enrolledUserNavItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: User },
-    { path: '/my-courses', label: 'My Courses', icon: BookOpen },
-    { path: '/learner', label: 'Learner Hub', icon: GraduationCap },
-  ]
-
-  // Navigation items for all authenticated users
-  const publicNavItems = [
-    { path: '/courses', label: 'Courses', icon: BookOpen },
-    { path: '/pricing', label: 'Pricing', icon: DollarSign },
-    { path: '/contact', label: 'Contact', icon: Phone },
-  ]
-
-  // Show enrolled user navigation only if user is enrolled
-  const showEnrolledNavigation = user && enrollmentStatus.isEnrolled && !enrollmentStatus.loading
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <motion.header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'glass-card border-b border-white/20 backdrop-blur-xl' 
+          : 'bg-transparent'
+      }`}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link 
-            to="/" 
-            className="text-2xl font-bold gradient-text hover:opacity-80 transition-opacity"
+          <motion.div 
+            className="cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400 }}
+            onClick={() => navigate("/")}
           >
-            EduPlatform
-          </Link>
+            <TextLogo />
+          </motion.div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            {/* Public navigation items */}
-            {publicNavItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-2 transition-colors hover:text-primary ${
-                  isActive(item.path) ? 'text-primary font-medium' : 'text-muted-foreground'
-                }`}
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <div className="relative">
+              <button 
+                onClick={() => navigate(user ? '/dashboard' : '/')}
+                className="text-foreground hover:text-primary transition-colors font-medium"
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            ))}
-
-            {/* Enrolled user navigation items */}
-            {showEnrolledNavigation && enrolledUserNavItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-2 transition-colors hover:text-primary ${
-                  isActive(item.path) ? 'text-primary font-medium' : 'text-muted-foreground'
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            ))}
+                {user ? 'Dashboard' : 'Home'}
+              </button>
+              {(location.pathname === '/' || location.pathname === '/dashboard') && (
+                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+              )}
+            </div>
+            {/* Conditional Navigation: Course vs My Courses */}
+            {user && enrollmentStatus.isEnrolled ? (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/my-courses')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  My Courses
+                </button>
+                {location.pathname === '/my-courses' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            ) : (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/courses')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Course
+                </button>
+                {location.pathname === '/courses' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            )}
+            
+            {/* Conditional Navigation: Pricing vs Learner */}
+            {user && enrollmentStatus.isEnrolled ? (
+              <div className="relative group">
+                <button 
+                  onClick={() => navigate('/learner')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Learner
+                </button>
+                {location.pathname === '/learner' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            ) : (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/pricing')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Pricing
+                </button>
+                {location.pathname === '/pricing' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            )}
+            {user && !adminLoading && isAdmin && (
+              <div className="relative">
+                <button 
+                  onClick={() => navigate('/admin')}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Admin
+                </button>
+                {location.pathname === '/admin' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                )}
+              </div>
+            )}
           </nav>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center space-x-4">
+          {/* Desktop CTA Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
-            
             {loading ? (
-              <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+              <div className="w-20 h-8 animate-pulse bg-muted/50 rounded"></div>
             ) : user ? (
               <UserProfileDropdown />
             ) : (
-              <div className="flex items-center space-x-3">
-                <Button variant="ghost" onClick={() => navigate('/login')}>
-                  Login
+              <>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
+                  Sign In
                 </Button>
-                <Button onClick={() => navigate('/signup')}>
-                  Sign Up
+                <Button size="sm" className="button-3d hover-glow" onClick={() => navigate("/signup")}>
+                  Get Started
                 </Button>
-              </div>
+              </>
             )}
+          </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={toggleMenu}
-              className="lg:hidden p-2 rounded-md hover:bg-accent transition-colors"
-              aria-label="Toggle menu"
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </Button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Menu */}
         <AnimatePresence>
-          {isMenuOpen && (
+          {isMobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="lg:hidden mt-4 pb-4 border-t border-border pt-4"
+              transition={{ duration: 0.3 }}
+              className="md:hidden border-t border-white/20 mt-4 pt-4 bg-background/95 backdrop-blur-xl rounded-lg"
             >
-              <nav className="flex flex-col space-y-3">
-                {/* Public navigation items for mobile */}
-                {publicNavItems.map((item) => (
-                  <button
-                    key={item.path}
-                    onClick={() => handleNavigation(item.path)}
-                    className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-accent ${
-                      isActive(item.path) ? 'bg-accent text-primary font-medium' : 'text-muted-foreground'
+              {/* Mobile Navigation */}
+              <nav className="flex flex-col space-y-4">
+                <button 
+                  onClick={() => {
+                    navigate(user ? '/dashboard' : '/')
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                    (location.pathname === '/' || location.pathname === '/dashboard') 
+                      ? 'bg-primary/20 text-primary' 
+                      : 'text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  {user ? 'Dashboard' : 'Home'}
+                </button>
+
+                {/* Conditional Navigation: Course vs My Courses */}
+                {user && enrollmentStatus.isEnrolled ? (
+                  <button 
+                    onClick={() => {
+                      navigate('/my-courses')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/my-courses' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
                     }`}
                   >
-                    <item.icon className="h-5 w-5" />
-                    {item.label}
+                    My Courses
                   </button>
-                ))}
-
-                {/* Enrolled user navigation items for mobile */}
-                {showEnrolledNavigation && enrolledUserNavItems.map((item) => (
-                  <button
-                    key={item.path}
-                    onClick={() => handleNavigation(item.path)}
-                    className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-accent ${
-                      isActive(item.path) ? 'bg-accent text-primary font-medium' : 'text-muted-foreground'
+                ) : (
+                  <button 
+                    onClick={() => {
+                      navigate('/courses')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/courses' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
                     }`}
                   >
-                    <item.icon className="h-5 w-5" />
-                    {item.label}
+                    Course
                   </button>
-                ))}
-
-                {/* Mobile Auth Actions */}
-                {!user && (
-                  <div className="flex flex-col space-y-2 mt-4 pt-4 border-t border-border">
-                    <Button variant="ghost" onClick={() => handleNavigation('/login')} className="justify-start">
-                      Login
-                    </Button>
-                    <Button onClick={() => handleNavigation('/signup')} className="justify-start">
-                      Sign Up
-                    </Button>
-                  </div>
                 )}
+
+                {/* Conditional Navigation: Pricing vs Learner */}
+                {user && enrollmentStatus.isEnrolled ? (
+                  <button 
+                    onClick={() => {
+                      navigate('/learner')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/learner' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    Learner
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      navigate('/pricing')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/pricing' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    Pricing
+                  </button>
+                )}
+
+                {user && !adminLoading && isAdmin && (
+                  <button 
+                    onClick={() => {
+                      navigate('/admin')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                      location.pathname === '/admin' 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    Admin
+                  </button>
+                )}
+
+                {/* Mobile Auth Buttons */}
+                <div className="pt-4 border-t border-white/20">
+                  {loading ? (
+                    <div className="w-full h-10 animate-pulse bg-muted/50 rounded"></div>
+                  ) : user ? (
+                    <div className="space-y-2">
+                      <button 
+                        onClick={() => {
+                          navigate('/profile')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="w-full text-left px-4 py-2 rounded-lg transition-colors font-medium text-foreground hover:bg-muted/50"
+                      >
+                        Profile Settings
+                      </button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600"
+                        onClick={() => {
+                          auth.signOut()
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full"
+                        onClick={() => {
+                          navigate("/login")
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        Sign In
+                      </Button>
+                      <Button 
+                        className="w-full button-3d hover-glow"
+                        onClick={() => {
+                          navigate("/signup")
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        Get Started
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </nav>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-    </header>
+    </motion.header>
   )
 }

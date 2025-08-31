@@ -1,15 +1,12 @@
-
 import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
-import { useEnrollmentStatus } from "@/hooks/use-enrollment-status"
 import { useNavigate } from "react-router-dom"
-import { LogOut, Settings, BookOpen, GraduationCap, User } from "lucide-react"
+import { LogOut, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function UserProfileDropdown() {
   const { user, profile, signOut } = useAuth()
-  const enrollmentStatus = useEnrollmentStatus()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
@@ -37,8 +34,6 @@ export function UserProfileDropdown() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  const showEnrolledOptions = enrollmentStatus.isEnrolled && !enrollmentStatus.loading
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -70,63 +65,12 @@ export function UserProfileDropdown() {
             <div className="p-3 border-b border-border">
               <p className="text-sm font-medium">{profile?.name || 'User'}</p>
               <p className="text-xs text-muted-foreground">{user?.email}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                  {profile?.role === 'student' ? 'learner' : (profile?.role || 'learner')}
-                </span>
-                {showEnrolledOptions && (
-                  <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300">
-                    enrolled
-                  </span>
-                )}
-              </div>
+              <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                {profile?.role === 'student' ? 'learner' : (profile?.role || 'learner')}
+              </span>
             </div>
             
             <div className="p-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-8 px-2"
-                onClick={() => {
-                  setIsOpen(false)
-                  navigate('/dashboard')
-                }}
-              >
-                <User className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
-
-              {/* Show enrolled user options only if enrolled */}
-              {showEnrolledOptions && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start h-8 px-2"
-                    onClick={() => {
-                      setIsOpen(false)
-                      navigate('/my-courses')
-                    }}
-                  >
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    My Courses
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start h-8 px-2"
-                    onClick={() => {
-                      setIsOpen(false)
-                      navigate('/learner')
-                    }}
-                  >
-                    <GraduationCap className="w-4 h-4 mr-2" />
-                    Learner Hub
-                  </Button>
-                </>
-              )}
-              
               <Button
                 variant="ghost"
                 size="sm"

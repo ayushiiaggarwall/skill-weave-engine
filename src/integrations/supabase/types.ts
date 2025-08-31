@@ -357,6 +357,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_enrollments_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       international_interest: {
@@ -390,7 +397,15 @@ export type Database = {
           name?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_international_interest_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
@@ -512,6 +527,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_order_enrollments_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "order_enrollments_course_id_fkey"
             columns: ["course_id"]
             isOneToOne: false
@@ -607,6 +629,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_submissions_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "submissions_assignment_id_fkey"
             columns: ["assignment_id"]
             isOneToOne: false
@@ -648,6 +677,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_user_certificates_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_certificates_certificate_id_fkey"
             columns: ["certificate_id"]

@@ -114,12 +114,12 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { email, coupon, pricingType = 'regular' } = await req.json();
-    logStep("Request received", { email, coupon, pricingType });
+    const { email, coupon, pricingType = 'regular', courseId } = await req.json();
+    logStep("Request received", { email, coupon, pricingType, courseId });
 
     // Get pricing from pay-price function
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
-      body: { email: user.email, coupon, pricingType }
+      body: { email: user.email, coupon, pricingType, courseId }
     });
 
     if (priceError) {
@@ -132,7 +132,7 @@ serve(async (req) => {
     if (priceData.currency !== "USD") {
       logStep("Currency not supported by PayPal gateway, refetching as USD", { originalCurrency: priceData.currency });
       const { data: intlPrice, error: intlErr } = await supabaseClient.functions.invoke('pay-price', {
-        body: { email: user.email, coupon, regionOverride: 'intl', pricingType }
+        body: { email: user.email, coupon, regionOverride: 'intl', pricingType, courseId }
       });
       if (!intlErr && intlPrice?.currency === 'USD') {
         effectivePrice = intlPrice;

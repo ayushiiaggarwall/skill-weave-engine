@@ -19,6 +19,17 @@ const getPayPalAccessToken = async () => {
     return t.length ? t : undefined;
   };
 
+  const dequote = (s?: string) => (s ? s.replace(/^['"]+|['"]+$/g, "").trim() : s);
+
+  const readSecret = (names: string[]) => {
+    for (const name of names) {
+      const raw = getEnv(name);
+      const val = dequote(raw);
+      if (val) return { key: name, value: val } as const;
+    }
+    return { key: "", value: undefined } as const;
+  };
+
   // Determine environment first
   const paypalEnv = getEnv("PAYPAL_ENV") || getEnv("PAYPAL_CLIENT_ENV") || "sandbox"; // 'live' or 'sandbox'
 
@@ -32,19 +43,10 @@ const getPayPalAccessToken = async () => {
     paypalEnv === "live" ? "PAYPAL_LIVE_CLIENT_SECRET" : "PAYPAL_SANDBOX_CLIENT_SECRET",
   ];
 
-  let clientId: string | undefined;
-  let clientSecret: string | undefined;
-  let usedIdKey = "";
-  let usedSecretKey = "";
+  const allEnvKeys = Object.keys(Deno.env.toObject()).filter(k => k.toUpperCase().includes("PAYPAL"));
 
-  for (const k of candidatesId) {
-    const v = getEnv(k);
-    if (v) { clientId = v; usedIdKey = k; break; }
-  }
-  for (const k of candidatesSecret) {
-    const v = getEnv(k);
-    if (v) { clientSecret = v; usedSecretKey = k; break; }
-  }
+  const { key: usedIdKey, value: clientId } = readSecret(candidatesId);
+  const { key: usedSecretKey, value: clientSecret } = readSecret(candidatesSecret);
 
   logStep("Reading PayPal credentials", {
     paypalEnv,
@@ -52,15 +54,18 @@ const getPayPalAccessToken = async () => {
     hasClientSecret: !!clientSecret,
     usedIdKey,
     usedSecretKey,
+    availableKeys: allEnvKeys, // names only, values not logged
   });
 
   if (!clientId || !clientSecret) {
-    throw new Error("PayPal credentials not configured");
+    throw new Error(
+      `PayPal credentials not configured (env=${paypalEnv}). Available PAYPAL keys: ${JSON.stringify(allEnvKeys)}`
+    );
   }
 
   const auth = btoa(`${clientId}:${clientSecret}`);
-  const baseUrl = paypalEnv === "live" 
-    ? "https://api-m.paypal.com" 
+  const baseUrl = paypalEnv === "live"
+    ? "https://api-m.paypal.com"
     : "https://api-m.sandbox.paypal.com";
 
   const response = await fetch(`${baseUrl}/v1/oauth2/token`, {

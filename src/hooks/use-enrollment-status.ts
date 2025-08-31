@@ -45,12 +45,11 @@ export function useEnrollmentStatus(): EnrollmentStatus {
       try {
         console.log('Checking enrollment for user:', user.id, user.email)
         
-        // Check for completed order enrollments (primary method now)
+        // Check for completed order enrollments - only by user_id
         const { data: orderEnrollments, error: orderError } = await supabase
           .from('order_enrollments')
           .select(`
             status, 
-            user_email, 
             user_id, 
             course_id,
             courses(

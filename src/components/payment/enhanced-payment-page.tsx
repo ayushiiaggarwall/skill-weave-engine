@@ -5,11 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
-import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe, Heart } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe } from "lucide-react"
 import { useSearchParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
-import { Textarea } from "@/components/ui/textarea"
 
 interface PriceData {
   region: 'in' | 'intl'
@@ -42,11 +40,6 @@ export function EnhancedPaymentPage() {
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [invalidCouponError, setInvalidCouponError] = useState(false)
-  const [interestName, setInterestName] = useState("")
-  const [interestMessage, setInterestMessage] = useState("")
-  const [isSubmittingInterest, setIsSubmittingInterest] = useState(false)
-  const [interestSubmitted, setInterestSubmitted] = useState(false)
-  const [selectedCourse, setSelectedCourse] = useState("")
   
 
   useEffect(() => {
@@ -156,56 +149,38 @@ export function EnhancedPaymentPage() {
     setIsApplyingCoupon(false)
   }
 
-  const handleInterestSubmission = async () => {
-    if (!user?.email || !interestName.trim() || !selectedCourse) return
+  const handlePayPalPayment = async () => {
+    if (!user?.email || !priceData) return
 
-    setIsSubmittingInterest(true)
+    setIsLoading(true)
     try {
-      // Insert interest record
-      const { error: insertError } = await supabase
-        .from('international_interest')
-        .insert({
-          user_id: user.id,
-          email: user.email,
-          name: interestName.trim(),
-          course_id: courseId,
-          course_type: selectedCourse,
-          message: interestMessage.trim() || undefined
-        })
-
-      if (insertError) throw insertError
-
-      // Send confirmation email
-      const { error: emailError } = await supabase.functions.invoke('send-interest-confirmation', {
+      // Create PayPal order
+      const { data: orderData, error } = await supabase.functions.invoke('paypal-create-order', {
         body: {
-          name: interestName.trim(),
           email: user.email,
-          course: selectedCourse
+          courseId: courseId,
+          coupon: priceData.couponApplied?.code,
+          pricingType: pricingType
         }
       })
 
-      if (emailError) console.error('Email error:', emailError)
+      if (error) throw error
 
-      setInterestSubmitted(true)
-      toast({
-        title: "Thank you for your interest!",
-        description: "We've sent you a confirmation email and will get back to you soon. Redirecting you to dashboard in 3 seconds...",
-      })
-
-      // Redirect to dashboard after 3 seconds
-      setTimeout(() => {
-        window.location.href = "/dashboard"
-      }, 3000)
+      // Redirect to PayPal
+      if (orderData.approvalUrl) {
+        window.location.href = orderData.approvalUrl
+      } else {
+        throw new Error("No approval URL received from PayPal")
+      }
 
     } catch (error) {
-      console.error('Error submitting interest:', error)
+      console.error('PayPal payment error:', error)
       toast({
-        title: "Error",
-        description: "Failed to register interest. Please try again.",
+        title: "Payment Error",
+        description: "Failed to initiate PayPal payment. Please try again.",
         variant: "destructive"
       })
-    } finally {
-      setIsSubmittingInterest(false)
+      setIsLoading(false)
     }
   }
 
@@ -475,86 +450,33 @@ export function EnhancedPaymentPage() {
                     </div>
                   </div>
                 </>
-) : (
+              ) : (
                 <>
-                  {/* International Payment Coming Soon */}
-                  <div className="space-y-4">
-                    <Button
-                      disabled
-                      className="w-full"
-                      size="lg"
-                      variant="secondary"
-                    >
-                      <Clock className="mr-2 h-4 w-4" />
-                      International Payments - Coming Soon
-                    </Button>
-
-                    {!interestSubmitted ? (
+                  {/* International Payment via PayPal */}
+                  <Button
+                    onClick={handlePayPalPayment}
+                    disabled={isLoading}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isLoading ? (
                       <>
-                        <div className="text-center text-sm text-muted-foreground">
-                          Want to be notified when available?
-                        </div>
-                        
-                        <div className="space-y-3 p-4 border rounded-lg">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Heart className="w-4 h-4 text-primary" />
-                            <span className="text-sm font-medium">I'm interested!</span>
-                          </div>
-                          
-                          <Input
-                            value={interestName}
-                            onChange={(e) => setInterestName(e.target.value)}
-                            placeholder="Your name"
-                            className="w-full"
-                          />
-
-                          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select course you're interested in" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="course">5-Week Idea to Product Course</SelectItem>
-                              <SelectItem value="combo">Course + 1:1 Mentorship Combo</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          
-                          <Textarea
-                            value={interestMessage}
-                            onChange={(e) => setInterestMessage(e.target.value)}
-                            placeholder="Tell us about your interest (optional)"
-                            className="w-full resize-none"
-                            rows={3}
-                          />
-                          
-                          <Button
-                            onClick={handleInterestSubmission}
-                            disabled={isSubmittingInterest || !interestName.trim() || !selectedCourse}
-                            className="w-full"
-                            size="sm"
-                          >
-                            {isSubmittingInterest ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Submitting...
-                              </>
-                            ) : (
-                              <>
-                                <Heart className="mr-2 h-4 w-4" />
-                                Register Interest
-                              </>
-                            )}
-                          </Button>
-                        </div>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
                       </>
                     ) : (
-                      <div className="text-center p-4 border rounded-lg bg-muted/50">
-                        <Heart className="w-8 h-8 text-primary mx-auto mb-2" />
-                        <p className="text-sm font-medium text-primary">Thank you for your interest!</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          We've sent you a confirmation email and will get back to you soon.
-                        </p>
-                      </div>
+                      <>
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Pay {priceData.display} - Enroll Now via PayPal
+                      </>
                     )}
+                  </Button>
+
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <Shield className="w-3 h-3" />
+                      <span>Secured by PayPal</span>
+                    </div>
                   </div>
                 </>
               )}

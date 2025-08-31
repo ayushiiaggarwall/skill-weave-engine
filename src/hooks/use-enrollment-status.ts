@@ -63,7 +63,8 @@ export function useEnrollmentStatus(): EnrollmentStatus {
               plans
             )
           `)
-          .or(`user_id.eq.${user.id},user_email.eq.${user.email}`)
+          .eq('user_id', user.id)
+          .eq('status', 'paid')
 
         console.log('Order enrollments data:', orderEnrollments)
         console.log('Order enrollments error:', orderError)

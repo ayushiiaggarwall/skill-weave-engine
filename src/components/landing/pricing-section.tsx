@@ -202,8 +202,7 @@ export function PricingSection() {
         "Step-by-Step Curriculum — from basics to launch",
         "Hands-On Projects every week",
         "Lifetime Access to Recordings & Materials",
-        "Community Support Group (peer discussions + resources)",
-        "7 Days Money Back Guarantee"
+        "Community Support Group (peer discussions + resources)"
       ]
     }
     
@@ -224,8 +223,7 @@ export function PricingSection() {
       "Step-by-Step Curriculum — from basics to launch",
       "Hands-On Projects every week",
       "Lifetime Access to Recordings & Materials",
-      "Community Support Group (peer discussions + resources)",
-      "7 Days Money Back Guarantee"
+      "Community Support Group (peer discussions + resources)"
     ]
   }
 
@@ -294,10 +292,17 @@ export function PricingSection() {
                   animationType="scale"
                   className="glass-card-strong border-primary/30 shadow-xl hover-lift opacity-0 relative flex flex-col h-full"
                 >
-                  {/* Best Value Badge for Mentorship Track Only */}
+                  {/* Best Value Badge for Mentorship Track */}
                   {course.title.toLowerCase().includes('mentorship') && (
                     <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
                       BEST VALUE • LIMITED SEATS
+                    </div>
+                  )}
+                  
+                  {/* Money Back Guarantee Badge for Essential Track */}
+                  {course.title.toLowerCase().includes('essential') && (
+                    <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                      7 Days Money Back Guarantee
                     </div>
                   )}
                   

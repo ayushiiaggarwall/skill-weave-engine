@@ -639,7 +639,9 @@ export function AdminDashboard() {
                         // Since enrollments don't have course relationship, just use order enrollments
                         
                         const paidOrder = user.order_enrollments?.find(e => e.status === 'paid')
-                        const courseType = paidOrder?.course_type || 'N/A'
+                        const courseType = (paidOrder?.course_type && paidOrder.course_type !== 'course')
+                          ? paidOrder.course_type
+                          : "Builder's Program - Essential Track"
                         const courseTitle = paidOrder?.courses?.title || courseType
                         const amountPaid = paidOrder ? formatCurrency(paidOrder.amount / 100, paidOrder.currency) : 'N/A'
                         

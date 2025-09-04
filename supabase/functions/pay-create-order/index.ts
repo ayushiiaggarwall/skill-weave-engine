@@ -50,6 +50,9 @@ serve(async (req) => {
 
     const body: CreateOrderRequest = await req.json();
     const { email, courseId, coupon, pricingType = 'regular' } = body;
+    const courseTypeLabel = pricingType === 'combo' 
+      ? "Builder's Program - Pro Track" 
+      : "Builder's Program - Essential Track";
 
     // Get current pricing for India
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
@@ -112,7 +115,8 @@ serve(async (req) => {
       .insert({
         user_email: user.email,
         user_id: user.id,
-        course_id: courseId,
+        course_id: courseId || null,
+        course_type: courseTypeLabel,
         gateway: 'razorpay',
         order_id: razorpayOrder.id,
         currency: 'INR',

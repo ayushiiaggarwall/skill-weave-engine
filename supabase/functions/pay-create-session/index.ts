@@ -10,6 +10,8 @@ const corsHeaders = {
 interface CreateSessionRequest {
   email: string;
   coupon?: string;
+  courseId?: string;
+  pricingType?: 'regular' | 'combo';
 }
 
 interface CreateSessionResponse {
@@ -47,13 +49,18 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const body: CreateSessionRequest = await req.json();
-    const { email, coupon } = body;
+    const { email, coupon, courseId, pricingType = 'regular' } = body;
+    const courseTypeLabel = pricingType === 'combo' 
+      ? "Builder's Program - Pro Track" 
+      : "Builder's Program - Essential Track";
 
     // Get current pricing for International
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
       body: {
         email,
-        coupon
+        coupon,
+        courseId,
+        pricingType
       }
     });
 
@@ -117,6 +124,8 @@ serve(async (req) => {
       .insert({
         user_email: user.email,
         user_id: user.id,
+        course_id: courseId || null,
+        course_type: courseTypeLabel,
         gateway: 'stripe',
         order_id: session.id,
         currency: 'USD',

@@ -71,6 +71,10 @@ serve(async (req) => {
 
     const { email, coupon, pricingType = 'regular', courseId } = await req.json();
     logStep("Request received", { email, coupon, pricingType, courseId });
+    // Map selected pricing type to a human-readable course type
+    const courseTypeLabel = pricingType === 'combo' 
+      ? "Builder's Program - Pro Track" 
+      : "Builder's Program - Essential Track";
 
     // Get pricing from pay-price function
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
@@ -204,12 +208,14 @@ serve(async (req) => {
       .insert({
         user_id: user.id,
         user_email: user.email,
+        course_id: courseId || null,
+        course_type: courseTypeLabel,
         order_id: order.id,
         gateway: 'paypal',
         amount: effectivePrice.amount, // Use the effective price (which includes coupon discount)
         currency: effectivePrice.currency,
         status: 'pending',
-        coupon_code: coupon
+        coupon_code: coupon || null
       });
 
     if (insertError) {

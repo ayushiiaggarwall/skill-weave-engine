@@ -134,8 +134,6 @@ export function ModernDashboard() {
                 </p>
               </motion.div>
 
-              {/* Book Call Widget */}
-              <BookCallWidget />
 
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Main Content */}
@@ -338,6 +336,9 @@ export function ModernDashboard() {
 
               {/* Sidebar */}
               <div className="space-y-6">
+                {/* Book Call Widget */}
+                <BookCallWidget />
+                
                 {/* Notifications */}
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}

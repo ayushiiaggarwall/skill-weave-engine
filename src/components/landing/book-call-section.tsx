@@ -87,7 +87,7 @@ export function BookCallSection() {
             </Button>
             
             <p className="text-sm text-muted-foreground">
-              No pressure—just a quick chat
+              No pressure—just a quick chat 🙂
             </p>
           </motion.div>
         </motion.div>

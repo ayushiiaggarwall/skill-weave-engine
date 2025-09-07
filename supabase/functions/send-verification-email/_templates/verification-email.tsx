@@ -169,20 +169,23 @@ const buttonSection = {
   textAlign: 'center' as const,
   margin: '32px 0',
   width: '100%',
+  padding: '0 20px', // Add padding for mobile spacing
 }
 
 const button = {
-  backgroundColor: '#facc15',
+  backgroundColor: '#eab308', // Slightly darker yellow for better contrast
   borderRadius: '8px',
-  color: '#ffffff',
+  color: '#000000', // Black text for better contrast on yellow
   fontSize: '16px',
   fontWeight: 'bold',
   textDecoration: 'none',
   textAlign: 'center' as const,
   display: 'inline-block',
   margin: '0 auto',
-  padding: '14px 32px',
-  maxWidth: '200px',
+  padding: '16px 40px', // Increased padding for better button size
+  minWidth: '220px', // Minimum width instead of max for consistency
+  border: '2px solid #ca8a04', // Add border for definition
+  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Add shadow for depth
 }
 
 const codeSection = {

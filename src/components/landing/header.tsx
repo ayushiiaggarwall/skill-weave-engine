@@ -130,20 +130,19 @@ export function Header() {
                  )}
                </div>
              )}
-             <Button 
-               variant="ghost" 
-               onClick={() => {
-                 // @ts-ignore - Calendly is loaded via script tag
-                 if (window.Calendly) {
-                   // @ts-ignore
-                   window.Calendly.initPopupWidget({ url: 'https://calendly.com/hello-ayushiaggarwal' });
-                 } else {
-                   window.open('https://calendly.com/hello-ayushiaggarwal', '_blank');
-                 }
-               }}
-             >
-               Book a Call
-             </Button>
+             {user && !adminLoading && isAdmin && (
+               <div className="relative">
+                 <button 
+                   onClick={() => navigate('/admin')}
+                   className="text-foreground hover:text-primary transition-colors font-medium"
+                 >
+                   Admin
+                 </button>
+                 {location.pathname === '/admin' && (
+                   <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                 )}
+               </div>
+             )}
            </nav>
 
           {/* Desktop CTA Buttons */}

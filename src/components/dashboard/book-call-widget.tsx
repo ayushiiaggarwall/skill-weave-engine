@@ -135,7 +135,7 @@ export function BookCallWidget() {
               </Button>
               
               <p className="text-xs text-muted-foreground">
-                No pressure—just a quick chat 🙂
+                No pressure—just a quick chat
               </p>
             </div>
           </div>

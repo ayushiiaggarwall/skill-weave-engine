@@ -9,6 +9,7 @@ import { HeroSectionAnime } from './components/landing/hero-section-anime'
 import { SyllabusSection } from './components/landing/syllabus-section'
 import { PricingSection } from './components/landing/pricing-section'
 import { Footer } from './components/landing/footer'
+import { BookCallSection } from './components/landing/book-call-section'
 import { LoginForm } from './components/auth/login-form'
 import { SignupForm } from './components/auth/signup-form'
 import { ForgotPasswordForm } from './components/auth/forgot-password-form'
@@ -50,6 +51,7 @@ function HomePage() {
         <HeroSectionAnime />
         <SyllabusSection />
         <PricingSection />
+        <BookCallSection />
       </main>
       <Footer />
     </div>

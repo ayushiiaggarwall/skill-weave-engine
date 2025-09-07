@@ -127,10 +127,24 @@ export function Header() {
                 </button>
                 {location.pathname === '/admin' && (
                   <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
-                )}
-              </div>
-            )}
-          </nav>
+                 )}
+               </div>
+             )}
+             <Button 
+               variant="ghost" 
+               onClick={() => {
+                 // @ts-ignore - Calendly is loaded via script tag
+                 if (window.Calendly) {
+                   // @ts-ignore
+                   window.Calendly.initPopupWidget({ url: 'https://calendly.com/hello-ayushiaggarwal' });
+                 } else {
+                   window.open('https://calendly.com/hello-ayushiaggarwal', '_blank');
+                 }
+               }}
+             >
+               Book a Call
+             </Button>
+           </nav>
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">

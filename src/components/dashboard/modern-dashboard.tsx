@@ -23,6 +23,7 @@ import {
 import { useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { supabase } from "@/integrations/supabase/client"
+import { BookCallWidget } from "./book-call-widget"
 
 export function ModernDashboard() {
   const { user, profile } = useAuth()
@@ -114,24 +115,27 @@ export function ModernDashboard() {
         />
         
         <div className="relative z-10 p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Welcome Section */}
-            <motion.div 
-              className="mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h1 className="text-4xl font-bold text-gradient mb-2">
-                Hi {profile?.name?.split(' ')[0] || 'there'}!
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                {enrollmentStatus.isEnrolled 
-                  ? "Continue your learning journey" 
-                  : "Ready to turn ideas into products with no-code?"
-                }
-              </p>
-            </motion.div>
+            <div className="max-w-7xl mx-auto">
+              {/* Welcome Section */}
+              <motion.div 
+                className="mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1 className="text-4xl font-bold text-gradient mb-2">
+                  Hi {profile?.name?.split(' ')[0] || 'there'}!
+                </h1>
+                <p className="text-lg text-muted-foreground">
+                  {enrollmentStatus.isEnrolled 
+                    ? "Continue your learning journey" 
+                    : "Ready to turn ideas into products with no-code?"
+                  }
+                </p>
+              </motion.div>
+
+              {/* Book Call Widget */}
+              <BookCallWidget />
 
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Main Content */}

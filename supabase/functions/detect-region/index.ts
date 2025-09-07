@@ -30,15 +30,27 @@ serve(async (req) => {
     try {
       // Use ipapi.co server-side (no CORS issues here)
       const ipResponse = await fetch(`https://ipapi.co/${clientIP}/json/`)
+      
+      if (!ipResponse.ok) {
+        throw new Error(`HTTP ${ipResponse.status}: ${ipResponse.statusText}`)
+      }
+      
       const ipData = await ipResponse.json()
       
       console.log('IP geolocation data:', ipData)
       
+      // Check for error response from ipapi.co
+      if (ipData.error) {
+        throw new Error(`ipapi.co error: ${ipData.reason || ipData.error}`)
+      }
+      
       if (ipData.country_code === 'IN') {
         region = 'in'
         countryCode = 'IN'
+        console.log('Detected India from ipapi.co')
       } else {
         countryCode = ipData.country_code || 'unknown'
+        console.log(`Detected country: ${countryCode}`)
       }
     } catch (error) {
       console.error('Failed to detect country from IP:', error)

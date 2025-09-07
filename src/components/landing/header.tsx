@@ -130,19 +130,6 @@ export function Header() {
                  )}
                </div>
              )}
-             {user && !adminLoading && isAdmin && (
-               <div className="relative">
-                 <button 
-                   onClick={() => navigate('/admin')}
-                   className="text-foreground hover:text-primary transition-colors font-medium"
-                 >
-                   Admin
-                 </button>
-                 {location.pathname === '/admin' && (
-                   <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
-                 )}
-               </div>
-             )}
            </nav>
 
           {/* Desktop CTA Buttons */}

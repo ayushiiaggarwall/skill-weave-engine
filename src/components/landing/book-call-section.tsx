@@ -15,7 +15,7 @@ export function BookCallSection() {
   }
 
   return (
-    <section className="py-20 px-6 lg:px-8 relative overflow-hidden">
+    <section className="py-12 px-6 lg:px-8 relative overflow-hidden">
       {/* Background Effects */}
       <div 
         className="absolute inset-0 opacity-30 pointer-events-none"
@@ -27,13 +27,13 @@ export function BookCallSection() {
         }}
       />
       
-      <div className="relative z-10 max-w-4xl mx-auto">
+      <div className="relative z-10 max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="glass-card-strong p-12 rounded-3xl text-center space-y-8"
+          className="glass-card-strong p-8 rounded-2xl text-center space-y-6"
         >
           {/* Floating Calendar Icon */}
           <motion.div
@@ -41,19 +41,19 @@ export function BookCallSection() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="w-20 h-20 mx-auto bg-gradient-primary rounded-full flex items-center justify-center shadow-2xl"
+            className="w-14 h-14 mx-auto bg-gradient-primary rounded-full flex items-center justify-center shadow-2xl"
           >
-            <Calendar className="w-10 h-10 text-white" />
+            <Calendar className="w-7 h-7 text-white" />
           </motion.div>
 
           {/* Main Content */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-4xl md:text-5xl font-bold text-gradient leading-tight"
+              className="text-2xl md:text-3xl font-bold text-gradient leading-tight"
             >
               Got any questions? Schedule a call with us!
             </motion.h1>
@@ -63,7 +63,7 @@ export function BookCallSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+              className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
             >
               Have doubts about the program or your idea? Book a quick call and I'll help you decide the next step.
             </motion.p>
@@ -75,14 +75,14 @@ export function BookCallSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="space-y-4"
+            className="space-y-3"
           >
             <Button 
-              size="lg" 
-              className="px-12 py-4 text-lg bg-gradient-primary hover:bg-gradient-primary/90 text-white shadow-2xl hover:shadow-primary/25 transition-all duration-300"
+              size="default" 
+              className="px-8 py-3 bg-gradient-primary hover:bg-gradient-primary/90 text-white shadow-2xl hover:shadow-primary/25 transition-all duration-300"
               onClick={openCalendly}
             >
-              <Calendar className="mr-3 h-6 w-6" />
+              <Calendar className="mr-2 h-5 w-5" />
               Book a 15-min call
             </Button>
             

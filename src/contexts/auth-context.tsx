@@ -123,7 +123,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string, fullName: string, referralSource?: string) => {
-    const redirectUrl = `${window.location.origin}/`
+    // Use a whitelisted redirect domain to avoid Supabase blocking signups due to invalid redirect URLs
+    const redirectDomain = window.location.hostname.includes('sandbox.lovable.dev')
+      ? 'https://ayushiaggarwal.tech'
+      : window.location.origin
+    const redirectUrl = `${redirectDomain}/`
     
     console.log('SignUp called with referral source:', referralSource)
     

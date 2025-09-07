@@ -62,6 +62,7 @@ export function AdminDashboard() {
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', body: '' })
   const [referralStats, setReferralStats] = useState<ReferralStats[]>([])
   const [leadStats, setLeadStats] = useState<LeadStats[]>([])
+  const [clickStats, setClickStats] = useState<{source: string, clicks: number}[]>([])
   const [loading, setLoading] = useState(true)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const { toast } = useToast()
@@ -92,6 +93,12 @@ export function AdminDashboard() {
 
       if (leadError) throw leadError
 
+      // Fetch referral click counts
+      const { data: clickStats, error: clickError } = await supabase
+        .rpc('get_referral_click_counts')
+
+      if (clickError) throw clickError
+
       // Aggregate profile stats
       const profileCounts: { [key: string]: number } = {}
       profileStats?.forEach(profile => {
@@ -121,6 +128,7 @@ export function AdminDashboard() {
 
       setReferralStats(referralStatsArray)
       setLeadStats(leadStatsArray)
+      setClickStats(clickStats || [])
     } catch (error) {
       console.error('Error fetching referral stats:', error)
       toast({
@@ -519,7 +527,28 @@ export function AdminDashboard() {
                   </AnimatedCardTitle>
                 </AnimatedCardHeader>
                 <AnimatedCardContent>
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Link Clicks by Source */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Link Clicks by Source</h3>
+                      {clickStats.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">No click data available</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {clickStats
+                            .sort((a, b) => b.clicks - a.clicks)
+                            .map((stat) => (
+                            <div key={stat.source} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                              <span className="font-medium capitalize">{stat.source.replace('_', ' ')}</span>
+                              <span className="bg-accent text-accent-foreground px-2 py-1 rounded text-sm">
+                                {stat.clicks}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     {/* User Signups by Source */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">User Signups by Source</h3>

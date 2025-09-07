@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { supabase } from '@/integrations/supabase/client'
 
 const VALID_SOURCES = [
   'linkedin_post',
@@ -12,6 +13,7 @@ const VALID_SOURCES = [
 type ReferralSource = typeof VALID_SOURCES[number]
 
 const STORAGE_KEY = 'referral_source'
+const CLICK_LOGGED_KEY = 'referral_click_logged'
 
 export function useReferralTracking() {
   useEffect(() => {
@@ -30,10 +32,35 @@ export function useReferralTracking() {
     if (source && VALID_SOURCES.includes(source as ReferralSource)) {
       console.log('Storing referral source:', source)
       sessionStorage.setItem(STORAGE_KEY, source)
+      
+      // Log click event once per session
+      if (!sessionStorage.getItem(CLICK_LOGGED_KEY)) {
+        logReferralClick(source, window.location.href)
+        sessionStorage.setItem(CLICK_LOGGED_KEY, 'true')
+      }
     } else if (source) {
       console.log('Invalid referral source detected:', source)
     }
   }, [])
+
+  const logReferralClick = async (source: string, url: string) => {
+    try {
+      const { error } = await supabase
+        .from('referral_clicks')
+        .insert({
+          source,
+          url
+        })
+      
+      if (error) {
+        console.error('Error logging referral click:', error)
+      } else {
+        console.log('Referral click logged:', source)
+      }
+    } catch (error) {
+      console.error('Error logging referral click:', error)
+    }
+  }
 
   const getReferralSource = (): string | null => {
     return sessionStorage.getItem(STORAGE_KEY)

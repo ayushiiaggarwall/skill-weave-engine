@@ -596,6 +596,27 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          source: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          source: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          source?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       submissions: {
         Row: {
           assignment_id: string
@@ -698,6 +719,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_referral_click_counts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          clicks: number
+          source: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

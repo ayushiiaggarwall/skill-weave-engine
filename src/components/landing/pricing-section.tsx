@@ -314,25 +314,6 @@ export function PricingSection() {
                       {course.title}
                     </AnimatedCardTitle>
                     
-                    {/* Course Dates */}
-                    <div className="flex flex-col items-center gap-2 mb-4 text-sm text-muted-foreground">
-                      {course.start_date && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>Starts: {new Date(course.start_date).toLocaleDateString()}</span>
-                        </div>
-                      )}
-                      {course.end_date && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>Ends: {new Date(course.end_date).toLocaleDateString()}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>Induction: {course.induction_date ? new Date(course.induction_date).toLocaleDateString() : 'NA'}</span>
-                      </div>
-                    </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center justify-center space-x-2 mb-2">
@@ -448,14 +429,39 @@ export function PricingSection() {
         <div className="mt-12 text-center">
           <div className="inline-block bg-card/80 backdrop-blur-sm rounded-2xl px-8 py-6 border shadow-lg max-w-4xl">
             <div className="flex flex-col items-center text-center">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm text-muted-foreground">Next cohort starts:</span>
-                <span className="font-semibold text-accent">Sep 21, 2025 (Induction)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Course timeline:</span>
-                <span className="font-semibold text-accent">27th September to 26th October, 2025</span>
-              </div>
+              {courses.length > 0 && (
+                <>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm text-muted-foreground">Next Cohort Starts:</span>
+                    <span className="font-semibold text-accent">
+                      {courses[0].induction_date 
+                        ? new Date(courses[0].induction_date).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })
+                        : 'TBA'
+                      }
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Course Timeline:</span>
+                    <span className="font-semibold text-accent">
+                      {courses[0].start_date && courses[0].end_date
+                        ? `${new Date(courses[0].start_date).toLocaleDateString('en-US', { 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })} to ${new Date(courses[0].end_date).toLocaleDateString('en-US', { 
+                            month: 'long', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}`
+                        : 'TBA'
+                      }
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

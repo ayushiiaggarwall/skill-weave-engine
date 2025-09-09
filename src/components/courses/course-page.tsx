@@ -15,10 +15,21 @@ interface Course {
   deliverables: string[] | null
 }
 
+interface CourseInfo {
+  startDate: string | null
+  endDate: string | null
+  inductionDate: string | null
+}
+
 export function CoursePage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedWeek, setSelectedWeek] = useState<Course | null>(null)
   const [courseTitle, setCourseTitle] = useState<string>('')
+  const [courseInfo, setCourseInfo] = useState<CourseInfo>({ 
+    startDate: null, 
+    endDate: null, 
+    inductionDate: null 
+  })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -30,7 +41,7 @@ export function CoursePage() {
       // Specifically get the Essential Track course
       const { data: coursesData, error: coursesError } = await supabase
         .from('courses')
-        .select('id, title, objective')
+        .select('id, title, objective, start_date, end_date, induction_date')
         .eq('is_active', true)
         .ilike('title', '%Essential Track%')
         .limit(1)
@@ -43,7 +54,7 @@ export function CoursePage() {
         // Fallback to any active course if Essential Track not found
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('courses')
-          .select('id, title, objective')
+          .select('id, title, objective, start_date, end_date, induction_date')
           .eq('is_active', true)
           .limit(1)
         
@@ -53,10 +64,20 @@ export function CoursePage() {
           return
         }
         setCourseTitle(fallbackData[0].title)
+        setCourseInfo({
+          startDate: fallbackData[0].start_date,
+          endDate: fallbackData[0].end_date,
+          inductionDate: fallbackData[0].induction_date
+        })
         courseId = fallbackData[0].id
       } else {
         courseId = coursesData[0].id
         setCourseTitle(coursesData[0].title)
+        setCourseInfo({
+          startDate: coursesData[0].start_date,
+          endDate: coursesData[0].end_date,
+          inductionDate: coursesData[0].induction_date
+        })
       }
 
       // Now get the course weeks for the active course
@@ -133,9 +154,40 @@ export function CoursePage() {
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent mb-4">
               Course Curriculum
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Master the art of turning ideas into real products in just 5 weeks with our step-by-step Builder’s Program
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
+              Master the art of turning ideas into real products in just 5 weeks with our step-by-step Builder's Program
             </p>
+            
+            {/* Course Timeline Info */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+              {courseInfo.inductionDate && (
+                <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-lg px-4 py-2 border">
+                  <span className="text-muted-foreground">Induction Date:</span>
+                  <span className="font-semibold text-primary">
+                    {new Date(courseInfo.inductionDate).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                </div>
+              )}
+              {courseInfo.startDate && courseInfo.endDate && (
+                <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-lg px-4 py-2 border">
+                  <span className="text-muted-foreground">Course Timeline:</span>
+                  <span className="font-semibold text-primary">
+                    {new Date(courseInfo.startDate).toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })} - {new Date(courseInfo.endDate).toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

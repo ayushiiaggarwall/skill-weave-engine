@@ -209,7 +209,7 @@ serve(async (req) => {
         user_id: user.id,
         user_email: user.email,
         course_id: courseId || null,
-        course_type: courseTypeLabel,
+        course_type: pricingType === 'combo' ? 'combo' : 'course',
         order_id: order.id,
         gateway: 'paypal',
         amount: effectivePrice.amount, // Use the effective price (which includes coupon discount)

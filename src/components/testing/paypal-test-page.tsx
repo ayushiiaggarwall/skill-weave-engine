@@ -77,7 +77,11 @@ export function PayPalTestPage() {
     try {
       const { data, error } = await supabase.functions.invoke('paypal-create-order', {
         body: {
-          // Test data
+          email: testParams.email,
+          regionOverride: testParams.region,
+          coupon: testParams.coupon || undefined,
+          pricingType: 'regular',
+          courseId: null
         }
       });
 
@@ -108,6 +112,16 @@ export function PayPalTestPage() {
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <h1 className="text-3xl font-bold mb-8">PayPal Payment Testing</h1>
+      
+      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <h2 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Test Page Access</h2>
+        <p className="text-blue-700 dark:text-blue-300">
+          This page is available at: <code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">/test/paypal</code>
+        </p>
+        <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
+          Use this page to test PayPal payments with different configurations before implementing in your main payment flow.
+        </p>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Test Configuration */}

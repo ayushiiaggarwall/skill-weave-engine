@@ -29,7 +29,16 @@ serve(async (req) => {
 
     try {
       // Use ipapi.co server-side (no CORS issues here)
-      const ipResponse = await fetch(`https://ipapi.co/${clientIP}/json/`)
+      // For IPv6 addresses, try without IP first to get the actual client IP
+      let ipToCheck = clientIP
+      
+      // If it's an IPv6 address or unknown, try without specifying IP
+      if (clientIP === 'unknown' || clientIP.includes(':')) {
+        console.log('Using client-side detection for IPv6 or unknown IP')
+        ipToCheck = '' // Let ipapi.co detect the actual client IP
+      }
+      
+      const ipResponse = await fetch(`https://ipapi.co/${ipToCheck}/json/`)
       
       if (!ipResponse.ok) {
         throw new Error(`HTTP ${ipResponse.status}: ${ipResponse.statusText}`)
@@ -54,17 +63,20 @@ serve(async (req) => {
       }
     } catch (error) {
       console.error('Failed to detect country from IP:', error)
-      // Fallback: check if IP starts with common Indian IP ranges
-      const ipParts = clientIP.split('.')
-      const firstOctet = parseInt(ipParts[0] || '0')
       
-      // Common Indian IP ranges (simplified check)
-      if (firstOctet === 183 || firstOctet === 117 || firstOctet === 182 || 
-          firstOctet === 49 || firstOctet === 103 || firstOctet === 157 ||
-          (firstOctet >= 115 && firstOctet <= 125)) {
-        region = 'in'
-        countryCode = 'IN (estimated from IP range)'
-        console.log('Detected Indian IP range, setting region to IN')
+      // Fallback: For IPv4 addresses, check if IP starts with common Indian IP ranges
+      if (!clientIP.includes(':') && clientIP !== 'unknown') {
+        const ipParts = clientIP.split('.')
+        const firstOctet = parseInt(ipParts[0] || '0')
+        
+        // Common Indian IP ranges (simplified check)
+        if (firstOctet === 183 || firstOctet === 117 || firstOctet === 182 || 
+            firstOctet === 49 || firstOctet === 103 || firstOctet === 157 ||
+            (firstOctet >= 115 && firstOctet <= 125)) {
+          region = 'in'
+          countryCode = 'IN (estimated from IP range)'
+          console.log('Detected Indian IP range, setting region to IN')
+        }
       }
     }
 

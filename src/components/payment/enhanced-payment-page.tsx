@@ -41,6 +41,8 @@ export function EnhancedPaymentPage() {
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [invalidCouponError, setInvalidCouponError] = useState(false)
+  const [showTestOptions, setShowTestOptions] = useState(false)
+  const [ipOverride, setIpOverride] = useState("")
   const { region, loading: regionLoading } = useRegionDetection()
   useEffect(() => {
     if (user?.email && (courseId || pricingType) && region && !regionLoading) {
@@ -79,7 +81,8 @@ export function EnhancedPaymentPage() {
           courseId: courseId, // Pass the course ID
           coupon: couponCode || undefined,
           pricingType: pricingType, // Fallback for old links
-          regionOverride: region
+          regionOverride: region,
+          ipOverride: ipOverride || undefined
         }
       })
 
@@ -108,7 +111,8 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: couponCode.trim(),
           pricingType: pricingType,
-          regionOverride: region
+          regionOverride: region,
+          ipOverride: ipOverride || undefined
         }
       })
 
@@ -163,7 +167,8 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType,
-          regionOverride: region
+          regionOverride: region,
+          ipOverride: ipOverride || undefined
         }
       })
 
@@ -216,7 +221,8 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType,
-          regionOverride: region
+          regionOverride: region,
+          ipOverride: ipOverride || undefined
         }
       })
 
@@ -369,10 +375,52 @@ export function EnhancedPaymentPage() {
                 </Badge>
                 <span className="text-xs text-muted-foreground">
                   Auto-detected from IP
-                </span>
-              </div>
+                 </span>
+               </div>
 
-              {/* Early Bird Badge */}
+               {/* Testing Options */}
+               <div className="space-y-2">
+                 <Button
+                   type="button"
+                   variant="ghost"
+                   size="sm"
+                   onClick={() => setShowTestOptions(!showTestOptions)}
+                   className="text-xs text-muted-foreground"
+                 >
+                   {showTestOptions ? 'Hide' : 'Show'} Testing Options
+                 </Button>
+                 
+                 {showTestOptions && (
+                   <div className="p-3 border rounded-lg bg-muted/50 space-y-3">
+                     <div className="text-xs text-muted-foreground font-medium">
+                       Testing Options (Development Only)
+                     </div>
+                     <div className="space-y-2">
+                       <label className="text-xs font-medium">IP Address Override:</label>
+                       <Input
+                         value={ipOverride}
+                         onChange={(e) => setIpOverride(e.target.value)}
+                         placeholder="e.g., 103.12.34.56 (India) or 8.8.8.8 (International)"
+                         className="text-xs"
+                       />
+                       <div className="text-xs text-muted-foreground">
+                         Common test IPs: 103.12.34.56 (India), 8.8.8.8 (International)
+                       </div>
+                       <Button
+                         type="button"
+                         size="sm"
+                         variant="outline"
+                         onClick={fetchPricing}
+                         className="w-full text-xs"
+                       >
+                         Refresh Pricing with IP Override
+                       </Button>
+                     </div>
+                   </div>
+                 )}
+               </div>
+
+               {/* Early Bird Badge */}
               {priceData.earlyBird && (
                 <Badge variant="destructive" className="w-fit">
                   Early Bird Offer Active!

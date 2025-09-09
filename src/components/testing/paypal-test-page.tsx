@@ -99,9 +99,19 @@ export function PayPalTestPage() {
       }
     } catch (error) {
       console.error('PayPal order creation error:', error);
+      let errorMessage = 'Unknown error';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('non-2xx status code')) {
+          errorMessage = 'PayPal configuration error - Please check if PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET are configured in Supabase Edge Functions settings';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Error creating PayPal order",
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -112,6 +122,18 @@ export function PayPalTestPage() {
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <h1 className="text-3xl font-bold mb-8">PayPal Payment Testing</h1>
+      
+      <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+        <h2 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">⚠️ PayPal Configuration Required</h2>
+        <p className="text-yellow-700 dark:text-yellow-300 mb-2">
+          For PayPal payments to work, the following secrets must be configured in Supabase Edge Functions:
+        </p>
+        <ul className="list-disc list-inside text-yellow-700 dark:text-yellow-300 text-sm space-y-1">
+          <li><code className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded">PAYPAL_CLIENT_ID</code></li>
+          <li><code className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded">PAYPAL_CLIENT_SECRET</code></li>
+          <li><code className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded">PAYPAL_ENV</code> (sandbox or live)</li>
+        </ul>
+      </div>
       
       <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
         <h2 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Test Page Access</h2>

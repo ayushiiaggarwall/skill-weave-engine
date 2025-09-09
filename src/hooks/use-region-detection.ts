@@ -15,7 +15,7 @@ export function useRegionDetection() {
 
   useEffect(() => {
     const detectRegion = async () => {
-      // Clear cache for debugging - remove this in production
+      // Force fresh detection to fix inconsistency
       sessionStorage.removeItem(REGION_CACHE_KEY)
       
       try {

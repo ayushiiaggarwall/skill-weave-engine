@@ -68,13 +68,22 @@ serve(async (req) => {
       if (!clientIP.includes(':') && clientIP !== 'unknown') {
         const ipParts = clientIP.split('.')
         const firstOctet = parseInt(ipParts[0] || '0')
+        const secondOctet = parseInt(ipParts[1] || '0')
         
-        // Common Indian IP ranges (simplified check)
-        if (firstOctet === 183 || firstOctet === 117 || firstOctet === 182 || 
-            firstOctet === 49 || firstOctet === 103 || firstOctet === 157 ||
-            (firstOctet >= 115 && firstOctet <= 125)) {
+        // Enhanced Indian IP ranges check
+        // Major Indian ISPs and their IP ranges
+        if (
+          firstOctet === 183 || // Common Indian range (BSNL, Airtel)
+          firstOctet === 117 || // BSNL
+          firstOctet === 182 || // Airtel
+          firstOctet === 157 || // MTNL
+          firstOctet === 49 ||  // Airtel
+          firstOctet === 103 || // Various Indian ISPs
+          (firstOctet >= 115 && firstOctet <= 125) || // Common Indian ranges
+          (firstOctet === 59 && secondOctet >= 144 && secondOctet <= 159) // Airtel
+        ) {
           region = 'in'
-          countryCode = 'IN (estimated from IP range)'
+          countryCode = 'IN (detected from IP range)'
           console.log('Detected Indian IP range, setting region to IN')
         }
       }

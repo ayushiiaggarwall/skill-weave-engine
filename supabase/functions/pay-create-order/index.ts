@@ -121,7 +121,7 @@ serve(async (req) => {
         user_email: user.email,
         user_id: user.id,
         course_id: courseId || null,
-        course_type: courseTypeLabel,
+        course_type: pricingType === 'combo' ? 'combo' : 'course',
         gateway: 'razorpay',
         order_id: razorpayOrder.id,
         currency: 'INR',

@@ -15,6 +15,12 @@ verify_jwt = true
 [functions.pay-create-session]
 verify_jwt = true
 
+[functions.paypal-create-order]
+verify_jwt = true
+
+[functions.paypal-capture-order]
+verify_jwt = false
+
 [functions.webhooks-razorpay]
 verify_jwt = false
 

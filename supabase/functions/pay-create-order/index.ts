@@ -11,6 +11,7 @@ interface CreateOrderRequest {
   courseId?: string;
   coupon?: string;
   pricingType?: 'regular' | 'combo';
+  regionOverride?: 'in' | 'intl';
 }
 
 interface CreateOrderResponse {
@@ -49,18 +50,19 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const body: CreateOrderRequest = await req.json();
-    const { email, courseId, coupon, pricingType = 'regular' } = body;
+    const { email, courseId, coupon, pricingType = 'regular', regionOverride } = body;
     const courseTypeLabel = pricingType === 'combo' 
       ? "Builder's Program - Pro Track" 
       : "Builder's Program - Essential Track";
 
-    // Get current pricing for India
+    // Get current pricing for India (respect override)
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
       body: {
         email,
         courseId,
         coupon,
-        pricingType
+        pricingType,
+        regionOverride
       }
     });
 

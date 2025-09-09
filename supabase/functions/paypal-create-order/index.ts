@@ -69,8 +69,8 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { email, coupon, pricingType = 'regular', courseId } = await req.json();
-    logStep("Request received", { email, coupon, pricingType, courseId });
+    const { email, coupon, pricingType = 'regular', courseId, regionOverride } = await req.json();
+    logStep("Request received", { email, coupon, pricingType, courseId, regionOverride });
     // Map selected pricing type to a human-readable course type
     const courseTypeLabel = pricingType === 'combo' 
       ? "Builder's Program - Pro Track" 
@@ -78,7 +78,7 @@ serve(async (req) => {
 
     // Get pricing from pay-price function
     const { data: priceData, error: priceError } = await supabaseClient.functions.invoke('pay-price', {
-      body: { email: user.email, coupon, pricingType, courseId }
+      body: { email: user.email, coupon, pricingType, courseId, regionOverride }
     });
 
     if (priceError) {

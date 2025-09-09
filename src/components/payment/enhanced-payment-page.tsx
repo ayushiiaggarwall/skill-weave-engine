@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { Loader2, MapPin, Tag, Clock, Shield, CreditCard, Globe } from "lucide-react"
 import { useSearchParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
+import { useRegionDetection } from "@/hooks/use-region-detection"
 
 interface PriceData {
   region: 'in' | 'intl'
@@ -40,16 +41,15 @@ export function EnhancedPaymentPage() {
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [invalidCouponError, setInvalidCouponError] = useState(false)
-  
-
+  const { region, loading: regionLoading } = useRegionDetection()
   useEffect(() => {
-    if (user?.email && (courseId || pricingType)) {
+    if (user?.email && (courseId || pricingType) && region && !regionLoading) {
       fetchPricing()
       if (courseId) {
         fetchCourseData()
       }
     }
-  }, [user, courseId, pricingType])
+  }, [user, courseId, pricingType, region, regionLoading])
 
 
   const fetchCourseData = async () => {
@@ -78,7 +78,8 @@ export function EnhancedPaymentPage() {
           email: user.email,
           courseId: courseId, // Pass the course ID
           coupon: couponCode || undefined,
-          pricingType: pricingType // Fallback for old links
+          pricingType: pricingType, // Fallback for old links
+          regionOverride: region
         }
       })
 
@@ -106,7 +107,8 @@ export function EnhancedPaymentPage() {
           email: user.email,
           courseId: courseId,
           coupon: couponCode.trim(),
-          pricingType: pricingType
+          pricingType: pricingType,
+          regionOverride: region
         }
       })
 
@@ -160,7 +162,8 @@ export function EnhancedPaymentPage() {
           email: user.email,
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
-          pricingType: pricingType
+          pricingType: pricingType,
+          regionOverride: region
         }
       })
 
@@ -212,7 +215,8 @@ export function EnhancedPaymentPage() {
           email: user.email,
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
-          pricingType: pricingType
+          pricingType: pricingType,
+          regionOverride: region
         }
       })
 
@@ -281,7 +285,7 @@ export function EnhancedPaymentPage() {
     )
   }
 
-  if (!priceData) {
+  if (!priceData || regionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />

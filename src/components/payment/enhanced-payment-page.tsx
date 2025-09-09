@@ -42,7 +42,7 @@ export function EnhancedPaymentPage() {
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [invalidCouponError, setInvalidCouponError] = useState(false)
   const [showTestOptions, setShowTestOptions] = useState(false)
-  const [ipOverride, setIpOverride] = useState("")
+  const [testRegion, setTestRegion] = useState<'in' | 'intl'>('in')
   const { region, loading: regionLoading } = useRegionDetection()
   useEffect(() => {
     if (user?.email && (courseId || pricingType) && region && !regionLoading) {
@@ -81,8 +81,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId, // Pass the course ID
           coupon: couponCode || undefined,
           pricingType: pricingType, // Fallback for old links
-          regionOverride: region,
-          ipOverride: ipOverride || undefined
+          regionOverride: showTestOptions ? testRegion : region
         }
       })
 
@@ -111,8 +110,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: couponCode.trim(),
           pricingType: pricingType,
-          regionOverride: region,
-          ipOverride: ipOverride || undefined
+          regionOverride: showTestOptions ? testRegion : region
         }
       })
 
@@ -167,8 +165,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType,
-          regionOverride: region,
-          ipOverride: ipOverride || undefined
+          regionOverride: showTestOptions ? testRegion : region
         }
       })
 
@@ -221,8 +218,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType,
-          regionOverride: region,
-          ipOverride: ipOverride || undefined
+          regionOverride: showTestOptions ? testRegion : region
         }
       })
 
@@ -393,18 +389,32 @@ export function EnhancedPaymentPage() {
                  {showTestOptions && (
                    <div className="p-3 border rounded-lg bg-muted/50 space-y-3">
                      <div className="text-xs text-muted-foreground font-medium">
-                       Testing Options (Development Only)
+                       Testing Region Override
                      </div>
                      <div className="space-y-2">
-                       <label className="text-xs font-medium">IP Address Override:</label>
-                       <Input
-                         value={ipOverride}
-                         onChange={(e) => setIpOverride(e.target.value)}
-                         placeholder="e.g., 103.12.34.56 (India) or 8.8.8.8 (International)"
-                         className="text-xs"
-                       />
-                       <div className="text-xs text-muted-foreground">
-                         Common test IPs: 103.12.34.56 (India), 8.8.8.8 (International)
+                       <div className="flex gap-4">
+                         <label className="flex items-center gap-2 text-sm">
+                           <input
+                             type="radio"
+                             name="testRegion"
+                             value="in"
+                             checked={testRegion === 'in'}
+                             onChange={(e) => setTestRegion(e.target.value as 'in' | 'intl')}
+                             className="w-4 h-4"
+                           />
+                           India (INR)
+                         </label>
+                         <label className="flex items-center gap-2 text-sm">
+                           <input
+                             type="radio"
+                             name="testRegion"
+                             value="intl"
+                             checked={testRegion === 'intl'}
+                             onChange={(e) => setTestRegion(e.target.value as 'in' | 'intl')}
+                             className="w-4 h-4"
+                           />
+                           International (USD)
+                         </label>
                        </div>
                        <Button
                          type="button"
@@ -413,7 +423,7 @@ export function EnhancedPaymentPage() {
                          onClick={fetchPricing}
                          className="w-full text-xs"
                        >
-                         Refresh Pricing with IP Override
+                         Refresh Pricing
                        </Button>
                      </div>
                    </div>

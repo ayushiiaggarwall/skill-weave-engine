@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase"
 import { courseData } from "@/lib/course-data"
 import { Check, ArrowLeft, Shield, CreditCard, MapPin } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useRegionDetection } from "@/hooks/use-region-detection"
 
 interface User {
   id: string
@@ -30,6 +31,7 @@ export function PaymentPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [priceData, setPriceData] = useState<PriceData | null>(null)
   const navigate = useNavigate()
+  const { region, loading: regionLoading } = useRegionDetection()
 
   useEffect(() => {
     const getUser = async () => {
@@ -45,18 +47,19 @@ export function PaymentPage() {
   }, [navigate])
 
   useEffect(() => {
-    if (user?.email) {
+    if (user?.email && region && !regionLoading) {
       fetchPricing()
     }
-  }, [user])
+  }, [user, region, regionLoading])
 
   const fetchPricing = async () => {
-    if (!user?.email) return
+    if (!user?.email || !region) return
 
     try {
       const { data, error } = await supabase.functions.invoke('pay-price', {
         body: {
-          email: user.email
+          email: user.email,
+          regionOverride: region
         }
       })
 
@@ -67,7 +70,7 @@ export function PaymentPage() {
     }
   }
 
-  if (isLoading || !priceData) {
+  if (isLoading || regionLoading || !priceData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

@@ -47,13 +47,17 @@ export function PaymentPage() {
   }, [navigate])
 
   useEffect(() => {
+    console.log('Payment page - Region detection state:', { region, regionLoading, userEmail: user?.email })
     if (user?.email && region && !regionLoading) {
+      console.log('Payment page - Fetching pricing with region:', region)
       fetchPricing()
     }
   }, [user, region, regionLoading])
 
   const fetchPricing = async () => {
     if (!user?.email || !region) return
+
+    console.log('Payment page - Calling pay-price with:', { email: user.email, regionOverride: region })
 
     try {
       const { data, error } = await supabase.functions.invoke('pay-price', {
@@ -62,6 +66,8 @@ export function PaymentPage() {
           regionOverride: region
         }
       })
+
+      console.log('Payment page - Pricing response:', data)
 
       if (error) throw error
       setPriceData(data)

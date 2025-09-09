@@ -15,6 +15,9 @@ export function useRegionDetection() {
 
   useEffect(() => {
     const detectRegion = async () => {
+      // Clear cache for debugging - remove this in production
+      sessionStorage.removeItem(REGION_CACHE_KEY)
+      
       try {
         // Check if we have cached region data
         const cachedData = sessionStorage.getItem(REGION_CACHE_KEY)
@@ -59,7 +62,7 @@ export function useRegionDetection() {
         
         sessionStorage.setItem(REGION_CACHE_KEY, JSON.stringify(cacheData))
         
-        console.log('Setting region to:', detectedRegion)
+        console.log('Region detection - Setting region to:', detectedRegion)
         setRegion(detectedRegion)
         
       } catch (error) {

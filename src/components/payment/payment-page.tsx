@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button"
 import { RazorpayButton } from "./razorpay-button"
 import { supabase } from "@/lib/supabase"
 import { courseData } from "@/lib/course-data"
-import { formatCurrency } from "@/lib/utils"
-import { Check, ArrowLeft, Shield, CreditCard } from "lucide-react"
+import { Check, ArrowLeft, Shield, CreditCard, MapPin } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 interface User {
@@ -18,9 +17,18 @@ interface User {
   }
 }
 
+interface PriceData {
+  region: 'in' | 'intl'
+  currency: 'INR' | 'USD'
+  amount: number
+  display: string
+  earlyBird: boolean
+}
+
 export function PaymentPage() {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [priceData, setPriceData] = useState<PriceData | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -36,7 +44,30 @@ export function PaymentPage() {
     getUser()
   }, [navigate])
 
-  if (isLoading) {
+  useEffect(() => {
+    if (user?.email) {
+      fetchPricing()
+    }
+  }, [user])
+
+  const fetchPricing = async () => {
+    if (!user?.email) return
+
+    try {
+      const { data, error } = await supabase.functions.invoke('pay-price', {
+        body: {
+          email: user.email
+        }
+      })
+
+      if (error) throw error
+      setPriceData(data)
+    } catch (error) {
+      console.error('Error fetching pricing:', error)
+    }
+  }
+
+  if (isLoading || !priceData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -123,13 +154,34 @@ export function PaymentPage() {
                   ))}
                 </div>
 
-                <div className="pt-4 border-t border-border">
+                <div className="pt-4 border-t border-border space-y-3">
+                  {/* Region Detection */}
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    <Badge variant={priceData.region === 'in' ? 'default' : 'secondary'}>
+                      {priceData.region === 'in' ? 'India (INR)' : 'International (USD)'}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      Auto-detected
+                    </span>
+                  </div>
+
+                  {/* Early Bird Badge */}
+                  {priceData.earlyBird && (
+                    <Badge variant="destructive" className="w-fit">
+                      Early Bird Offer Active!
+                    </Badge>
+                  )}
+
                   <div className="flex justify-between items-center text-lg font-semibold">
                     <span>Total:</span>
                     <span className="text-2xl text-gradient">
-                      {formatCurrency(courseData.price)}
+                      {priceData.display}
                     </span>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    {priceData.earlyBird ? "Early Bird Price" : "Regular Price"} • One-time payment
+                  </p>
                 </div>
               </CardContent>
             </Card>

@@ -72,12 +72,15 @@ serve(async (req) => {
     logStep("Pricing calculated", priceData);
 
     // Create Razorpay order
-    const rzpKeyId = Deno.env.get("RZP_KEY_ID");
-    const rzpKeySecret = Deno.env.get("RZP_KEY_SECRET");
+    const rzpKeyId = Deno.env.get("RAZORPAY_KEY_ID") || Deno.env.get("RZP_KEY_ID") || "";
+    const rzpKeySecret = Deno.env.get("RAZORPAY_KEY_SECRET") || Deno.env.get("RZP_KEY_SECRET") || "";
 
     if (!rzpKeyId || !rzpKeySecret) {
       throw new Error("Razorpay credentials not configured");
     }
+
+    // Safe log to confirm which key id is used (last 6 chars only)
+    logStep("Using Razorpay key", { keyPreview: rzpKeyId.slice(-6) });
 
     const razorpayAuth = btoa(`${rzpKeyId}:${rzpKeySecret}`);
 

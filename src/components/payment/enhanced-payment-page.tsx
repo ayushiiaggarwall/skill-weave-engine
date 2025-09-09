@@ -41,8 +41,6 @@ export function EnhancedPaymentPage() {
   const [couponCode, setCouponCode] = useState("")
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [invalidCouponError, setInvalidCouponError] = useState(false)
-  const [showTestOptions, setShowTestOptions] = useState(false)
-  const [testRegion, setTestRegion] = useState<'in' | 'intl'>('in')
   const { region, loading: regionLoading } = useRegionDetection()
   useEffect(() => {
     if (user?.email && (courseId || pricingType) && region && !regionLoading) {
@@ -81,7 +79,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId, // Pass the course ID
           coupon: couponCode || undefined,
           pricingType: pricingType, // Fallback for old links
-          regionOverride: showTestOptions ? testRegion : region
+          regionOverride: region
         }
       })
 
@@ -110,7 +108,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: couponCode.trim(),
           pricingType: pricingType,
-          regionOverride: showTestOptions ? testRegion : region
+          regionOverride: region
         }
       })
 
@@ -165,7 +163,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType,
-          regionOverride: showTestOptions ? testRegion : region
+          regionOverride: region
         }
       })
 
@@ -218,7 +216,7 @@ export function EnhancedPaymentPage() {
           courseId: courseId,
           coupon: priceData.couponApplied?.code,
           pricingType: pricingType,
-          regionOverride: showTestOptions ? testRegion : region
+          regionOverride: region
         }
       })
 
@@ -372,62 +370,6 @@ export function EnhancedPaymentPage() {
                 <span className="text-xs text-muted-foreground">
                   Auto-detected from IP
                  </span>
-               </div>
-
-               {/* Testing Options */}
-               <div className="space-y-2">
-                 <Button
-                   type="button"
-                   variant="ghost"
-                   size="sm"
-                   onClick={() => setShowTestOptions(!showTestOptions)}
-                   className="text-xs text-muted-foreground"
-                 >
-                   {showTestOptions ? 'Hide' : 'Show'} Testing Options
-                 </Button>
-                 
-                 {showTestOptions && (
-                   <div className="p-3 border rounded-lg bg-muted/50 space-y-3">
-                     <div className="text-xs text-muted-foreground font-medium">
-                       Testing Region Override
-                     </div>
-                     <div className="space-y-2">
-                       <div className="flex gap-4">
-                         <label className="flex items-center gap-2 text-sm">
-                           <input
-                             type="radio"
-                             name="testRegion"
-                             value="in"
-                             checked={testRegion === 'in'}
-                             onChange={(e) => setTestRegion(e.target.value as 'in' | 'intl')}
-                             className="w-4 h-4"
-                           />
-                           India (INR)
-                         </label>
-                         <label className="flex items-center gap-2 text-sm">
-                           <input
-                             type="radio"
-                             name="testRegion"
-                             value="intl"
-                             checked={testRegion === 'intl'}
-                             onChange={(e) => setTestRegion(e.target.value as 'in' | 'intl')}
-                             className="w-4 h-4"
-                           />
-                           International (USD)
-                         </label>
-                       </div>
-                       <Button
-                         type="button"
-                         size="sm"
-                         variant="outline"
-                         onClick={fetchPricing}
-                         className="w-full text-xs"
-                       >
-                         Refresh Pricing
-                       </Button>
-                     </div>
-                   </div>
-                 )}
                </div>
 
                {/* Early Bird Badge */}

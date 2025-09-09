@@ -29,7 +29,7 @@ import { PricingPage } from './components/pricing/pricing-page'
 import { AuthRedirect } from './components/auth/auth-redirect'
 import { ContactUs } from './components/support/contact-us'
 import { ProfilePage } from './components/profile/profile-page'
-import { PayPalTestPage } from './components/testing/paypal-test-page'
+
 
 function HomePage() {
   return (
@@ -107,7 +107,7 @@ function AppContent() {
                 <AdminDashboard />
               </ProtectedAdminRoute>
             } />
-            <Route path="/test/paypal" element={<PayPalTestPage />} />
+            
           </Routes>
     </>
   )

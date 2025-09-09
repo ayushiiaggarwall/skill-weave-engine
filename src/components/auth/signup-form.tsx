@@ -19,7 +19,7 @@ export function SignupForm() {
   useEffect(() => {
     if (user) {
       if (isEnrollment) {
-        navigate("/payment")
+        navigate("/pay")
       } else {
         navigate("/learner")
       }
@@ -108,7 +108,7 @@ export function SignupForm() {
            // Redirect user to continue their journey
            setTimeout(() => {
              if (isEnrollment) {
-               navigate('/payment')
+                navigate('/pay')
              } else {
                navigate('/login')
              }
@@ -123,7 +123,7 @@ export function SignupForm() {
          // Redirect after a delay
          setTimeout(() => {
            if (isEnrollment) {
-             navigate('/payment')
+              navigate('/pay')
            } else {
              navigate('/login')
            }
@@ -138,7 +138,7 @@ export function SignupForm() {
          setSuccess("Welcome to Tech With Ayushi Aggarwal! 🎉 Please check your email for an email to activate your account. (Note: Verification email is on its way)")
          setTimeout(() => {
            if (isEnrollment) {
-             navigate('/payment')
+             navigate('/pay')
            } else {
              navigate('/login')
            }

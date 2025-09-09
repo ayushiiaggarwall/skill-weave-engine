@@ -16,7 +16,7 @@ import { ForgotPasswordForm } from './components/auth/forgot-password-form'
 import { ResetPasswordForm } from './components/auth/reset-password-form'
 import AuthVerifyRedirect from './components/auth/auth-verify-redirect'
 import { ModernDashboard } from './components/dashboard/modern-dashboard'
-import { PaymentPage } from './components/payment/payment-page'
+
 import { EnhancedPaymentPage } from './components/payment/enhanced-payment-page'
 import { PaymentSuccess } from './components/payment/payment-success'
 import { PaymentCancel } from './components/payment/payment-cancel'
@@ -91,7 +91,7 @@ function AppContent() {
             } />
             <Route path="/auth/verify" element={<AuthVerifyRedirect />} />
             <Route path="/reset-password" element={<ResetPasswordForm />} />
-            <Route path="/payment" element={<PaymentPage />} />
+            
             <Route path="/pay" element={<EnhancedPaymentPage />} />
             <Route path="/pay/success" element={<PaymentSuccess />} />
             <Route path="/pay/cancel" element={<PaymentCancel />} />

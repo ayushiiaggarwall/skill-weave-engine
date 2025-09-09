@@ -18,7 +18,7 @@ export function LoginForm() {
   useEffect(() => {
     if (user) {
       if (isEnrollment) {
-        navigate("/payment")
+        navigate("/pay")
         } else {
           navigate("/dashboard")
         }
@@ -66,7 +66,7 @@ export function LoginForm() {
       } else {
         // Redirect based on enrollment intent
         if (isEnrollment) {
-          navigate("/payment")
+          navigate("/pay")
         } else {
           navigate("/dashboard")
         }

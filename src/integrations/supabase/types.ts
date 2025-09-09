@@ -285,6 +285,7 @@ export type Database = {
           deliverables: string[] | null
           end_date: string | null
           id: string
+          induction_date: string | null
           is_active: boolean
           mini_project: string | null
           objective: string
@@ -299,6 +300,7 @@ export type Database = {
           deliverables?: string[] | null
           end_date?: string | null
           id?: string
+          induction_date?: string | null
           is_active?: boolean
           mini_project?: string | null
           objective: string
@@ -313,6 +315,7 @@ export type Database = {
           deliverables?: string[] | null
           end_date?: string | null
           id?: string
+          induction_date?: string | null
           is_active?: boolean
           mini_project?: string | null
           objective?: string
@@ -719,6 +722,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_qa_kpis: {
+        Args: { p_suite?: string }
+        Returns: Json
+      }
+      get_qa_latest_cases: {
+        Args: { p_suite?: string }
+        Returns: Json
+      }
+      get_qa_run_details: {
+        Args: { p_run_id: string }
+        Returns: Json
+      }
+      get_qa_run_history: {
+        Args: { p_limit?: number; p_offset?: number; p_suite?: string }
+        Returns: Json
+      }
+      get_qa_trend: {
+        Args: { p_days?: number; p_suite?: string }
+        Returns: Json
+      }
       get_referral_click_counts: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -732,6 +755,26 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      insert_qa_test_results: {
+        Args: { p_results: Json; p_run_id: string }
+        Returns: undefined
+      }
+      insert_qa_test_run: {
+        Args: {
+          p_duration_ms: number
+          p_failed: number
+          p_finished_at: string
+          p_git_branch: string
+          p_git_commit: string
+          p_meta: Json
+          p_passed: number
+          p_runner: string
+          p_started_at: string
+          p_suite: string
+          p_total: number
+        }
+        Returns: string
       }
       update_profile_secure: {
         Args: {

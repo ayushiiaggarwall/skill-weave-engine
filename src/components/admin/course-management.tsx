@@ -17,6 +17,7 @@ interface Course {
   mini_project: string | null
   start_date: string | null
   end_date: string | null
+  induction_date: string | null
   is_active: boolean
   created_at: string
   updated_at: string
@@ -54,6 +55,7 @@ export default function CourseManagement() {
     mini_project: '',
     start_date: '',
     end_date: '',
+    induction_date: '',
     is_active: false
   })
   
@@ -171,6 +173,7 @@ export default function CourseManagement() {
           mini_project: newCourse.mini_project || null,
           start_date: newCourse.start_date || null,
           end_date: newCourse.end_date || null,
+          induction_date: newCourse.induction_date || null,
           is_active: newCourse.is_active
         }])
         .select()
@@ -226,6 +229,7 @@ export default function CourseManagement() {
         mini_project: '',
         start_date: '',
         end_date: '',
+        induction_date: '',
         is_active: false
       })
       setIsNewPlanForExisting(false)
@@ -273,6 +277,7 @@ export default function CourseManagement() {
           mini_project: editingCourse.mini_project,
           start_date: editingCourse.start_date,
           end_date: editingCourse.end_date,
+          induction_date: editingCourse.induction_date,
           is_active: editingCourse.is_active
         })
         .eq('id', editingCourse.id)
@@ -428,6 +433,15 @@ export default function CourseManagement() {
                   type="date"
                   value={newCourse.end_date}
                   onChange={(e) => setNewCourse({...newCourse, end_date: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Induction Date</label>
+                <Input
+                  type="date"
+                  value={newCourse.induction_date}
+                  onChange={(e) => setNewCourse({...newCourse, induction_date: e.target.value})}
+                  placeholder="Leave empty for 'NA'"
                 />
               </div>
             </div>
@@ -635,18 +649,24 @@ export default function CourseManagement() {
                 </div>
               </AnimatedCardHeader>
               <AnimatedCardContent className="space-y-4">
-                {course.start_date && course.end_date && (
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <div className="flex items-center flex-wrap gap-4 text-sm text-muted-foreground">
+                  {course.start_date && (
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
                       <span>Start: {new Date(course.start_date).toLocaleDateString()}</span>
                     </div>
+                  )}
+                  {course.end_date && (
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
                       <span>End: {new Date(course.end_date).toLocaleDateString()}</span>
                     </div>
+                  )}
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>Induction: {course.induction_date ? new Date(course.induction_date).toLocaleDateString() : 'NA'}</span>
                   </div>
-                )}
+                </div>
 
                 {isEditing ? (
                   <div className="space-y-4">
@@ -673,6 +693,33 @@ export default function CourseManagement() {
                          value={editingCourse.plans.join(', ')}
                          onChange={(e) => setEditingCourse({...editingCourse, plans: e.target.value.split(',').map(p => p.trim()).filter(p => p)})}
                        />
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                       <div className="space-y-2">
+                         <label className="text-sm font-medium">Start Date</label>
+                         <Input
+                           type="date"
+                           value={editingCourse.start_date || ''}
+                           onChange={(e) => setEditingCourse({...editingCourse, start_date: e.target.value})}
+                         />
+                       </div>
+                       <div className="space-y-2">
+                         <label className="text-sm font-medium">End Date</label>
+                         <Input
+                           type="date"
+                           value={editingCourse.end_date || ''}
+                           onChange={(e) => setEditingCourse({...editingCourse, end_date: e.target.value})}
+                         />
+                       </div>
+                       <div className="space-y-2">
+                         <label className="text-sm font-medium">Induction Date</label>
+                         <Input
+                           type="date"
+                           value={editingCourse.induction_date || ''}
+                           onChange={(e) => setEditingCourse({...editingCourse, induction_date: e.target.value})}
+                           placeholder="Leave empty for 'NA'"
+                         />
+                       </div>
                      </div>
                     <div className="flex items-center space-x-2">
                       <input

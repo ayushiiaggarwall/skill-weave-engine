@@ -26,6 +26,9 @@ interface CourseWithPricing {
   id: string
   title: string
   is_active: boolean
+  start_date: string | null
+  end_date: string | null
+  induction_date: string | null
   course_pricing: CoursePricing[]
 }
 
@@ -72,7 +75,7 @@ export function PricingSection() {
       // First fetch courses
       const { data: coursesData, error: coursesError } = await supabase
         .from('courses')
-        .select('id, title, is_active')
+        .select('id, title, is_active, start_date, end_date, induction_date')
         .eq('is_active', true)
 
       if (coursesError) throw coursesError
@@ -310,6 +313,27 @@ export function PricingSection() {
                     <AnimatedCardTitle className="text-2xl font-bold mb-4 leading-relaxed">
                       {course.title}
                     </AnimatedCardTitle>
+                    
+                    {/* Course Dates */}
+                    <div className="flex flex-col items-center gap-2 mb-4 text-sm text-muted-foreground">
+                      {course.start_date && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>Starts: {new Date(course.start_date).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      {course.end_date && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>Ends: {new Date(course.end_date).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span>Induction: {course.induction_date ? new Date(course.induction_date).toLocaleDateString() : 'NA'}</span>
+                      </div>
+                    </div>
+                    
                     <div className="space-y-2">
                       <div className="flex items-center justify-center space-x-2 mb-2">
                         <span className="text-xl text-muted-foreground line-through">

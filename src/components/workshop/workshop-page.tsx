@@ -322,7 +322,7 @@ export function WorkshopPage() {
         </section>
 
         {/* Enrollment Form or Success State */}
-        <section id="enrollment-form" className="container mx-auto px-4 py-16">
+        <section id="enrollment-form" className="container mx-auto px-4 py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

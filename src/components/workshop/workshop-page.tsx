@@ -268,7 +268,7 @@ export function WorkshopPage() {
       
       <main className="relative z-10">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16 md:py-24 text-center">
+        <section className="container mx-auto px-4 pt-16 md:pt-24 pb-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

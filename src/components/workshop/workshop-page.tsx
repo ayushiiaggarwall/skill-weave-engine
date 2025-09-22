@@ -194,14 +194,57 @@ export function WorkshopPage() {
 
   if (!workshop) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative overflow-x-hidden">
+        {/* Global background effects */}
+        <div 
+          className="fixed inset-0 opacity-20 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(circle at 20% 80%, hsl(var(--primary) / 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, hsl(var(--accent) / 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, hsl(var(--primary) / 0.2) 0%, transparent 50%)
+            `
+          }}
+        />
+        
         <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-4xl font-bold mb-4">No Active Workshop</h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Stay tuned for upcoming workshops!
-          </p>
-        </div>
+        <main className="relative z-10">
+          <section className="container mx-auto px-4 py-16 md:py-24 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <SectionBadge className="mb-6">FREE LIVE WORKSHOP</SectionBadge>
+              
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                AI Vibe-Coding Bootcamp
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-4xl mx-auto">
+                Learn how to build AI products end-to-end without coding — in just 3 hours.
+              </p>
+              
+              <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
+                From prompts to landing pages, automations, and voice agents — get hands-on with the future of building.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+                <Button 
+                  size="lg" 
+                  disabled
+                  className="w-full sm:w-auto"
+                >
+                  Workshop Coming Soon
+                </Button>
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                📅 Stay tuned for upcoming workshop dates!
+              </p>
+            </motion.div>
+          </section>
+        </main>
         <Footer />
       </div>
     )

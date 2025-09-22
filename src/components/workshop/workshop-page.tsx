@@ -277,16 +277,14 @@ export function WorkshopPage() {
             <SectionBadge className="mb-6">FREE LIVE WORKSHOP</SectionBadge>
             
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              AI Vibe-Coding Bootcamp
+              {workshop.title}
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-4xl mx-auto">
-              Learn how to build AI products end-to-end without coding — in just 3 hours.
-            </p>
-            
-            <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
-              From prompts to landing pages, automations, and voice agents — get hands-on with the future of building.
-            </p>
+            {workshop.description && (
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto">
+                {workshop.description}
+              </p>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Button 
@@ -331,8 +329,8 @@ export function WorkshopPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="max-w-2xl mx-auto"
           >
-            <Card className="backdrop-blur-sm bg-card/80 border border-border/50 shadow-xl">
-              <CardContent className="p-8">
+            <Card className="backdrop-blur-sm bg-card/90 border border-border/50 shadow-xl">
+              <CardContent className="p-10 md:p-12">
                 {isEnrolled ? (
                   <div className="text-center">
                     <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />

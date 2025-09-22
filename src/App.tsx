@@ -29,6 +29,7 @@ import { PricingPage } from './components/pricing/pricing-page'
 import { AuthRedirect } from './components/auth/auth-redirect'
 import { ContactUs } from './components/support/contact-us'
 import { ProfilePage } from './components/profile/profile-page'
+import { WorkshopPage } from './components/workshop/workshop-page'
 
 
 function HomePage() {
@@ -102,6 +103,7 @@ function AppContent() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/workshop" element={<WorkshopPage />} />
             <Route path="/admin" element={
               <ProtectedAdminRoute>
                 <AdminDashboard />

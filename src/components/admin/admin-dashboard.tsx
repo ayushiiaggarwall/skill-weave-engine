@@ -12,6 +12,7 @@ import CourseManagement from './course-management'
 import PricingCouponManagement from './pricing-coupon-management'
 import CourseWeeksManagement from './course-weeks-management'
 import { InternationalInterestManagement } from './international-interest-management'
+import { WorkshopManagement } from './workshop-management'
 import { formatCurrency } from "@/lib/utils"
 interface UserProfile {
   id: string
@@ -56,7 +57,7 @@ interface Announcement {
 }
 
 export function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('courses')
+  const [activeTab, setActiveTab] = useState<'courses' | 'weeks' | 'content' | 'certificates' | 'pricing' | 'interests' | 'workshops' | 'announcements' | 'analytics' | 'users'>('courses')
   const [users, setUsers] = useState<UserProfile[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', body: '' })
@@ -407,6 +408,14 @@ export function AdminDashboard() {
               International Interests
             </Button>
             <Button
+              variant={activeTab === 'workshops' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('workshops')}
+              className="flex items-center gap-2"
+            >
+              <Calendar className="h-4 w-4" />
+              Workshops
+            </Button>
+            <Button
               variant={activeTab === 'announcements' ? 'default' : 'outline'}
               onClick={() => setActiveTab('announcements')}
               className="flex items-center gap-2"
@@ -449,6 +458,9 @@ export function AdminDashboard() {
           )}
           {activeTab === 'interests' && (
             <InternationalInterestManagement />
+          )}
+          {activeTab === 'workshops' && (
+            <WorkshopManagement />
           )}
 
           {activeTab === 'announcements' && (

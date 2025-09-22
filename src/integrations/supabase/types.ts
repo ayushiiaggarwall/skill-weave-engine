@@ -717,6 +717,96 @@ export type Database = {
           },
         ]
       }
+      workshop_registrations: {
+        Row: {
+          city: string | null
+          consent: boolean
+          created_at: string
+          email: string
+          how_heard: string | null
+          id: string
+          name: string
+          phone: string | null
+          role: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          workshop_id: string
+        }
+        Insert: {
+          city?: string | null
+          consent?: boolean
+          created_at?: string
+          email: string
+          how_heard?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          role?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          workshop_id: string
+        }
+        Update: {
+          city?: string | null
+          consent?: boolean
+          created_at?: string
+          email?: string
+          how_heard?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          role?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          workshop_id?: string
+        }
+        Relationships: []
+      }
+      workshops: {
+        Row: {
+          created_at: string
+          created_by: string
+          date_time: string
+          description: string | null
+          id: string
+          is_active: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          date_time: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          date_time?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -117,6 +117,19 @@ export function Header() {
                 )}
               </div>
             )}
+            
+            <div className="relative">
+              <button 
+                onClick={() => navigate('/workshop')}
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Workshop
+              </button>
+              {location.pathname === '/workshop' && (
+                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+              )}
+            </div>
+
             {user && !adminLoading && isAdmin && (
               <div className="relative">
                 <button 
@@ -252,6 +265,20 @@ export function Header() {
                     Pricing
                   </button>
                 )}
+
+                <button 
+                  onClick={() => {
+                    navigate('/workshop')
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`text-left px-4 py-2 rounded-lg transition-colors font-medium ${
+                    location.pathname === '/workshop' 
+                      ? 'bg-primary/20 text-primary' 
+                      : 'text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  Workshop
+                </button>
 
                 {user && !adminLoading && isAdmin && (
                   <button 

@@ -143,10 +143,36 @@ export function WorkshopPage() {
           throw error
         }
       } else {
+        // Send confirmation email
+        try {
+          const { error: emailError } = await supabase.functions.invoke('send-workshop-confirmation', {
+            body: {
+              name: formData.name,
+              email: formData.email,
+              workshopTitle: workshop.title,
+              workshopDate: new Date(workshop.date_time).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+              })
+            }
+          })
+
+          if (emailError) {
+            console.error('Email sending failed:', emailError)
+          }
+        } catch (emailError) {
+          console.error('Email function call failed:', emailError)
+        }
+
         setIsEnrolled(true)
         toast({
           title: "Enrollment Successful!",
-          description: `Welcome aboard, ${formData.name}! Check your email for confirmation.`
+          description: `Welcome aboard, ${formData.name}! Check your email for confirmation.`,
+          variant: "success"
         })
       }
     } catch (error) {

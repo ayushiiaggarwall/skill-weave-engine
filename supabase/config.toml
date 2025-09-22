@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.manual-payment-confirm]
 verify_jwt = false
+
+[functions.send-workshop-confirmation]
+verify_jwt = false
